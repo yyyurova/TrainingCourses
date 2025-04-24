@@ -19,8 +19,6 @@ import Sidebar from '../components/Sidebar.vue'
 .container {
     display: flex;
     min-height: 100vh;
-    // width: 100vw;
-    // overflow: hidden;
 
     .content {
         overflow-x: hidden;

@@ -10,8 +10,8 @@
 <script setup>
 import axios from "axios";
 
-import Layout from '../layouts/Layout.vue'
-import Card from '../components/Card.vue'
+import Layout from '../../layouts/Layout.vue'
+import Card from '../../components/Card.vue'
 import { onMounted, ref } from "vue";
 
 const courses = ref([])

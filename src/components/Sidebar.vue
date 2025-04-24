@@ -4,7 +4,8 @@
             <img src="/icons/logo.svg" alt="Logo">
         </div>
         <div class="navigation">
-            <RouterLink :to="item.linkTo" v-for="(item, index) in sidebarContent.admin" :key="index" class="link">
+            <RouterLink :to="item.linkTo" v-for="(item, index) in sidebarContent[mockUser.role]" :key="index"
+                class="link">
                 <div>
                     <img width="24" height="24" :src="item.imageUrl" alt="">
                     <span>{{ item.name }}</span>
@@ -12,17 +13,65 @@
             </RouterLink>
         </div>
         <div class="user">
-            <img class="avatar" src="/avatar.png" alt="User-Avatar">
-            <span>UserName</span>
+            <img class="avatar" :src="mockUser.avatar" alt="User-Avatar">
+            <span>{{ mockUser.name }}</span>
             <img src="/icons/menu-vertical.svg" alt="">
         </div>
     </aside>
 </template>
 
 <script setup>
-import { sidebarContent } from '../static.js'
+import { mockUser } from '@/mocks/user';
 
-console.log(sidebarContent)
+const sidebarContent = {
+    admin: [
+        {
+            name: 'Пользователи',
+            imageUrl: '/icons/users.svg',
+            linkTo: '/'
+        },
+        {
+            name: 'Курсы',
+            imageUrl: '/icons/graduation.svg',
+            linkTo: '/courses'
+        },
+        {
+            name: 'Учебные классы',
+            imageUrl: '/icons/book.svg',
+            linkTo: '/classrooms'
+        }
+    ],
+    teacher: [
+        {
+            name: 'Курс',
+            imageUrl: '/icons/graduation.svg',
+            linkTo: '/courses'
+        },
+        {
+            name: 'Создать задание',
+            imageUrl: '/icons/plus.svg',
+            linkTo: ''
+        }
+    ],
+    student: [
+        {
+            name: 'Курсы',
+            imageUrl: '/icons/graduation.svg',
+            linkTo: 'courses'
+        },
+        {
+            name: 'Задания',
+            imageUrl: '/icons/task.svg',
+            linkTo: '/tasks'
+        },
+        {
+            name: 'Уведомления',
+            imageUrl: '/icons/notifications.svg',
+            linkTo: '/notifications'
+        }
+    ]
+};
+
 </script>
 
 <style scoped lang="scss">
