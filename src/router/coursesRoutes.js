@@ -5,5 +5,8 @@ export const coursesRoutes = [
         path: '/courses',
         name: 'Courses',
         component: Courses,
+        meta: {
+            title: 'Курсы'
+        },
     }
 ]

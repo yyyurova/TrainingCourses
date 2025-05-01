@@ -1,6 +1,6 @@
 <template>
     <div class="pagination">
-        <button class="icon" @click="prevPage" :disabled="currentPage === 1">
+        <button class="icon" @click="prevPage" :class="{ 'disable': currentPage === 1 }" :disabled="currentPage === 1">
             <img class=" arrow-left" src="/icons/arrow.svg" alt="">
         </button>
 
@@ -9,7 +9,8 @@
             {{ page }}
         </button>
 
-        <button class="icon" @click="nextPage" :disabled="currentPage === totalPages">
+        <button class="icon" @click="nextPage" :class="{ 'disable': currentPage === totalPages }"
+            :disabled="currentPage === totalPages">
             <img class=" arrow-right" src="/icons/arrow.svg" alt="">
         </button>
     </div>
@@ -77,6 +78,10 @@ const visiblePages = computed(() => {
         &:hover:not(.icon),
         &.active {
             background-color: #E9F2FF;
+        }
+
+        &.disable {
+            pointer-events: none;
         }
     }
 }

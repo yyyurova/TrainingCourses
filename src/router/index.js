@@ -9,3 +9,13 @@ export const router = createRouter({
         ...coursesRoutes
     ]
 })
+
+router.afterEach((to) => {
+    if (to.meta.title) {
+        document.title = to.meta.title
+    } else {
+        document.title = 'Training Courses' // Укажите заголовок по умолчанию
+    }
+})
+
+// export default router

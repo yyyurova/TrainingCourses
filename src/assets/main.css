@@ -28,6 +28,14 @@ html {
     letter-spacing: 1px;
   }
 
+  h2 {
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 28px;
+    letter-spacing: 1px;
+    text-align: left;
+  }
+
   .action-buttons {
     display: flex;
     gap: 5px;
@@ -39,6 +47,7 @@ html {
     align-items: center;
     justify-content: center;
     width: fit-content;
+    height: 48px;
     max-height: 48px;
     border-radius: 10px;
     padding: 12px 20px;
@@ -82,5 +91,14 @@ html {
 
   .arrow-right {
     transform: rotate(90deg);
+  }
+
+  .arrow-down {
+    transform: rotate(180deg);
+    transition: 300ms;
+  }
+
+  .arrow-up {
+    transition: 300ms;
   }
 }

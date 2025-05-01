@@ -2,14 +2,14 @@
     <div class="modal">
         <div class="modal-content">
             <div class="modal__inner">
-                <h2>
+                <div class="top-row">
                     <img src="/icons/danger.svg" alt="">
-                    {{ question }}
-                </h2>
-                <p>{{ text }}</p>
+                    <h2>{{ question }}</h2>
+                </div>
+                <p v-if="text">{{ text }}</p>
                 <div class="modal-buttons">
                     <button @click="$emit('cancel')" class="transparent">Отмена</button>
-                    <button @click="$emit('confirm')" class="delete">Удалить</button>
+                    <button @click="$emit('confirm')" class="delete">{{ rightButtonText }}</button>
                 </div>
             </div>
         </div>
@@ -20,10 +20,11 @@
 defineProps({
     question: String,
     text: String,
-    show: {
-        type: Boolean,
-        default: true
-    },
+    rightButtonText: String
+    // show: {
+    //     type: Boolean,
+    //     default: true
+    // },
 })
 
 defineEmits(['confirm', 'cancel']);
@@ -31,40 +32,26 @@ defineEmits(['confirm', 'cancel']);
 
 <style scoped lang="scss">
 .modal {
-    display: flex;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    justify-content: center;
-    align-items: center;
 
-
-    .modal-content:not(.image) {
-        max-height: 95vh;
-        background-color: #fff;
-        padding: 60px;
-        border-radius: 8px;
-        width: 550px;
-        // width: fit-content;
-        text-align: center;
-    }
-
-    h2 {
+    .top-row {
+        padding: 10px;
+        width: 400px;
         margin-bottom: 10px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 15px;
         font-weight: 600;
         font-size: 20px;
         line-height: 160%;
         letter-spacing: 0px;
+
+        h2 {
+            width: 320px;
+        }
     }
 
     p {
+        padding: 10px;
         text-align: left;
     }
 
