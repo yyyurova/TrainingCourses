@@ -28,6 +28,8 @@
 
         <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" />
 
+        <Loading v-if="isLoading" />
+
         <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить курс?"
             text="Студенты, записанные на этот курс, потеряют доступ к материалам, а куратор утратит все данные об их успеваемости"
             right-button-text="Удалить" @confirm="deleteCourse" @cancel="closeModal" />
@@ -39,8 +41,10 @@ import axios from "axios";
 
 import { onMounted, provide, ref } from "vue";
 
-import Layout from '../../layouts/Layout.vue'
-import Card from '../../components/Card.vue'
+import Layout from '@/layouts/Layout.vue'
+import Card from '@/components/Card.vue'
+import Loading from "@/components/Loading.vue";
+
 import CreateCourse from "./modals/CreateCourse.vue";
 import Popup from "@/components/Popup.vue";
 import ConfirmDelete from "@/components/modals/ConfirmDelete.vue";
@@ -56,6 +60,8 @@ const showPopup = ref(false)
 const popupText = ref('')
 
 const selectedCourse = ref(null)
+
+const isLoading = ref(false);
 
 const closeModal = () => {
     if (showCreateCourseModal.value) { showCreateCourseModal.value = false }
@@ -83,13 +89,20 @@ const openDeleteModal = (course) => {
 }
 
 const fetchCourses = async () => {
-    const params = {
-        sortBy: '-id'
+    try {
+        isLoading.value = true
+        const params = {
+            sortBy: '-id'
+        }
+        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses`, { params })
+        courses.value = data.map(obj => ({
+            ...obj
+        }))
+    } catch (err) {
+        console.log(err)
+    } finally {
+        isLoading.value = false
     }
-    const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses`, { params })
-    courses.value = data.map(obj => ({
-        ...obj
-    }))
 }
 
 const deleteCourse = async () => {

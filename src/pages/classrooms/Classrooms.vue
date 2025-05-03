@@ -37,7 +37,7 @@
 
         <EditClassroom v-if="showEditModal" :classroom="selectedClassroom" @cancel="closeModal" @edit="editClassroom" />
 
-        <CreateClassroom v-if="showCreateModal" @cancel="closeModal" />
+        <CreateClassroom v-if="showCreateModal" @cancel="closeModal" @create="createClassroom" />
     </Layout>
 </template>
 
@@ -122,9 +122,31 @@ const editClassroom = async (updatedClassroom) => {
     }
 }
 
+const createClassroom = async (classroomData) => {
+    if (!classroomData) return
+    try {
+        console.log(classroomData)
+        await axios.post(`https://c1a9f09250b13f61.mokky.dev/classrooms`, {
+            name: classroomData.name,
+            course: classroomData.course.name,
+            members: classroomData.members.map(member => member.id)
+        })
+        await fetchClassrooms()
+        popupText.value = 'Учебный класс создан'
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 1000)
+    }
+    catch (err) { console.log(err) }
+}
+
 const fetchClassrooms = async () => {
     try {
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/classrooms`)
+        const params = {
+            sortBy: '-id'
+        }
+        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/classrooms`, { params })
         classrooms.value = data
     } catch (err) {
         console.log(err)

@@ -24,10 +24,8 @@ import Sidebar from '../components/Sidebar.vue'
         overflow-x: hidden;
         width: 100%;
         flex-grow: 1;
-        margin-top: 55px;
-        margin-left: 15px;
+        margin: 55px 24px 0px 24px;
         background-color: #ffffff;
-        padding-left: 10px;
 
         .content__inner {
             width: 100%;

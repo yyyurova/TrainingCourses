@@ -6,16 +6,18 @@
         <div class="navigation">
             <RouterLink :to="item.linkTo" v-for="(item, index) in sidebarContent[mockUser.role]" :key="index"
                 class="link">
-                <div class="link-content" @click="item.list ? openList() : ''">
+                <div class="link-content" @click="handleCourseClick(item)">
                     <img width="24" height="24" :src="item.imageUrl" alt="">
                     <span>{{ item.name }}</span>
-                    <img v-if="item.list" class="arrow-up" src="/icons/arrow.svg" alt="">
+                    <img v-if="item.list" class="arrow" :class="{ 'arrow-up': isCoursesListOpen }"
+                        src="/icons/arrow.svg" alt="">
                 </div>
                 <div v-if="item.list" class="courses-list" :class="{ 'active': isCoursesListOpen }">
-                    <div v-for="course in courses" :key="course.id">
+                    <RouterLink v-for="course in courses" :key="course.id" :to="`/courses/${course.id}/my-study`"
+                        class="course-link">
                         <img class="avatar" :src="course.imageUrl" alt="">
                         <span class="name">{{ course.name }}</span>
-                    </div>
+                    </RouterLink>
                 </div>
             </RouterLink>
         </div>
@@ -29,25 +31,47 @@
 
 <script setup>
 import { mockUser } from '@/mocks/user';
-import { inject, ref, watch } from 'vue';
+import axios from 'axios';
+import { ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const isCoursesListOpen = ref(false);
-let courses;
+const courses = ref([]);
 
-watch(() => route.path, (newPath) => {
-    if (newPath.startsWith('/courses')) {
-        courses = inject('courses');
+const isCoursesRoute = computed(() => route.path.startsWith('/courses'));
+
+const fetchCourses = async () => {
+    try {
+        const params = { sortBy: '-id' };
+        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses`, { params });
+        courses.value = data.map(obj => ({ ...obj }));
+    } catch (err) {
+        console.log(err);
     }
-}, { immediate: true })
+};
+
+const loadedCourses = ref(false);
+
+watch(() => route.path, async (newPath) => {
+    if (newPath.startsWith('/courses')) {
+        if (newPath.startsWith('/courses/'))
+            isCoursesListOpen.value = true
+
+        if (!loadedCourses.value) {
+            await fetchCourses();
+            loadedCourses.value = true;
+        }
+    }
+}, { immediate: true });
 
 const openList = () => {
     isCoursesListOpen.value = !isCoursesListOpen.value;
-    const arrow = document.querySelector('.arrow-up');
-    if (arrow) {
-        arrow.classList.toggle('arrow-down');
-        // arrow.classList.toggle('arrow-up');
+};
+
+const handleCourseClick = (item) => {
+    if (item.list && isCoursesRoute.value) {
+        openList();
     }
 };
 
@@ -56,7 +80,7 @@ const sidebarContent = {
         {
             name: 'Пользователи',
             imageUrl: '/icons/users.svg',
-            linkTo: '/'
+            linkTo: '/users'
         },
         {
             name: 'Курсы',
@@ -86,7 +110,8 @@ const sidebarContent = {
         {
             name: 'Курсы',
             imageUrl: '/icons/graduation.svg',
-            linkTo: 'courses'
+            linkTo: '/courses',
+            list: true
         },
         {
             name: 'Задания',
@@ -131,10 +156,17 @@ const sidebarContent = {
             text-decoration: none;
             padding: 5px;
 
+            .arrow {
+                transition: transform 0.3s;
+
+                &.arrow-up {
+                    transform: rotate(180deg);
+                }
+            }
+
             &.router-link-active div:not(.courses-list, .courses-list div) {
                 background-color: #E9F2FF;
                 border-radius: 8px;
-
             }
 
             .link-content {
@@ -166,16 +198,22 @@ const sidebarContent = {
                 height: 24px;
             }
 
-            div {
+            .course-link {
                 display: flex;
                 gap: 10px;
                 align-items: center;
                 padding: 5px 10px;
                 border-radius: 8px;
+                text-decoration: none;
 
                 &:hover {
                     background-color: #E9F2FF;
                 }
+            }
+
+            .router-link-active {
+                background-color: #E9F2FF;
+                font-weight: bold;
             }
         }
     }

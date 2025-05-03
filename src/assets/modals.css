@@ -36,11 +36,6 @@
             width: 170px;
         }
     }
-
-    .required {
-        color: #CD3232;
-        margin-left: 5px;
-    }
 }
 
 .filter-modal {

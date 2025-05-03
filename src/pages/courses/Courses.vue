@@ -4,8 +4,8 @@
 
 <script setup>
 import { mockUser } from '@/mocks/user';
-import Admin_courses from './Admin_courses.vue';
-import Student_courses from './Student_courses.vue';
+import Admin_courses from './admin/Admin_courses.vue';
+import Student_courses from './student/Student_courses.vue';
 
 let component;
 switch (mockUser.role) {

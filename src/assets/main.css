@@ -101,4 +101,9 @@ html {
   .arrow-up {
     transition: 300ms;
   }
+
+  .required {
+    color: #CD3232;
+    margin-left: 5px;
+  }
 }
