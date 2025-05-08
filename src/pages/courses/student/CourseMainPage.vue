@@ -67,7 +67,6 @@ const fetchCourse = async (id) => {
         const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses/${id}`);
         course.value = data;
 
-        // Загружаем имя учителя после загрузки курса
         if (data.teacher) {
             await fetchTeacherName(data.teacher);
         } else {
@@ -91,6 +90,10 @@ watch(() => route.params.id, (newId) => {
         fetchCourse(newId);
     }
 });
+
+watch(() => course.value, () => {
+    document.title = course.value.name
+})
 </script>
 
 <style scoped lang="scss">

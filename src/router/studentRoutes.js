@@ -2,6 +2,7 @@ import CourseMainPage from "@/pages/courses/student/CourseMainPage.vue"
 import CourseTasksPage from "@/pages/courses/student/CourseTasksPage.vue"
 import CoursePerfomancePage from "@/pages/courses/student/CoursePerformancePage.vue"
 import Courses from "@/pages/courses/Courses.vue"
+import TaskPage from "@/pages/courses/student/taskPage/TaskPage.vue"
 
 export const studentRoutes = [
     {
@@ -34,6 +35,14 @@ export const studentRoutes = [
                 component: CourseTasksPage,
                 meta: {
                     title: 'Курс'
+                },
+            },
+            {
+                path: ':id/tasks/:taskId',
+                name: 'TaskPage',
+                component: TaskPage,
+                meta: {
+                    title: 'Задание'
                 }
             }
         ]

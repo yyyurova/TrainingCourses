@@ -115,7 +115,7 @@ const deleteCourse = async () => {
         showPopup.value = true
         setTimeout(() => {
             showPopup.value = false
-        }, 1000)
+        }, 5000)
     } catch (error) {
         console.error('Error deleting course:', error)
         closeModal()
@@ -123,7 +123,7 @@ const deleteCourse = async () => {
         showPopup.value = true
         setTimeout(() => {
             showPopup.value = false
-        }, 1000)
+        }, 5000)
     }
 }
 
@@ -139,7 +139,7 @@ const createCourse = async (course) => {
         showPopup.value = true
         setTimeout(() => {
             showPopup.value = false
-        }, 1000);
+        }, 5000);
         await fetchCourses()
     }
     catch (err) {
@@ -160,7 +160,7 @@ const editCourse = async (updatedCourse) => {
         showPopup.value = true;
         setTimeout(() => {
             showPopup.value = false;
-        }, 1000);
+        }, 5000);
 
         await fetchCourses();
     } catch (err) {

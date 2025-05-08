@@ -98,7 +98,7 @@ const deleteClassroom = async () => {
         showPopup.value = true
         setTimeout(() => {
             showPopup.value = false
-        }, 1000)
+        }, 5000)
     } catch (err) {
         console.log(err)
     }
@@ -116,7 +116,7 @@ const editClassroom = async (updatedClassroom) => {
         showPopup.value = true
         setTimeout(() => {
             showPopup.value = false
-        }, 1000)
+        }, 5000)
     } catch (err) {
         console.log(err)
     }
@@ -136,7 +136,7 @@ const createClassroom = async (classroomData) => {
         showPopup.value = true
         setTimeout(() => {
             showPopup.value = false
-        }, 1000)
+        }, 5000)
     }
     catch (err) { console.log(err) }
 }

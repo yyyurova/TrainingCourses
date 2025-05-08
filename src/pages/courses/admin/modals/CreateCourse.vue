@@ -51,17 +51,16 @@ const handleFileUpload = (event) => {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-        courseImageBase64.value = e.target.result; // Сохраняем Base64
-        courseImagePreview.value = e.target.result; // Показываем превью
+        courseImageBase64.value = e.target.result;
+        courseImagePreview.value = e.target.result;
     };
-    reader.readAsDataURL(file); // Конвертируем в Base64
+    reader.readAsDataURL(file);
 };
 
-// Удаляем изображение
 const removeImage = () => {
     courseImageBase64.value = null;
     courseImagePreview.value = '/avatar.png';
-    if (fileInput.value) fileInput.value.value = ''; // Сбрасываем input
+    if (fileInput.value) fileInput.value.value = '';
 };
 
 // Отмена создания

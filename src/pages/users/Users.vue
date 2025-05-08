@@ -244,7 +244,7 @@ const handleCreateUser = async (user) => {
         showPopup.value = true
         setTimeout(() => {
             showPopup.value = false
-        }, 1000);
+        }, 5000);
     } catch (err) {
         console.log(err)
     }
@@ -264,7 +264,7 @@ const handleEditUser = async (user, newInfo) => {
         showPopup.value = true
         setTimeout(() => {
             showPopup.value = false
-        }, 1000);
+        }, 5000);
     } catch (error) {
         console.error('Error editing user:', error);
     }

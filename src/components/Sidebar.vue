@@ -4,22 +4,35 @@
             <img src="/icons/logo.svg" alt="Logo">
         </div>
         <div class="navigation">
-            <RouterLink :to="item.linkTo" v-for="(item, index) in sidebarContent[mockUser.role]" :key="index"
-                class="link">
-                <div class="link-content" @click="handleCourseClick(item)">
-                    <img width="24" height="24" :src="item.imageUrl" alt="">
-                    <span>{{ item.name }}</span>
-                    <img v-if="item.list" class="arrow" :class="{ 'arrow-up': isCoursesListOpen }"
-                        src="/icons/arrow.svg" alt="">
-                </div>
-                <div v-if="item.list" class="courses-list" :class="{ 'active': isCoursesListOpen }">
-                    <RouterLink v-for="course in courses" :key="course.id" :to="`/courses/${course.id}/my-study`"
-                        class="course-link">
-                        <img class="avatar" :src="course.imageUrl" alt="">
-                        <span class="name">{{ course.name }}</span>
+            <template v-for="(section, sectionIndex) in sidebarContent[mockUser.role]" :key="sectionIndex">
+                <h1 v-if="section.header">{{ section.header }}</h1>
+                <template v-for="(item, itemIndex) in section.items || [section]" :key="itemIndex">
+                    <RouterLink v-if="item.linkTo" :to="item.linkTo" class="link" @click="handleCourseClick(item)">
+                        <div class="link-content">
+                            <img width="24" height="24" :src="item.imageUrl" alt="">
+                            <span>{{ item.title }}</span>
+                            <img v-if="item.list" class="arrow" :class="{ 'arrow-up': isCoursesListOpen }"
+                                src="/icons/arrow.svg" alt="">
+                            <span v-if="item.counter" class="circle">{{ mockUser[item.name] }}</span>
+                        </div>
+                        <div v-if="item.list" class="courses-list" :class="{ 'active': isCoursesListOpen }">
+                            <RouterLink v-for="course in courses" :key="course.id"
+                                :to="`/courses/${course.id}/my-study`" class="course-link">
+                                <img class="avatar" :src="course.imageUrl" alt="">
+                                <span class="name">{{ course.name }}</span>
+                            </RouterLink>
+                        </div>
                     </RouterLink>
-                </div>
-            </RouterLink>
+                    <button v-else class="link" @click="handleCourseClick(item)">
+                        <div class="link-content">
+                            <img width="24" height="24" :src="item.imageUrl" alt="">
+                            <span>{{ item.title }}</span>
+                            <img v-if="item.list" class="arrow" :class="{ 'arrow-up': isCoursesListOpen }"
+                                src="/icons/arrow.svg" alt="">
+                        </div>
+                    </button>
+                </template>
+            </template>
         </div>
         <div class="user">
             <img class="avatar" :src="mockUser.avatar" alt="User-Avatar">
@@ -78,54 +91,96 @@ const handleCourseClick = (item) => {
 const sidebarContent = {
     admin: [
         {
-            name: 'Пользователи',
+            title: 'Пользователи',
+            name: 'users',
             imageUrl: '/icons/users.svg',
             linkTo: '/users'
         },
         {
-            name: 'Курсы',
+            title: 'Курсы',
+            name: 'courses',
             list: true,
             imageUrl: '/icons/graduation.svg',
             linkTo: '/courses'
         },
         {
-            name: 'Учебные классы',
+            title: 'Учебные классы',
+            name: 'classrooms',
             imageUrl: '/icons/book.svg',
             linkTo: '/classrooms'
         }
     ],
     teacher: [
         {
-            name: 'Курс',
-            imageUrl: '/icons/graduation.svg',
-            linkTo: '/courses'
+            header: 'Преподавание',
+            items: [
+                {
+                    title: 'Курс',
+                    name: 'course',
+                    imageUrl: '/icons/graduation.svg',
+                    linkTo: '/courses'
+                },
+                {
+                    title: 'Создать задание',
+                    name: 'createTask',
+                    imageUrl: '/icons/plus.svg',
+                }
+            ]
         },
         {
-            name: 'Создать задание',
-            imageUrl: '/icons/plus.svg',
-            linkTo: ''
+            header: 'Общение',
+            items: [
+                {
+                    title: 'Чат',
+                    name: 'chat',
+                    imageUrl: '/icons/chat.svg',
+                    linkTo: '/chat',
+                    counter: true,
+                }
+            ]
         }
     ],
     student: [
         {
-            name: 'Курсы',
-            imageUrl: '/icons/graduation.svg',
-            linkTo: '/courses',
-            list: true
+            header: 'Обучение',
+            items: [
+                {
+                    title: 'Курсы',
+                    name: 'courses',
+                    imageUrl: '/icons/graduation.svg',
+                    linkTo: '/courses',
+                    list: true
+                },
+                {
+                    title: 'Задания',
+                    name: 'tasks',
+                    imageUrl: '/icons/task.svg',
+                    linkTo: '/tasks',
+                    counter: true,
+                },
+                {
+                    title: 'Уведомления',
+                    name: 'notifications',
+                    imageUrl: '/icons/notifications.svg',
+                    linkTo: '/notifications',
+                    counter: true,
+                }
+            ]
         },
         {
-            name: 'Задания',
-            imageUrl: '/icons/task.svg',
-            linkTo: '/tasks'
-        },
-        {
-            name: 'Уведомления',
-            imageUrl: '/icons/notifications.svg',
-            linkTo: '/notifications'
+            header: 'Общение',
+            items: [
+                {
+                    title: 'Чат',
+                    name: 'chat',
+                    imageUrl: '/icons/chat.svg',
+                    linkTo: '/chat',
+                    counter: true,
+                }
+            ]
         }
     ]
 };
-
 </script>
 
 <style scoped lang="scss">
@@ -136,6 +191,14 @@ const sidebarContent = {
     width: 300px;
     padding: 20px 8px;
     background-color: #F8F8F8;
+
+    h1 {
+        font-weight: 600;
+        font-size: 20px;
+        line-height: 24px;
+        letter-spacing: 1px;
+        padding: 10px;
+    }
 
     .logo {
         padding: 0 20px;
@@ -174,6 +237,22 @@ const sidebarContent = {
                 gap: 8px;
                 align-items: center;
                 padding: 8px 20px;
+
+                .circle {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 26px;
+                    height: 26px;
+                    border-radius: 50%;
+                    background-color: #513DEB;
+                    color: #F5F5F5;
+                    font-weight: 400;
+                    font-size: 12px;
+                    line-height: 100%;
+                    text-align: center;
+                    margin-left: 8px;
+                }
             }
         }
 
