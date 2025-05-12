@@ -30,6 +30,7 @@ import axios from 'axios';
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { format } from '@formkit/tempo';
+import { checkOverdueDeadline } from '@/utils/utils';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
@@ -48,13 +49,6 @@ const navbarItems = computed(() => {
         { name: 'Задания', linkTo: `/courses/${course.value.id}/tasks` }
     ];
 });
-
-const checkOverdueDeadline = (dateString) => {
-    if (!dateString) return false;
-    const deadline = new Date(dateString);
-    const now = new Date();
-    return deadline < now;
-};
 
 const fetchCourse = async (id) => {
     try {
@@ -89,6 +83,7 @@ watch(() => course.value, () => {
 
     .link {
         text-decoration: none;
+        width: fit-content;
 
         .card {
             display: flex;

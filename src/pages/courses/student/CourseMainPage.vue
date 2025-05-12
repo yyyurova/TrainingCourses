@@ -20,6 +20,11 @@
                 </Card>
             </div>
         </div>
+        <h2>Успеваемость</h2>
+        <Card class="calendar no-hover">
+            <VCalendar :attributes="attrs" :from-page="{ month: 11, year: 2024 }" dot="false"
+                :masks="{ title: 'MMMM YYYY', weekdays: 'WW' }" :first-day-of-week="2" />
+        </Card>
         <Loading v-if="isLoading" />
         <div v-if="!course && !isLoading">
             <p>Курс не найден</p>
@@ -31,6 +36,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
+import { mockUser } from '@/mocks/user';
 
 import Loading from '@/components/Loading.vue';
 import Layout from '@/layouts/Layout.vue';
@@ -78,6 +84,29 @@ const fetchCourse = async (id) => {
         isLoading.value = false;
     }
 };
+
+
+const attrs = ref([
+    {
+        key: 'today',
+        highlight: {
+            color: '#513DEB',
+            fillMode: 'solid',
+            class: 'today-highlight',
+        },
+        dates: new Date(),
+        order: 100
+    },
+    {
+        key: 'active',
+        dot: false,
+        content: {
+            class: 'active-day-content',
+        },
+        dates: mockUser.activeDays,
+        order: 10
+    },
+]);
 
 onMounted(() => {
     if (route.params.id) {
@@ -137,6 +166,143 @@ watch(() => course.value, () => {
 
         &.transparent {
             border: 1px solid #513DEB;
+        }
+    }
+}
+
+.calendar {
+    padding: 0;
+    width: 100%;
+    margin: 10px 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+    :deep(.vc-container) {
+        --vc-accent-50: #513DEB;
+        --vc-accent-100: #513DEB;
+        border: none;
+        font-family: inherit;
+
+        .vc-highlights+.vc-dots .vc-dot {
+            display: none !important;
+        }
+
+        .vc-header {
+            button {
+                background: transparent;
+            }
+
+            padding: 0;
+            margin-bottom: 10px;
+
+            .vc-base-icon {
+                width: 30px;
+                height: 30px;
+                stroke-width: 1;
+                stroke: #292929;
+            }
+
+            .vc-title {
+                color: #292929;
+                font-size: 24px;
+                font-weight: 600;
+                text-transform: capitalize;
+            }
+        }
+
+        .vc-weeks {
+            padding: 0;
+
+            .vc-week {
+                gap: 5px;
+            }
+        }
+
+        .vc-weekday {
+            text-transform: capitalize;
+            color: #787878;
+            font-weight: 400;
+            font-size: 14px;
+            padding-bottom: 8px;
+            text-align: center;
+        }
+
+        .vc-day {
+            min-height: 44px;
+            position: relative;
+            text-align: center;
+            padding: 0 !important;
+
+
+            &-content {
+                border-radius: 4px;
+                font-weight: 500;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+
+                &:hover {
+                    background-color: #E9F2FF;
+                }
+
+                &-content {
+                    &::after {
+                        content: '';
+                        position: absolute;
+                        bottom: 4px;
+                        width: 14px;
+                        height: 14px;
+                        background: transparent;
+                        background-repeat: no-repeat;
+                        background-position: center;
+                    }
+                }
+
+                .active-day-content {
+                    &::after {
+                        background-image: url('/icons/active-day.svg');
+                    }
+
+                    &.today-highlight::after {
+                        background-image: url('/icons/active-day-today.svg');
+                    }
+                }
+            }
+
+            .active-day-content {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+
+                &::before {
+                    content: '';
+                    background-image: url('/icons/active-day.svg');
+                    background-repeat: no-repeat;
+                    width: 10px;
+                    height: 15px;
+                }
+            }
+        }
+
+        .today-highlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .active-day-content::before {
+                background-image: url('/icons/active-day-today.svg');
+            }
         }
     }
 }

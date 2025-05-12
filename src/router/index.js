@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { adminRoutes } from "./adminRoutes";
-import { studentRoutes } from "./studentRoutes";
+import { adminRoutes } from "./admin";
+import { studentRoutes } from "./student";
 import { mockUser } from "@/mocks/user";
 
 import Registration from "@/pages/auth/Registration.vue";

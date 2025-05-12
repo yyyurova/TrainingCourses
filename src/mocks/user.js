@@ -10,5 +10,11 @@ export const mockUser = {
         all: 99,
         pass: 4,
         averageMark: 7
-    }
+    },
+    activeDays: [
+        new Date(2025, 3, 26),
+        new Date(2025, 4, 12),
+        new Date(2025, 4, 1),
+        new Date(2025, 5, 12)
+    ]
 };

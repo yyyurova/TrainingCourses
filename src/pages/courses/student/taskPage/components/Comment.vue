@@ -4,17 +4,8 @@
         <div class="chat-about-task">
             <div class="messages-in-task" id="messages">
                 <p class="day">Сегодня</p>
-                <template v-for="message in messages" :key="message.id">
-                    <div class="message" :class="message.isMe ? 'right' : 'left'">
-                        <div v-if="!message.isMe" class="message-header">
-                            <span class="username">{{ message.userName }}</span>
-                        </div>
-                        <div class="message-content">
-                            {{ message.text }}
-                            <span class="timestamp">{{ message.time }}</span>
-                        </div>
-                    </div>
-                </template>
+                <div class="spacer"></div>
+                <Message v-for="message in messages" :key="message.id" :message="message" />
             </div>
             <div class="input-field">
                 <button class="icon pin-file other">
@@ -24,8 +15,8 @@
                             stroke="#292929" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </button>
-                <input ref="messageInput" @keypress="handleKeyPress" placeholder="Добавить комментарий к заданию"
-                    type="text" id="input" class="inp-field">
+                <input autocomplete="off" ref="messageInput" @keypress="handleKeyPress"
+                    placeholder="Добавить комментарий к заданию" type="text" class="inp-field">
                 <button class="icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -50,6 +41,7 @@ import axios from 'axios';
 import { inject, watch, ref } from 'vue';
 
 import Card from '@/components/Card.vue';
+import Message from '@/components/Message.vue';
 
 const messages = ref([]);
 const teacherName = ref('')
@@ -139,24 +131,6 @@ const initMessages = () => {
         flex-direction: column;
         width: 100%;
 
-        .message {
-            border-radius: 10px 10px 0px 10px;
-            max-width: 380px;
-            width: fit-content;
-            padding: 10px;
-            margin: 10px;
-
-            &.left {
-                border-radius: 10px 10px 10px 0px;
-                align-self: flex-start;
-                background-color: #F8F8F8;
-            }
-
-            &.right {
-                align-self: flex-end;
-                background-color: #EEEEEE;
-            }
-        }
 
         .messages-in-task {
             height: 200px;
@@ -164,7 +138,8 @@ const initMessages = () => {
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
+            // justify-content: end;
+            // flex-grow: 1;
 
             &::-webkit-scrollbar {
                 width: 6px;
@@ -189,34 +164,6 @@ const initMessages = () => {
             }
         }
 
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-
-        .message-content {
-            font-weight: 400;
-            font-size: 16px;
-            line-height: 20px;
-            letter-spacing: 0px;
-            word-break: break-all;
-            overflow-wrap: break-word;
-            word-break: break-word;
-        }
-
-        .username {
-            font-weight: 400;
-            font-size: 14px;
-            line-height: 20px;
-            letter-spacing: 0px;
-            color: #513DEB;
-        }
-
-        .timestamp {
-            color: #999;
-            font-size: 12px;
-        }
 
         .input-field {
             width: 100%;

@@ -1,7 +1,7 @@
 <template>
     <Card class="full-task no-hover">
         <h2>Задание</h2>
-        <p class="mark">Оценка: {{ task.mark }}</p>
+        <p v-if="task.mark" class="mark">Оценка: {{ task.mark }}</p>
         <p class="deadline">Срок сдачи: {{ format(task.deadline, 'short') }}</p>
         <p class="name">{{ task.title }}</p>
         <p class="content-of-task">Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum

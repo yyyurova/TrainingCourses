@@ -37,3 +37,10 @@ export function translateStatus(status) {
 
     return translated
 }
+
+export const checkOverdueDeadline = (dateString) => {
+    if (!dateString) return false;
+    const deadline = new Date(dateString);
+    const now = new Date();
+    return deadline < now;
+};

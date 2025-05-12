@@ -1,14 +1,12 @@
 <template>
-    <main>
-        <div class="container">
-            <Sidebar />
-            <div class="content">
-                <div class="content__inner">
-                    <slot></slot>
-                </div>
+    <div class="container">
+        <Sidebar />
+        <div class="content">
+            <div class="content__inner">
+                <slot></slot>
             </div>
         </div>
-    </main>
+    </div>
 </template>
 
 <script setup>
@@ -24,7 +22,7 @@ import Sidebar from '../components/Sidebar.vue'
         overflow-x: hidden;
         width: 100%;
         flex-grow: 1;
-        margin: 55px 24px 0px 24px;
+        margin-left: 24px;
         background-color: #ffffff;
 
         .content__inner {

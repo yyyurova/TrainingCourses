@@ -164,10 +164,6 @@ const closePopup = () => {
         }
     }
 
-    button.icon {
-        height: fit-content;
-    }
-
     button:not(.icon) {
         width: 100%;
 

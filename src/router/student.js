@@ -4,6 +4,11 @@ import CoursePerfomancePage from "@/pages/courses/student/CoursePerformancePage.
 import Courses from "@/pages/courses/Courses.vue"
 import TaskPage from "@/pages/courses/student/taskPage/TaskPage.vue"
 
+import StudentTasksAll from "@/pages/tasks/student/StudentTasksAll.vue"
+import StudentTasksOverdue from "@/pages/tasks/student/StudentTasksOverdue.vue"
+import StudentTasksDone from "@/pages/tasks/student/StudentTasksDone.vue"
+import Chat from "@/pages/chat/Chat.vue"
+
 export const studentRoutes = [
     {
         path: '/courses',
@@ -46,5 +51,37 @@ export const studentRoutes = [
                 }
             }
         ]
+    },
+    {
+        path: '/tasks/current',
+        name: 'TasksCurrent',
+        component: StudentTasksAll,
+        meta: {
+            title: 'Текущие задания'
+        }
+    },
+    {
+        path: '/tasks/overdue',
+        name: 'TasksOverdue',
+        component: StudentTasksOverdue,
+        meta: {
+            title: 'Просроченные задания'
+        }
+    },
+    {
+        path: '/tasks/done',
+        name: 'TasksDone',
+        component: StudentTasksDone,
+        meta: {
+            title: 'Выполненные задания'
+        }
+    },
+    {
+        path: '/chat',
+        name: 'Chat',
+        component: Chat,
+        meta: {
+            title: 'Чат'
+        }
     }
 ]

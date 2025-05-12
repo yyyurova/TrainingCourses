@@ -155,14 +155,7 @@ const sidebarContent = {
                     title: 'Задания',
                     name: 'tasks',
                     imageUrl: '/icons/task.svg',
-                    linkTo: '/tasks',
-                    counter: true,
-                },
-                {
-                    title: 'Уведомления',
-                    name: 'notifications',
-                    imageUrl: '/icons/notifications.svg',
-                    linkTo: '/notifications',
+                    linkTo: '/tasks/current',
                     counter: true,
                 }
             ]
@@ -238,21 +231,6 @@ const sidebarContent = {
                 align-items: center;
                 padding: 8px 20px;
 
-                .circle {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 26px;
-                    height: 26px;
-                    border-radius: 50%;
-                    background-color: #513DEB;
-                    color: #F5F5F5;
-                    font-weight: 400;
-                    font-size: 12px;
-                    line-height: 100%;
-                    text-align: center;
-                    margin-left: 8px;
-                }
             }
         }
 
