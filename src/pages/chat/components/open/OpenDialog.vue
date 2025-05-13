@@ -8,7 +8,7 @@
                         <img src="/icons/Avatar.svg">
                         <h1>{{ selectedChat.userName ? selectedChat.userName : selectedChat.name }}</h1>
                     </div>
-                    <p v-if="selectedChat.members" class="am-members">{{ selectedChat.members.length }} участников</p>
+                    <p v-if="selectedChat.members" class="am-members">{{ pluralizeParticipants }}</p>
                 </div>
 
                 <div v-if="selectedChat.members" class="right-part">
@@ -41,7 +41,8 @@
 </template>
 
 <script setup>
-import { inject, watch, ref } from 'vue';
+import pluralize from 'pluralize-ru';
+import { inject, watch, ref, computed } from 'vue';
 import { format } from '@formkit/tempo';
 
 import NoMessages from './NoMessages.vue';
@@ -52,6 +53,11 @@ const emit = defineEmits(['openSettings'])
 const selectedChat = inject('selectedChat')
 const input = ref(null)
 const messages = ref([])
+
+const pluralizeParticipants = computed(() => {
+    const count = Number(selectedChat.value.members.length) || 0;
+    return count + ' ' + pluralize(count, 'нет участников', 'участник', 'участника', 'участников');
+});
 
 const sendMessage = () => {
     const text = input.value.value.trim();
