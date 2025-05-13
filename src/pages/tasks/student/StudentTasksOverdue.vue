@@ -2,6 +2,7 @@
     <Layout>
         <h1>Задания</h1>
         <Navbar :elements="navbarItems" />
+        <Loading v-if="isLoading" />
         <Tasks :tasks="tasks" />
     </Layout>
 </template>
@@ -14,11 +15,14 @@ import { checkOverdueDeadline } from '@/utils/utils';
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
 import Tasks from './components/Tasks.vue';
+import Loading from '@/components/Loading.vue';
 
 const tasks = ref([])
+const isLoading = ref(false)
 
 const fetchCurrentTasks = async () => {
     try {
+        isLoading.value = true
         const { data: courses } = await axios.get('https://c1a9f09250b13f61.mokky.dev/courses')
 
         tasks.value = courses.flatMap(course =>
@@ -32,6 +36,8 @@ const fetchCurrentTasks = async () => {
     }
     catch (err) {
         console.log(err)
+    } finally {
+        isLoading.value = false
     }
 }
 

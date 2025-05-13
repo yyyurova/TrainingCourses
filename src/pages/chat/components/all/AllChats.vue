@@ -30,8 +30,8 @@ import axios from 'axios';
 import { inject, onMounted, ref } from 'vue';
 
 import Card from '@/components/Card.vue';
-import DialogCard from './DialogCard.vue';
-import GroupDialogCard from './GroupDialogCard.vue';
+import DialogCard from './components/DialogCard.vue';
+import GroupDialogCard from './components/GroupDialogCard.vue';
 import Loading from '@/components/Loading.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 
@@ -53,11 +53,9 @@ const openConfirmDeleteModal = () => {
 const deleteChat = async (id) => {
     try {
         closeModal()
-        // isLoading.value = true
         await axios.delete(`https://c1a9f09250b13f61.mokky.dev/chats/${id}`)
         await fetchChats()
     } catch (err) { console.log(err) }
-    // finally { isLoading.value = false }
 }
 
 const searchChat = () => {

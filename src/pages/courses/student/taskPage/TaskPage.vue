@@ -115,7 +115,6 @@ onMounted(async () => {
         font-size: 42px;
         line-height: 50px;
         letter-spacing: 1px;
-
     }
 
     .left,

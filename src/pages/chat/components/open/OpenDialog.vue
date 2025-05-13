@@ -1,7 +1,7 @@
 <template>
     <div class="open">
         <div class="dialog-header">
-            <div class="dialog-header__inner">
+            <div class="dialog-header__inner" @click="() => emit('openSettings')">
                 <div class="left-part">
                     <div class="f-row">
                         <!-- <img class="arrow-left" src="/icons/arrow.svg" alt=""> -->
@@ -46,6 +46,8 @@ import { format } from '@formkit/tempo';
 
 import NoMessages from './NoMessages.vue';
 import Message from '@/components/Message.vue';
+
+const emit = defineEmits(['openSettings'])
 
 const selectedChat = inject('selectedChat')
 const input = ref(null)
@@ -135,6 +137,10 @@ watch(selectedChat, (newChat) => {
         padding: 10px;
         gap: 10px;
         flex: 1;
+
+        .message {
+            margin: 0;
+        }
     }
 
     .input-field {

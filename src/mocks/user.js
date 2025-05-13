@@ -13,7 +13,7 @@ export const mockUser = {
     },
     activeDays: [
         new Date(2025, 3, 26),
-        new Date(2025, 4, 12),
+        new Date(2025, 2, 12),
         new Date(2025, 4, 1),
         new Date(2025, 5, 12)
     ]

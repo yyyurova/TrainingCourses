@@ -42,7 +42,7 @@ html {
     align-items: center;
   }
 
-  button:not(.calendar *) {
+  button {
     display: flex;
     align-items: center;
     justify-content: center;

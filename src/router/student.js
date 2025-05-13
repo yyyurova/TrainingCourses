@@ -8,6 +8,9 @@ import StudentTasksAll from "@/pages/tasks/student/StudentTasksAll.vue"
 import StudentTasksOverdue from "@/pages/tasks/student/StudentTasksOverdue.vue"
 import StudentTasksDone from "@/pages/tasks/student/StudentTasksDone.vue"
 import Chat from "@/pages/chat/Chat.vue"
+import Members from "@/pages/chat/components/open/settings/components/Members.vue"
+import Docs from "@/pages/chat/components/open/settings/components/Docs.vue"
+import Attachments from "@/pages/chat/components/open/settings/components/Attachments.vue"
 
 export const studentRoutes = [
     {
@@ -82,6 +85,31 @@ export const studentRoutes = [
         component: Chat,
         meta: {
             title: 'Чат'
-        }
+        },
+        children: [
+            {
+                path: ':chatId',
+                name: 'ChatDialog',
+                component: Chat,
+                props: true,
+                children: [
+                    {
+                        path: 'members',
+                        name: 'Members',
+                        component: Members,
+                    },
+                    {
+                        path: 'docs',
+                        name: 'Documents',
+                        component: Docs,
+                    },
+                    {
+                        path: 'attachments',
+                        name: 'Attachments',
+                        component: Attachments,
+                    }
+                ]
+            }
+        ]
     }
 ]

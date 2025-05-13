@@ -34,7 +34,7 @@ defineProps({
     max-width: 380px;
     width: fit-content;
     padding: 10px;
-    // margin: 10px;
+    margin: 5px;
 
     &.left {
         border-radius: 10px 10px 10px 0px;

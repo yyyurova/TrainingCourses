@@ -19,12 +19,22 @@
                     <button class="transparent">Написать сообщение</button>
                 </Card>
             </div>
+            <h2>Активность</h2>
+            <Card class="no-hover">
+                <VCalendar class="calendar" :attributes="calendarAttributes" :initial-page="currentPage" trim-weeks
+                    :masks="{ title: 'MMMM YYYY', weekdays: 'WW' }" borderless transparent locale="ru">
+                    <template #day-content="{ day }">
+                        <div class="day-content">
+                            <img v-if="isActiveDay(day)"
+                                :src="isToday(day) ? '/icons/active-day-today.svg' : '/icons/active-day.svg'"
+                                class="active-icon" />
+                            <span class="day-number">{{ day.day }}</span>
+                        </div>
+                    </template>
+                </VCalendar>
+            </Card>
         </div>
-        <h2>Успеваемость</h2>
-        <Card class="calendar no-hover">
-            <VCalendar :attributes="attrs" :from-page="{ month: 11, year: 2024 }" dot="false"
-                :masks="{ title: 'MMMM YYYY', weekdays: 'WW' }" :first-day-of-week="2" />
-        </Card>
+
         <Loading v-if="isLoading" />
         <div v-if="!course && !isLoading">
             <p>Курс не найден</p>
@@ -37,6 +47,7 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 import { mockUser } from '@/mocks/user';
+
 
 import Loading from '@/components/Loading.vue';
 import Layout from '@/layouts/Layout.vue';
@@ -85,28 +96,41 @@ const fetchCourse = async (id) => {
     }
 };
 
-
-const attrs = ref([
+const calendarAttributes = computed(() => [
+    {
+        key: 'activeDays',
+        dates: mockUser.activeDays.map(date => new Date(date)),
+    },
     {
         key: 'today',
-        highlight: {
-            color: '#513DEB',
-            fillMode: 'solid',
-            class: 'today-highlight',
-        },
+        class: 'today-cell',
         dates: new Date(),
-        order: 100
-    },
-    {
-        key: 'active',
-        dot: false,
-        content: {
-            class: 'active-day-content',
-        },
-        dates: mockUser.activeDays,
-        order: 10
     },
 ]);
+
+const isActiveDay = (day) => {
+    return mockUser.activeDays.some(activeDate => {
+        const activeDay = new Date(activeDate);
+        return activeDay.getFullYear() === day.year &&
+            activeDay.getMonth() + 1 === day.month &&
+            activeDay.getDate() === day.day;
+    });
+};
+
+const isToday = (day) => {
+    const today = new Date();
+    return day.year === today.getFullYear() &&
+        day.month === today.getMonth() + 1 &&
+        day.day === today.getDate();
+};
+
+const currentPage = computed(() => {
+    const today = new Date();
+    return {
+        month: today.getMonth() + 1,
+        year: today.getFullYear()
+    };
+});
 
 onMounted(() => {
     if (route.params.id) {
@@ -126,10 +150,19 @@ watch(() => course.value, () => {
 </script>
 
 <style scoped lang="scss">
+h2 {
+    font-weight: 600;
+    font-size: 36px;
+    line-height: 42px;
+    letter-spacing: 1px;
+    margin: 15px 0 10px 0;
+}
+
 .cards {
     margin: 15px 0;
     display: flex;
     gap: 10px;
+
 
     .card {
         width: 50%;
@@ -142,27 +175,30 @@ watch(() => course.value, () => {
                 align-items: center;
             }
         }
+
+        .top p {
+            flex: 1;
+            font-weight: 600;
+            font-size: 24px;
+            line-height: 28px;
+            letter-spacing: 1px;
+        }
+
+        &.teacher {
+            .teacher-name {
+                font-weight: 400;
+                font-size: 16px;
+                line-height: 20px;
+                letter-spacing: 0px;
+            }
+
+        }
     }
 
-    .top p {
-        flex: 1;
-        font-weight: 600;
-        font-size: 24px;
-        line-height: 28px;
-        letter-spacing: 1px;
-    }
-
-    .teacher-name {
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 20px;
-        letter-spacing: 0px;
-    }
 
     button {
         margin: 10px 0;
         height: 46px;
-
 
         &.transparent {
             border: 1px solid #513DEB;
@@ -170,31 +206,22 @@ watch(() => course.value, () => {
     }
 }
 
-.calendar {
-    padding: 0;
+.card:has(.calendar) {
     width: 100%;
-    margin: 10px 0;
     display: flex;
-    flex-direction: row;
     justify-content: center;
+    flex-direction: row;
+
+    :deep(.vc-nav-container) {
+
+        button:not(.is-active) {
+            background-color: transparent;
+        }
+    }
 
     :deep(.vc-container) {
-        --vc-accent-50: #513DEB;
-        --vc-accent-100: #513DEB;
-        border: none;
-        font-family: inherit;
-
-        .vc-highlights+.vc-dots .vc-dot {
-            display: none !important;
-        }
-
         .vc-header {
-            button {
-                background: transparent;
-            }
-
-            padding: 0;
-            margin-bottom: 10px;
+            align-content: center;
 
             .vc-base-icon {
                 width: 30px;
@@ -204,106 +231,87 @@ watch(() => course.value, () => {
             }
 
             .vc-title {
-                color: #292929;
-                font-size: 24px;
-                font-weight: 600;
                 text-transform: capitalize;
+
+                &:hover {
+                    opacity: 1 !important;
+                }
+
+                span {
+                    font-weight: 500;
+                    font-size: 16px;
+                    line-height: 20px;
+                    letter-spacing: 0px;
+                    text-align: center;
+                }
             }
-        }
 
-        .vc-weeks {
-            padding: 0;
-
-            .vc-week {
-                gap: 5px;
+            button {
+                background-color: transparent;
             }
         }
 
         .vc-weekday {
-            text-transform: capitalize;
-            color: #787878;
-            font-weight: 400;
+            font-weight: 500;
             font-size: 14px;
-            padding-bottom: 8px;
-            text-align: center;
+            line-height: 20px;
+            letter-spacing: 0px;
+            color: #292929;
+            text-transform: capitalize;
         }
 
         .vc-day {
+            // cursor: pointer;
             min-height: 44px;
-            position: relative;
-            text-align: center;
-            padding: 0 !important;
+            padding: 8px;
+            border-radius: 4px;
 
+            &.is-not-in-month {
+                .day-content {
+                    opacity: 0.3;
 
-            &-content {
-                border-radius: 4px;
-                font-weight: 500;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-
-                &:hover {
-                    background-color: #E9F2FF;
-                }
-
-                &-content {
-                    &::after {
-                        content: '';
-                        position: absolute;
-                        bottom: 4px;
-                        width: 14px;
-                        height: 14px;
-                        background: transparent;
-                        background-repeat: no-repeat;
-                        background-position: center;
+                    * {
+                        opacity: 1;
                     }
                 }
 
-                .active-day-content {
-                    &::after {
-                        background-image: url('/icons/active-day.svg');
-                    }
-
-                    &.today-highlight::after {
-                        background-image: url('/icons/active-day-today.svg');
-                    }
-                }
             }
 
-            .active-day-content {
-                position: relative;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
+            &:hover:not(.is-not-in-month, .is-today) {
+                background: #E9F2FF;
+            }
 
-                &::before {
-                    content: '';
-                    background-image: url('/icons/active-day.svg');
-                    background-repeat: no-repeat;
-                    width: 10px;
-                    height: 15px;
+            &.is-today {
+                background-color: #513DEB;
+
+                * {
+                    color: #E9F2FF;
                 }
             }
         }
 
-        .today-highlight {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
+        .day-content {
+            position: relative;
             height: 100%;
-            border-radius: 4px;
             display: flex;
             align-items: center;
+            flex-direction: column;
             justify-content: center;
 
-            .active-day-content::before {
-                background-image: url('/icons/active-day-today.svg');
+
+            .day-number {
+                display: block;
+                font-size: 16px;
+            }
+
+            .active-icon {
+                top: 4px;
+                right: 4px;
+                width: 20px;
+                height: 20px;
             }
         }
+
     }
 }
 </style>
