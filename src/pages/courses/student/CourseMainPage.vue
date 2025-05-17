@@ -9,7 +9,7 @@
                         <img width="36px" height="36px" :src="course.imageUrl" alt="avatar">
                         <p class="name-of-course">{{ course.name }}</p>
                     </div>
-                    <button class="blue">Продолжить обучение</button>
+                    <button class="blue" @click="continueStudy(course.id)">Продолжить обучение</button>
                 </Card>
                 <Card class="teacher">
                     <div class="top">
@@ -44,7 +44,7 @@
 
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { mockUser } from '@/mocks/user';
 
@@ -58,6 +58,8 @@ const route = useRoute();
 const course = ref(null);
 const isLoading = ref(false);
 const teacherName = ref('');
+
+const router = useRouter()
 
 const fetchTeacherName = async (teacherId) => {
     try {
@@ -77,6 +79,10 @@ const navbarItems = computed(() => {
         { name: 'Задания', linkTo: `/courses/${course.value.id}/tasks` }
     ];
 });
+
+const continueStudy = (id) => {
+    router.push(`/courseCompletion/${id}`)
+}
 
 const fetchCourse = async (id) => {
     try {

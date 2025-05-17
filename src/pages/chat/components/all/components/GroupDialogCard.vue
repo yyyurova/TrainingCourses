@@ -4,11 +4,14 @@
             <div class="header-left-part">
                 <img src="/icons/users.svg" alt="">
 
-                <img src="/avatar.png">
+                <!-- <img :src="chat.avatar ? chat.avatar : '/avatar.png'"> -->
+                <img src="/avatar.png" alt="">
 
                 <p class="partner-name">{{ chat.name }}</p>
             </div>
-            <img src="/icons/delete.svg" alt="">
+            <button class="icon" @click="$emit('delete', chat.id)">
+                <img src="/icons/delete.svg" alt="">
+            </button>
         </div>
         <div class="dialog-content">
             <div class="text-left">
@@ -25,6 +28,8 @@ import { format } from '@formkit/tempo';
 defineProps({
     chat: Object,
 })
+
+const emit = defineEmits(['delete'])
 </script>
 
 <style scoped lang="scss">

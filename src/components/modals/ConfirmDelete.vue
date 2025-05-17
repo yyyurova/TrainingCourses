@@ -21,10 +21,6 @@ defineProps({
     question: String,
     text: String,
     rightButtonText: String
-    // show: {
-    //     type: Boolean,
-    //     default: true
-    // },
 })
 
 defineEmits(['confirm', 'cancel']);
@@ -47,6 +43,7 @@ defineEmits(['confirm', 'cancel']);
 
         h2 {
             width: 320px;
+            margin: 0;
         }
     }
 

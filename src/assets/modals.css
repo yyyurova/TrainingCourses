@@ -92,6 +92,7 @@ input[type="checkbox"] {
     border: 1px solid #513DEB;
     transition: 500ms;
     cursor: pointer;
+    outline: none;
 
     &::after {
         content: url(/icons/tick-white.svg);

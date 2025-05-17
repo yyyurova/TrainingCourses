@@ -4,11 +4,18 @@
             <span class="username">{{ message.userName }}</span>
         </div>
         <div class="message-content">
-            {{ message.text }}
+            <p v-if="message.text">{{ message.text }}</p>
+            <div class="files" v-if="message.files">
+                <div v-for="file in message.files" :key="file.name" class="file">
+                    <img src="/icons/file.svg" alt="">
+                    <p>{{ file.name }}</p>
+                    <!-- <a href="#" @click.prevent="downloadFile(file)">{{ file.name }}</a> -->
+                </div>
+            </div>
             <span class="timestamp">{{ message.time }}</span>
         </div>
     </div>
-    <div v-else class="message" :class="selectedChat.isMe ? 'right' : 'left'">
+    <!-- <div v-else class="message" :class="selectedChat.isMe ? 'right' : 'left'">
         <div v-if="!selectedChat.isMe" class="message-header">
             <span class="username">{{ selectedChat.name || selectedChat.userName }}</span>
         </div>
@@ -16,16 +23,28 @@
             {{ selectedChat.content }}
             <span class="timestamp">{{ format(selectedChat.date, { time: 'short' }) }}</span>
         </div>
-    </div>
+    </div> -->
 </template>
 
 <script setup>
-import { format } from '@formkit/tempo';
+// import { format } from '@formkit/tempo';
 
 defineProps({
     message: Object,
-    selectedChat: Object
+    // selectedChat: Object
 })
+
+// const downloadFile = (file) => {
+//     const link = document.createElement('a');
+//     link.href = file.url;
+//     link.download = file.name || 'download';
+//     link.target = '_blank';
+
+//     document.body.appendChild(link);
+//     link.click();
+
+//     document.body.removeChild(link);
+// };
 </script>
 
 <style scoped lang="scss">
@@ -64,6 +83,24 @@ defineProps({
         word-break: break-all;
         overflow-wrap: break-word;
         word-break: break-word;
+
+        .files {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+
+            .file {
+                width: 100%;
+                display: flex;
+                gap: 10px;
+                align-items: center;
+
+                a {
+                    text-decoration: none;
+                }
+            }
+        }
     }
 
     .username {

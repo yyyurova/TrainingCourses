@@ -44,3 +44,10 @@ export const checkOverdueDeadline = (dateString) => {
     const now = new Date();
     return deadline < now;
 };
+
+
+export function decodeUtf8(encoded) {
+    const bytes = new Uint8Array(encoded.split('').map(c => c.charCodeAt(0)));
+    const decoder = new TextDecoder('utf-8');
+    return decoder.decode(bytes);
+}

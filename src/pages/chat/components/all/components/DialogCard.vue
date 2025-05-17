@@ -2,7 +2,8 @@
     <div class="dialog">
         <div class="dialog-card-header">
             <div class="header-left-part">
-                <img src="/avatar.png">
+                <img :src="chat.avatar ? chat.avatar : '/avatar.png'">
+
                 <p class="partner-name">{{ chat.userName }}</p>
             </div>
             <button class="icon" @click="$emit('delete', chat.id)">

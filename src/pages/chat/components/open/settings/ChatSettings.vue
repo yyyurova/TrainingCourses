@@ -1,8 +1,10 @@
 <template>
     <div class="chat-settings">
-        <div class="chat-header">
+        <div class="chat-header" ref="header">
             <div class="chat-header__inner">
-                <img class="arrow-left" src="/icons/arrow.svg" alt="">
+                <button class="icon back" @click="leaveSettings">
+                    <img class="arrow-left" src="/icons/arrow.svg" alt="">
+                </button>
                 <div class="center">
                     <div class="top">
                         <img src="/image.png">
@@ -10,46 +12,94 @@
                     </div>
                     <p v-if="selectedChat.members" class="am-members">{{ pluralizeParticipants }}</p>
                 </div>
-                <img src="/icons/settings.svg" alt="">
+                <button v-if="selectedChat.members" class="icon big">
+                    <img src="/icons/settings.svg" alt="">
+                </button>
+                <button v-else class="icon big" @click="openConfirmDeleteModal">
+                    <img src="/icons/delete.svg" alt="">
+                </button>
             </div>
         </div>
-        <Navbar :elements="navbarItems" />
-        <!-- <div class=""> -->
-        <div class="settings-tab">
+        <Navbar :elements="navbarItems" ref="navbar" />
+        <div class="settings-tab" :style="{ maxHeight: contentHeight + 'px' }">
             <component :is="component"></component>
         </div>
-        <!-- здесь должен быть компонент либо участники, либо документы, либо вложения -->
-        <!-- </div> -->
     </div>
+    <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить чат?"
+        text="Удалённую переписку нельзя будет восстановить" right-button-text="Удалить"
+        @confirm="deleteChat(selectedChat.id)" @cancel="closeModal" />
 </template>
 
 <script setup>
 import pluralize from 'pluralize-ru';
-import { inject, computed, shallowRef, watch } from 'vue';
+import { inject, computed, shallowRef, watch, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import Navbar from '@/components/Navbar.vue';
-import Members from './components/Members.vue';
+import Members from './components/members/Members.vue';
 import Docs from './components/Docs.vue';
-import Attachments from './components/Attachments.vue';
+import Attachments from './components/attachments/Attachments.vue';
+import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 
 const selectedChat = inject('selectedChat')
 const route = useRoute()
+const router = useRouter()
 const component = shallowRef(null);
+const settingsIsOpen = inject('settingsIsOpen')
+const contentHeight = ref(0);
+
+const header = ref(null)
+const navbar = ref(null)
+const showConfirmDeleteModal = ref(false)
+
+const deleteChat = inject('deleteChat')
+
+const openConfirmDeleteModal = () => {
+    showConfirmDeleteModal.value = true
+}
+
+const closeModal = () => {
+    if (showConfirmDeleteModal.value) { showConfirmDeleteModal.value = false }
+}
 
 const pluralizeParticipants = computed(() => {
     const count = Number(selectedChat.value.members.length) || 0;
     return count + ' ' + pluralize(count, 'нет участников', 'участник', 'участника', 'участников');
 });
 
+const calculateContentHeight = () => {
+    if (!header.value || !navbar.value) return;
+
+    const headerHeight = header.value.offsetHeight;
+    const navbarHeight = navbar.value.$el.offsetHeight;
+    const windowHeight = window.innerHeight;
+
+    contentHeight.value = windowHeight - headerHeight - navbarHeight;
+};
+
 const navbarItems = computed(() => {
     if (!selectedChat.value) return [];
-    return [
-        { name: 'Участники', linkTo: `/chat/${selectedChat.value.id}/members` },
-        { name: 'Документы', linkTo: `/chat/${selectedChat.value.id}/docs` },
-        { name: 'Фотографии', linkTo: `/chat/${selectedChat.value.id}/attachments` }
-    ];
+
+    let result;
+    if (selectedChat.value.members) {
+        result = [
+            { name: 'Участники', linkTo: `/chat/${selectedChat.value.id}/members` },
+            { name: 'Документы', linkTo: `/chat/${selectedChat.value.id}/docs` },
+            { name: 'Фотографии', linkTo: `/chat/${selectedChat.value.id}/attachments` }
+        ];
+    } else {
+        result = [
+            { name: 'Документы', linkTo: `/chat/${selectedChat.value.id}/docs` },
+            { name: 'Фотографии', linkTo: `/chat/${selectedChat.value.id}/attachments` }
+        ];
+    }
+    return result
 });
+
+const leaveSettings = () => {
+    router.push(`/chat/${selectedChat.value.id}`)
+    settingsIsOpen.value = false
+}
 
 watch(
     () => route.path,
@@ -60,12 +110,19 @@ watch(
     },
     { immediate: true }
 );
-</script>
 
+onMounted(() => {
+    calculateContentHeight();
+    window.addEventListener('resize', calculateContentHeight);
+});
+</script>
 
 <style scoped lang="scss">
 .chat-settings {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 
     .chat-header {
         width: 100%;
@@ -75,6 +132,10 @@ watch(
             display: flex;
             justify-content: space-between;
             margin: 60px 10px 20px 20px;
+
+            button.icon.big img {
+                width: 36px !important;
+            }
 
             .center {
                 display: flex;
@@ -108,6 +169,8 @@ watch(
 
     .settings-tab {
         padding: 10px;
+        flex: 1;
+        overflow-y: auto;
     }
 }
 </style>

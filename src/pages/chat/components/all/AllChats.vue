@@ -2,7 +2,7 @@
     <div class="all">
         <div class="top">
             <h1>Чаты</h1>
-            <button class="blue">Создать группу
+            <button class="blue" @click="openCreateGroupModal">Создать группу
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M4 12H20M12 4V20" stroke="#F5F5F5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
@@ -16,46 +16,70 @@
         <Loading v-if="isLoading" />
         <div class="dialogs">
             <component :class="chat.choosen ? 'choosen' : ''" @click="() => emit('openDialog', chat)"
-                v-for="chat in chats" @delete="openConfirmDeleteModal" :key="chat.id"
+                v-for="chat in chats" @delete="openConfirmDeleteModal(chat)" :key="chat.id"
                 :is="chat.members ? GroupDialogCard : DialogCard" :chat="chat" />
         </div>
         <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить чат?"
             text="Удалённую переписку нельзя будет восстановить" right-button-text="Удалить" @confirm="deleteChat"
             @cancel="closeModal" />
+        <CreateChatModalVue v-if="showCreateGroupModal" @cancel="closeModal" @next="openChooseMembersModal" />
+        <AddUserModal v-if="showChooseMembersModal" @cancel="closeModal" @confirm="createChat"
+            right-button-text="Создать" />
     </div>
 </template>
 
 <script setup>
-import axios from 'axios';
-import { inject, onMounted, ref } from 'vue';
+import { inject, ref } from 'vue';
 
 import Card from '@/components/Card.vue';
 import DialogCard from './components/DialogCard.vue';
 import GroupDialogCard from './components/GroupDialogCard.vue';
 import Loading from '@/components/Loading.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
+import CreateChatModalVue from './components/modals/CreateChatModal.vue';
+import AddUserModal from '../open/components/modals/AddUserModal.vue';
 
 const emit = defineEmits(['openDialog'])
 
 const chats = inject('chats')
 const nameInput = ref('')
+
 const showConfirmDeleteModal = ref(false)
+const showCreateGroupModal = ref(false)
+const showChooseMembersModal = ref(false)
+
 const isLoading = inject('isLoading')
+const originalChats = inject('originalChats')
+const selectedToDeleteChat = ref(null)
+
+const createChat = inject('createChat')
+
+const deleteChatInjection = inject('deleteChat')
 
 const closeModal = () => {
     if (showConfirmDeleteModal.value) { showConfirmDeleteModal.value = false }
+    if (showCreateGroupModal.value) { showCreateGroupModal.value = false }
+    if (showChooseMembersModal.value) { showChooseMembersModal.value = false }
 }
 
-const openConfirmDeleteModal = () => {
+const openCreateGroupModal = () => {
+    showCreateGroupModal.value = true
+}
+
+const openChooseMembersModal = () => {
+    showCreateGroupModal.value = false
+    showChooseMembersModal.value = true
+}
+
+const deleteChat = () => {
+    deleteChatInjection(selectedToDeleteChat.value.id)
+    closeModal()
+    selectedToDeleteChat.value = null
+}
+
+const openConfirmDeleteModal = (chat) => {
     showConfirmDeleteModal.value = true
-}
-
-const deleteChat = async (id) => {
-    try {
-        closeModal()
-        await axios.delete(`https://c1a9f09250b13f61.mokky.dev/chats/${id}`)
-        await fetchChats()
-    } catch (err) { console.log(err) }
+    selectedToDeleteChat.value = chat
 }
 
 const searchChat = () => {

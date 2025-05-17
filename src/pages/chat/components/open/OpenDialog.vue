@@ -12,20 +12,26 @@
                 </div>
 
                 <div v-if="selectedChat.members" class="right-part">
-                    <img src="/icons/add.svg" alt="">
-                    <img src="/icons/delete.svg" alt="">
+                    <button class="icon" @click.stop="openAddModal">
+                        <img src="/icons/add.svg" alt="">
+                    </button>
+                    <button class="icon" @click.stop="openConfirmDeleteModal">
+                        <img src="/icons/delete.svg" alt="">
+                    </button>
                 </div>
             </div>
         </div>
-        <div v-if="selectedChat.content" class="messages-in-chat">
+        <div v-if="selectedChat.content || messages.length > 0" class="messages-in-chat">
             <div class="spacer"></div>
-            <Message v-for="message in messages" :key="message.text" :message="message" />
+            <Message v-for="(message, index) in messages" :key="index" :message="message" />
         </div>
         <NoMessages v-else />
 
-        <div class="files"></div>
+        <div v-if="attachedFiles.length > 0" class="files">
+            <FileCard v-for="file in attachedFiles" :key="file.name" :file="file" @delete-file="deleteFile" />
+        </div>
         <div class="input-field">
-            <button class="icon">
+            <button class="icon" @click="fileUpload">
                 <img src="/icons/paperclip.svg" alt="">
             </button>
 
@@ -38,48 +44,164 @@
             </button>
         </div>
     </div>
+    <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить чат?"
+        text="Удалённую переписку нельзя будет восстановить" right-button-text="Удалить"
+        @confirm="deleteChat(selectedChat.id)" @cancel="closeModal" />
+    <AddUserModal v-if="showAddModal" :members="selectedChat.members" @cancel="closeModal" @confirm="handleAddMembers"
+        rightButtonText="Добавить" />
 </template>
 
 <script setup>
+import axios from 'axios';
 import pluralize from 'pluralize-ru';
 import { inject, watch, ref, computed } from 'vue';
 import { format } from '@formkit/tempo';
+import { decodeUtf8 } from '@/utils/utils';
 
-import NoMessages from './NoMessages.vue';
+import NoMessages from './components/NoMessages.vue';
 import Message from '@/components/Message.vue';
+import FileCard from './components/FileCard.vue';
+import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
+import AddUserModal from './components/modals/AddUserModal.vue';
 
 const emit = defineEmits(['openSettings'])
+const deleteChat = inject('deleteChat')
 
 const selectedChat = inject('selectedChat')
 const input = ref(null)
 const messages = ref([])
+const attachedFiles = ref([])
+
+const showConfirmDeleteModal = ref(false)
+const showAddModal = ref(false)
+
+const handleAddMembers = async (newMembers) => {
+    try {
+        const updatedMembers = [...selectedChat.value.members, ...newMembers.map(m => m.id)];
+
+        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/chats/${selectedChat.value.id}`, {
+            members: updatedMembers
+        });
+
+        selectedChat.value.members = updatedMembers;
+        // await fetchMembers();
+    } catch (err) {
+        console.error('Ошибка при добавлении участников:', err);
+    }
+};
+
+const closeModal = () => {
+    if (showConfirmDeleteModal.value) { showConfirmDeleteModal.value = false }
+    if (showAddModal.value) { showAddModal.value = false }
+}
+
+const openAddModal = () => {
+    showAddModal.value = true
+}
+
+const openConfirmDeleteModal = () => {
+    showConfirmDeleteModal.value = true
+}
 
 const pluralizeParticipants = computed(() => {
     const count = Number(selectedChat.value.members.length) || 0;
     return count + ' ' + pluralize(count, 'нет участников', 'участник', 'участника', 'участников');
 });
 
-const sendMessage = () => {
-    const text = input.value.value.trim();
-    if (!text) return;
+const fileUpload = () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '*';
+    fileInput.multiple = true;
 
-    const newMessage = {
-        text,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isMe: true
+    fileInput.onchange = (e) => {
+        const files = Array.from(e.target.files);
+
+        files.forEach(file => {
+            attachedFiles.value.push({
+                name: file.name,
+                size: formatFileSize(file.size),
+                file: file
+            });
+        });
     };
 
-    messages.value.push(newMessage);
+    fileInput.click();
+};
+
+const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+const sendMessage = async () => {
+    const text = input.value.value.trim();
+    if (!text && attachedFiles.value.length === 0) return;
+
+    let uploadedFiles = [];
+    if (attachedFiles.value.length > 0) {
+        try {
+            uploadedFiles = await Promise.all(
+                attachedFiles.value.map(async (fileObj) => {
+                    const formData = new FormData();
+                    formData.append('file', fileObj.file);
+
+                    const res = await fetch('https://c1a9f09250b13f61.mokky.dev/uploads', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!res.ok) throw new Error('Ошибка загрузки файла');
+
+                    return await res.json();
+                })
+            );
+        } catch (error) {
+            console.error('Ошибка при загрузке файлов:', error);
+            return;
+        }
+    }
+
+    if (text) {
+        messages.value.push({
+            text,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            isMe: true,
+        });
+    }
+
+    if (uploadedFiles.length > 0) {
+        messages.value.push({
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            isMe: true,
+            files: uploadedFiles.map(file => ({
+                name: decodeUtf8(file.fileName),
+                url: file.url,
+                size: formatFileSize(file.bytes)
+            }))
+        });
+    }
+
     input.value.value = '';
+    attachedFiles.value = [];
 
     setTimeout(() => {
         const messagesContainer = document.querySelector('.messages-in-chat');
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
     }, 50);
 };
 
+const deleteFile = (file) => {
+    attachedFiles.value = attachedFiles.value.filter(item => item.name !== file.name)
+}
+
 watch(selectedChat, (newChat) => {
-    if (newChat) {
+    if (newChat.content) {
         messages.value = [{
             userName: newChat.userName || newChat.name,
             text: newChat.content,
@@ -125,6 +247,11 @@ watch(selectedChat, (newChat) => {
                 }
             }
 
+            .right-part {
+                display: flex;
+                gap: 5px;
+            }
+
             .am-members {
                 font-weight: 400;
                 font-size: 16px;
@@ -149,22 +276,36 @@ watch(selectedChat, (newChat) => {
         }
     }
 
+    .files {
+        padding: 5px 10px;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        border-top: 1px solid #D9D9D9;
+        white-space: nowrap;
+        max-height: 70px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
     .input-field {
         width: 100%;
         padding: 7px;
         display: flex;
         align-items: center;
-        gap: 7px;
+        gap: 10px;
         border: 1px solid #D9D9D9;
 
         img {
             width: 24px;
             height: 24px;
+        }
 
-            &:nth-child(3) {
-                width: 21px;
-                height: 21px;
-            }
+        button:nth-child(4) img {
+            width: 21px;
+            height: 21px;
         }
 
         .inp-field {

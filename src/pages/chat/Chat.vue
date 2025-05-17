@@ -44,10 +44,17 @@ const openDialog = (dialog) => {
 
 const openSettings = () => {
     settingsIsOpen.value = true
-    router.push({
-        name: 'Members',
-        params: { chatId: selectedChat.value.id }
-    });
+    if (selectedChat.value.members) {
+        router.push({
+            name: 'Members',
+            params: { chatId: selectedChat.value.id }
+        });
+    } else {
+        router.push({
+            name: 'Documents',
+            params: { chatId: selectedChat.value.id }
+        });
+    }
 }
 
 const fetchChats = async () => {
@@ -81,7 +88,6 @@ const fetchChats = async () => {
         chats.value = chatsWithUsers;
         originalChats.value = [...chatsWithUsers];
 
-        // Если есть параметр chatId в URL, открываем соответствующий чат
         if (route.params.chatId) {
             const chatToOpen = chatsWithUsers.find(chat => chat.id == route.params.chatId);
             if (chatToOpen) {
@@ -96,6 +102,43 @@ const fetchChats = async () => {
     }
 };
 
+const deleteChat = async (id) => {
+    try {
+        await axios.delete(`https://c1a9f09250b13f61.mokky.dev/chats/${id}`)
+        selectedChat.value = null
+        await fetchChats()
+    } catch (err) { console.log(err) }
+}
+
+const createChat = async (selectedMembers) => {
+    const groupImage = localStorage.getItem('groupImage');
+    const groupName = localStorage.getItem('groupName');
+
+    if (!groupName) {
+        console.error('Название группы обязательно');
+        return;
+    }
+
+    const newChat = {
+        name: groupName,
+        members: selectedMembers.map(m => m.id),
+        date: new Date().toISOString(),
+        avatar: groupImage || null
+    };
+
+    try {
+        const response = await axios.post('https://c1a9f09250b13f61.mokky.dev/chats', newChat);
+        await fetchChats();
+
+        const createdChat = response.data;
+        openDialog(createdChat);
+    } catch (err) {
+        console.error('Ошибка создания чата:', err);
+    } finally {
+        localStorage.removeItem('groupName');
+        localStorage.removeItem('groupImage');
+    }
+};
 watch(() => route.params.chatId, (newChatId) => {
     if (newChatId) {
         const chatToOpen = chats.value.find(chat => chat.id == newChatId);
@@ -110,6 +153,10 @@ watch(() => route.params.chatId, (newChatId) => {
 provide('selectedChat', selectedChat)
 provide('chats', chats)
 provide('isLoading', isLoading)
+provide('originalChats', originalChats)
+provide('settingsIsOpen', settingsIsOpen)
+provide('createChat', createChat)
+provide('deleteChat', deleteChat)
 
 onMounted(async () => {
     selectedChat.value = null

@@ -138,21 +138,6 @@ const initMessages = () => {
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            // justify-content: end;
-            // flex-grow: 1;
-
-            &::-webkit-scrollbar {
-                width: 6px;
-            }
-
-            &::-webkit-scrollbar-track {
-                background: #f1f1f1;
-            }
-
-            &::-webkit-scrollbar-thumb {
-                background: #888;
-                border-radius: 3px;
-            }
 
             .day {
                 font-weight: 400;

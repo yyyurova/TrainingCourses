@@ -9,7 +9,7 @@
                         <img width="36px" height="36px" :src="course.imageUrl" alt="avatar">
                         <span class="name-of-course">{{ course.name }}</span>
                     </div>
-                    <button class="blue">Продолжить обучение</button>
+                    <button class="blue" @click="continueStudy(course.id)">Продолжить обучение</button>
                 </Card>
             </div>
             <Loading v-if="isLoading" />
@@ -25,9 +25,10 @@ import { onMounted, provide, ref } from 'vue';
 import Loading from '@/components/Loading.vue';
 import Layout from '@/layouts/Layout.vue';
 import Card from '@/components/Card.vue';
+import { useRouter } from 'vue-router';
 
 const courses = ref([])
-
+const router = useRouter()
 const isLoading = ref(false)
 
 const fetchCourses = async () => {
@@ -45,6 +46,10 @@ const fetchCourses = async () => {
     } finally {
         isLoading.value = false
     }
+}
+
+const continueStudy = (id) => {
+    router.push(`/courseCompletion/${id}`)
 }
 
 // provide('courses', courses)
