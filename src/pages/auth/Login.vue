@@ -282,4 +282,16 @@ const handleSubmit = () => {
         margin-top: 5px;
     }
 }
+
+@media (max-width:480px) {
+    .form {
+        width: 420px;
+    }
+}
+
+@media (max-width:360px) {
+    .form {
+        width: 300px;
+    }
+}
 </style>

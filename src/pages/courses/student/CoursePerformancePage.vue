@@ -110,34 +110,68 @@ h3 {
             &.center {
                 align-items: center;
             }
+        }
 
-            .label {
-                display: flex;
-                align-items: center;
+        &:first-child {
+            .card {
+                flex: 0 0 100%;
+            }
+        }
+
+        &:not(:first-child) {
+            .card {
                 flex: 1;
-                font-weight: 400;
-                font-size: 16px;
-                line-height: 20px;
-                letter-spacing: 0%;
-                /* text-align: center; */
-                color: #292929;
+            }
+        }
+
+
+        .label {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 20px;
+            letter-spacing: 0%;
+            /* text-align: center; */
+            color: #292929;
+        }
+
+        .number {
+            font-weight: 600;
+            font-size: 24px;
+            line-height: 28px;
+            letter-spacing: 1%;
+            text-align: center;
+            margin: 5px 0px;
+        }
+
+        .period {
+            color: #787878;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: 0px;
+        }
+
+        @media (max-width: 480px) {
+            flex-wrap: wrap;
+
+            &:first-child {
+                .card {
+                    flex: 0 0 100%;
+                }
             }
 
-            .number {
-                font-weight: 600;
-                font-size: 24px;
-                line-height: 28px;
-                letter-spacing: 1%;
-                text-align: center;
-                margin: 5px 0px;
-            }
+            &:not(:first-child) {
+                .card {
+                    flex: 0 0 calc(50% - 5px);
 
-            .period {
-                color: #787878;
-                font-weight: 400;
-                font-size: 14px;
-                line-height: 20px;
-                letter-spacing: 0px;
+                    &:nth-child(3) {
+                        align-items: center;
+                        flex: 0 0 100%;
+                    }
+                }
             }
         }
     }

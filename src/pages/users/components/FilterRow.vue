@@ -2,7 +2,7 @@
     <tr v-if="hasActiveFilters && users.length > 0">
         <td colspan="7">
             <div class="filters-row">
-                <div v-auto-animate class="filters">
+                <div class="filters">
                     <Card v-if="filters.role">
                         <span>Роль</span>
                         <button class="icon" @click="removeFilter('role')">

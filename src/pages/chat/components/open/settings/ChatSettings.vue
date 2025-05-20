@@ -125,10 +125,12 @@ onMounted(() => {
     min-height: 0;
 
     .chat-header {
+        min-width: 0;
         width: 100%;
         border-bottom: 1px solid #D9D9D9;
 
         .chat-header__inner {
+            // width: 100%;
             display: flex;
             justify-content: space-between;
             margin: 60px 10px 20px 20px;

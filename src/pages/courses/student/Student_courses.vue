@@ -67,14 +67,12 @@ onMounted(async () => {
     margin: 15px 0;
 
     .card {
-
         .top {
             width: 100%;
             display: flex;
             gap: 10px;
             // justify-content: space-between;
             align-items: center;
-
 
             .name-of-course {
                 flex: 1;
@@ -89,6 +87,18 @@ onMounted(async () => {
             margin: 10px 0;
             height: 46px;
         }
+    }
+}
+
+@media (max-width:1280px) {
+    .card {
+        width: 49%;
+    }
+}
+
+@media (max-width:550px) {
+    .card {
+        width: 100%;
     }
 }
 </style>

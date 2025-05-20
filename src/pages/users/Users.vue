@@ -304,4 +304,10 @@ watch(
 button.blue {
     margin: 10px 0;
 }
+
+@media (max-width:360px) {
+    button.blue {
+        width: 100%;
+    }
+}
 </style>

@@ -1,6 +1,6 @@
     <template>
         <Layout>
-            <div class="task" v-if="!isLoading && task">
+            <!-- <div class="task" v-if="!isLoading && task">
                 <div class="left ">
                     <FullTask />
                     <Comment />
@@ -8,6 +8,12 @@
                 <div class="right ">
                     <MyTasks @openLinkModal="openLinkModal" @openFileModal="openFileModal" />
                 </div>
+            </div> -->
+
+            <div class="task">
+                <FullTask />
+                <MyTasks @openLinkModal="openLinkModal" @openFileModal="openFileModal" />
+                <Comment />
             </div>
             <Loading v-if="isLoading" />
             <FileUploadModal v-if="showFileUploadModal" @cancel="closeModal" @add="addUploadedFile" />
@@ -105,10 +111,43 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
+// .task {
+//     width: 100%;
+//     display: flex;
+//     gap: 15px;
+
+//     h2 {
+//         font-weight: 600;
+//         font-size: 42px;
+//         line-height: 50px;
+//         letter-spacing: 1px;
+//     }
+
+//     .left,
+//     .right {
+//         width: 50%;
+
+//         .card {
+//             width: 100%;
+//         }
+//     }
+
+//     .right:not(.message.right) {
+//         max-width: 600px;
+//     }
+
+//     .left:not(.message.left) {
+//         display: flex;
+//         flex-direction: column;
+//         gap: 15px;
+//     }
+// }
 .task {
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     gap: 15px;
+    margin-top: 20px;
 
     h2 {
         font-weight: 600;
@@ -117,23 +156,26 @@ onMounted(async () => {
         letter-spacing: 1px;
     }
 
-    .left,
-    .right {
-        width: 50%;
+    :deep(.card) {
+        width: calc(50% - 7.5px);
+        height: fit-content;
+    }
+}
+
+@media (max-width: 1280px) {
+    :deep(.content) {
+        margin: 20px !important;
+
 
         .card {
-            width: 100%;
+            width: 100% !important;
         }
     }
+}
 
-    .right:not(.message.right) {
-        max-width: 600px;
-    }
-
-    .left:not(.message.left) {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
+@media (max-width: 920px) {
+    :deep(.card.my-tasks) {
+        order: -1;
     }
 }
 </style>

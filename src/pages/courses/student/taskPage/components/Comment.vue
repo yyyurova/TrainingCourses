@@ -115,7 +115,6 @@ const initMessages = () => {
 .comment {
     padding: 0;
     border-radius: 8px;
-    margin-top: 20px;
 
     h3 {
         font-weight: 600;
@@ -130,7 +129,6 @@ const initMessages = () => {
         display: flex;
         flex-direction: column;
         width: 100%;
-
 
         .messages-in-task {
             height: 200px;

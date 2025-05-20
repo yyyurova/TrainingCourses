@@ -1,7 +1,10 @@
 <template>
     <aside class="sidebar">
-        <div class="logo">
-            <img src="/icons/logo.svg" alt="Logo">
+        <div class="top-row">
+            <div class="logo">
+                <img src="/icons/logo.svg" alt="Logo">
+            </div>
+            <button class="close-sidebar icon" v-if="isMobile" @click="$emit('close')">×</button>
         </div>
         <div class="navigation">
             <template v-for="(section, sectionIndex) in sidebarContent[mockUser.role]" :key="sectionIndex">
@@ -34,25 +37,82 @@
                 </template>
             </template>
         </div>
-        <div class="user">
-            <img class="avatar" :src="mockUser.avatar" alt="User-Avatar">
-            <span>{{ mockUser.name }}</span>
-            <img src="/icons/menu-vertical.svg" alt="">
+        <div class="user" @click="showUserActions = !showUserActions">
+            <img class="avatar" :src="user.avatar" alt="User-Avatar">
+            <span>{{ user.name }}</span>
+            <button class="icon">
+                <img src="/icons/menu-vertical.svg" alt="">
+            </button>
+            <div class="card-user" v-if="showUserActions">
+                <ul class="list">
+                    <li class="element" @click="openEditModal">
+                        <p class="label">Редактировать</p>
+                    </li>
+                    <li class="element" @click="openConfirmExitModal">
+                        <p class="label exit">Выйти</p>
+                    </li>
+                </ul>
+            </div>
         </div>
     </aside>
+    <ConfirmDelete v-if="showConfirmExit" right-button-text="Выйти" question="Выйти из профиля?"
+        text="Вы потеряете доступ к функционалу сервиса." @cancel="closeModal" @confirm="exitFromProfile" />
+    <EditUser v-if="showEditModal" @cancel="closeModal" @save="saveUserChanges" />
 </template>
 
 <script setup>
 import { mockUser } from '@/mocks/user';
 import axios from 'axios';
 import { ref, watch, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+
+import ConfirmDelete from './modals/ConfirmDelete.vue';
+import EditUser from './modals/EditUser.vue';
+
+defineProps({
+    isMobile: Boolean
+})
+
+defineEmits(['close'])
 
 const route = useRoute();
+const router = useRouter()
 const isCoursesListOpen = ref(false);
 const courses = ref([]);
 
+const showUserActions = ref(false)
+const showConfirmExit = ref(false)
+const showEditModal = ref(false)
+
+const user = ref(mockUser)
+
 const isCoursesRoute = computed(() => route.path.startsWith('/courses'));
+
+const exitFromProfile = () => {
+    router.push('/')
+}
+
+const closeModal = () => {
+    if (showConfirmExit.value) { showConfirmExit.value = false }
+    if (showEditModal.value) { showEditModal.value = false }
+}
+
+const openConfirmExitModal = () => {
+    showConfirmExit.value = true
+}
+
+const openEditModal = () => {
+    showEditModal.value = true
+}
+
+const saveUserChanges = (changes) => {
+    if (changes.name) {
+        user.value.name = changes.name
+    }
+    if (changes.avatar) {
+        user.value.avatar = changes.avatar
+    }
+}
 
 const fetchCourses = async () => {
     try {
@@ -178,12 +238,36 @@ const sidebarContent = {
 
 <style scoped lang="scss">
 .sidebar {
+    position: relative;
     display: flex;
     flex-direction: column;
     min-width: 300px;
     width: 300px;
     padding: 20px 8px;
     background-color: #F8F8F8;
+    overflow-x: auto;
+
+    .top-row {
+        padding-top: 10px;
+        padding-right: 20px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+
+        button.close-sidebar {
+            font-size: 24px;
+        }
+
+        .logo {
+            padding: 0 20px;
+
+            img {
+                width: 68px;
+                height: 78px;
+            }
+        }
+
+    }
 
     h1 {
         font-weight: 600;
@@ -191,15 +275,6 @@ const sidebarContent = {
         line-height: 24px;
         letter-spacing: 1px;
         padding: 10px;
-    }
-
-    .logo {
-        padding: 0 20px;
-
-        img {
-            width: 68px;
-            height: 78px;
-        }
     }
 
     .navigation {
@@ -276,6 +351,7 @@ const sidebarContent = {
     }
 
     .user {
+        position: relative;
         display: flex;
         align-items: center;
         gap: 5px;
@@ -283,10 +359,76 @@ const sidebarContent = {
         margin-top: 20px;
         cursor: pointer;
 
+        button.icon {
+            margin-left: 3px;
+            padding: 3px;
+
+            &:hover {
+                background-color: #E9F2FF;
+            }
+        }
+
         img.avatar {
             width: 36px;
             height: auto;
             border-radius: 4px;
+        }
+
+        .card-user {
+            width: 200px;
+            border: 1px solid #D9D9D9;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: absolute;
+            z-index: 1000;
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+            .list {
+                list-style-type: none;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                padding: 0px 10px;
+
+                .element {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    color: #141414;
+                    transition: all 0.3s ease-out;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    padding: 10px;
+
+                    .label {
+                        font-weight: 500;
+                        font-size: 16px;
+                        line-height: 20px;
+                        letter-spacing: 0px;
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 930px) {
+    .sidebar {
+        width: 95% !important;
+
+        .close-sidebar {
+            display: block;
+        }
+
+        .logo {
+            padding-top: 20px;
         }
     }
 }

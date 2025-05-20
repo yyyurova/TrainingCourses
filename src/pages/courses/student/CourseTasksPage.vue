@@ -2,7 +2,7 @@
     <Layout>
         <h1>Задания</h1>
         <Navbar :elements="navbarItems" />
-        <div class="tasks" v-if="course && !isLoading">
+        <div class="tasks" v-if="course && !isLoading && course.tasks.length > 0">
             <RouterLink class="link" v-for="task in course.tasks" :key="task.id"
                 :to="`/courses/${course.id}/tasks/${task.id}`">
                 <Card>
@@ -20,6 +20,10 @@
                     </div>
                 </Card>
             </RouterLink>
+        </div>
+        <div class="no-tasks" v-else-if="course && course.tasks.length === 0">
+            <h2>Домашних заданий нет</h2>
+            <p>Здесь будут появляться домашние задания от вашего куратора</p>
         </div>
         <Loading v-else />
     </Layout>
@@ -75,17 +79,43 @@ watch(() => course.value, () => {
 </script>
 
 <style scoped lang="scss">
-.tasks {
-    margin-top: 10px;
+.no-tasks {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    align-items: center;
+    margin-top: 30px;
+
+    h2 {
+        font-weight: 600;
+        font-size: 36px;
+        line-height: 42px;
+        letter-spacing: 1px;
+        text-align: center;
+    }
+
+    p {
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 20px;
+        letter-spacing: 0px;
+        text-align: center;
+    }
+}
+
+.tasks {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
 
     .link {
         text-decoration: none;
         width: fit-content;
 
         .card {
+            width: 477px;
             display: flex;
             align-items: flex-start;
             flex-direction: row;
@@ -128,6 +158,29 @@ watch(() => course.value, () => {
                 }
             }
         }
+    }
+}
+
+
+@media (max-width:1280px) {
+    .card {
+        width: 460px !important;
+    }
+}
+
+@media (max-width:930px) {
+    .link {
+        width: 49% !important;
+
+        .card {
+            width: 100% !important;
+        }
+    }
+}
+
+@media (max-width:768px) {
+    .link {
+        width: 100% !important;
     }
 }
 </style>

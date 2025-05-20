@@ -1,10 +1,13 @@
 <template>
     <div class="open">
         <div class="dialog-header">
-            <div class="dialog-header__inner" @click="() => emit('openSettings')">
+            <div class="dialog-header__inner" :class="{ 'mobile-header': isMobile }"
+                @click="() => emit('openSettings')">
                 <div class="left-part">
                     <div class="f-row">
-                        <!-- <img class="arrow-left" src="/icons/arrow.svg" alt=""> -->
+                        <button v-if="isMobile" class="icon" @click="() => emit('backToAllChats')">
+                            <img class="arrow-left" src="/icons/arrow.svg" alt="">
+                        </button>
                         <img src="/icons/Avatar.svg">
                         <h1>{{ selectedChat.userName ? selectedChat.userName : selectedChat.name }}</h1>
                     </div>
@@ -54,7 +57,7 @@
 <script setup>
 import axios from 'axios';
 import pluralize from 'pluralize-ru';
-import { inject, watch, ref, computed } from 'vue';
+import { inject, watch, ref, computed, onMounted } from 'vue';
 import { format } from '@formkit/tempo';
 import { decodeUtf8 } from '@/utils/utils';
 
@@ -64,8 +67,10 @@ import FileCard from './components/FileCard.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 import AddUserModal from './components/modals/AddUserModal.vue';
 
-const emit = defineEmits(['openSettings'])
+const emit = defineEmits(['openSettings', 'backToAllChats'])
 const deleteChat = inject('deleteChat')
+
+defineProps({ isMobile: Boolean })
 
 const selectedChat = inject('selectedChat')
 const input = ref(null)
@@ -213,8 +218,9 @@ watch(selectedChat, (newChat) => {
 </script>
 <style scoped lang="scss">
 .open {
-    width: 55%;
-    max-width: 55%;
+    // width: 55%;
+    flex: 1;
+    // max-width: 55%;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -313,6 +319,30 @@ watch(selectedChat, (newChat) => {
             padding: 10px 5px;
             border: none;
             outline: none;
+        }
+    }
+}
+
+@media (max-width:1280px) {
+    .open {
+
+        .dialog-header__inner {
+            margin: 15px 10px 10px 20px !important;
+
+            &.mobile-header {
+                margin: 40px 10px 20px 20px !important;
+                justify-content: center;
+
+                .right-part {
+                    position: absolute;
+                    top: 0;
+                    right: 10px;
+                }
+            }
+        }
+
+        .messages-in-chat {
+            padding: 15px;
         }
     }
 }

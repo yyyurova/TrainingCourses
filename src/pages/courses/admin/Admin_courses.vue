@@ -187,6 +187,7 @@ button.blue {
     margin: 15px 0;
 
     .card {
+        width: 32%;
         cursor: pointer;
 
         .top {
@@ -205,6 +206,24 @@ button.blue {
                 letter-spacing: 1px;
             }
         }
+    }
+}
+
+@media (max-width:1280px) {
+    .card {
+        width: 49% !important;
+    }
+}
+
+@media (max-width:768px) {
+    .card {
+        width: 100% !important;
+    }
+}
+
+@media (max-width:360px) {
+    button.blue {
+        width: 100% !important;
     }
 }
 </style>

@@ -211,4 +211,22 @@ div.classrooms {
         }
     }
 }
+
+@media (max-width:1280px) {
+    .card {
+        width: 49% !important;
+    }
+}
+
+@media (max-width:768px) {
+    .card {
+        width: 100% !important;
+    }
+}
+
+@media (max-width:360px) {
+    button.blue {
+        width: 100%;
+    }
+}
 </style>

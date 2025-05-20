@@ -100,7 +100,6 @@ const searchChat = () => {
 .all {
     display: flex;
     flex-direction: column;
-    // gap: 10px;
     border-left: 1px solid #D9D9D9;
     border-right: 1px solid #D9D9D9;
     width: 45%;
@@ -135,6 +134,12 @@ const searchChat = () => {
         .choosen {
             background-color: #E9F2FF;
         }
+    }
+}
+
+@media (max-width:1280px) {
+    .all {
+        width: 300px;
     }
 }
 </style>

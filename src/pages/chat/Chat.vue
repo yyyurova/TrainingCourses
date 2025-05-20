@@ -1,17 +1,19 @@
 <template>
     <ChatLayout>
         <div class="chat-block">
-            <AllChats @open-dialog="openDialog" />
-            <OpenEmpty v-if="!selectedChat" />
-            <OpenDialog v-if="selectedChat && !settingsIsOpen" @openSettings="openSettings" />
-            <ChatSettings v-if="selectedChat && settingsIsOpen" />
+            <AllChats @open-dialog="openDialog"
+                :class="{ 'mobile-hidden': isMobileView && (selectedChat || settingsIsOpen), 'mobile-full': isMobileView && !selectedChat }" />
+            <OpenEmpty v-if="!selectedChat && !isMobileView" />
+            <OpenDialog v-if="selectedChat && !settingsIsOpen" @openSettings="openSettings" :isMobile="isMobileView"
+                @backToAllChats="goBackToChats" :class="{ 'mobile-full': isMobileView && selectedChat }" />
+            <ChatSettings v-if="selectedChat && settingsIsOpen" :class="{ 'mobile-full': isMobileView }" />
         </div>
     </ChatLayout>
 </template>
 
 <script setup>
 import axios from 'axios';
-import { provide, ref, onMounted, watch } from 'vue';
+import { provide, ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import ChatLayout from '@/layouts/ChatLayout.vue';
@@ -29,6 +31,14 @@ const chats = ref([])
 const originalChats = ref([])
 const settingsIsOpen = ref(false)
 
+const windowWidth = ref(window.innerWidth);
+const isMobileView = computed(() => windowWidth.value <= 930);
+
+const updateWindowWidth = () => {
+    windowWidth.value = window.innerWidth;
+};
+
+
 const openDialog = (dialog) => {
     chats.value.map(chat => {
         chat.choosen = false
@@ -41,6 +51,19 @@ const openDialog = (dialog) => {
         params: { chatId: dialog.id }
     });
 }
+
+const goBackToChats = () => {
+    if (settingsIsOpen.value) {
+        settingsIsOpen.value = false;
+        router.push({
+            name: 'ChatDialog',
+            params: { chatId: selectedChat.value.id }
+        });
+    } else {
+        selectedChat.value = null;
+        router.push({ name: 'Chat' });
+    }
+};
 
 const openSettings = () => {
     settingsIsOpen.value = true
@@ -139,6 +162,7 @@ const createChat = async (selectedMembers) => {
         localStorage.removeItem('groupImage');
     }
 };
+
 watch(() => route.params.chatId, (newChatId) => {
     if (newChatId) {
         const chatToOpen = chats.value.find(chat => chat.id == newChatId);
@@ -161,11 +185,32 @@ provide('deleteChat', deleteChat)
 onMounted(async () => {
     selectedChat.value = null
     await fetchChats()
+    window.addEventListener('resize', updateWindowWidth);
 })
 </script>
 
 <style scoped lang="scss">
 .chat-block {
     display: flex;
+    position: relative;
+    height: 100%;
+
+    @media (max-width: 930px) {
+        .mobile-hidden {
+            display: none !important;
+        }
+
+        .mobile-full {
+            max-width: 100% !important;
+            width: 100% !important;
+
+            :deep(.dialogs) {
+                padding: 0;
+                margin: 0 10px;
+                border-radius: 10px;
+                border: 1px solid #D9D9D9;
+            }
+        }
+    }
 }
 </style>

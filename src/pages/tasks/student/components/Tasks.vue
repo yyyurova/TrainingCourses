@@ -31,12 +31,11 @@ defineProps({
 })
 </script>
 
-
 <style scoped lang="scss">
 .tasks {
     margin-top: 10px;
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 20px;
 
@@ -45,6 +44,7 @@ defineProps({
         width: fit-content;
 
         .card {
+            width: 477px;
             display: flex;
             align-items: flex-start;
             flex-direction: row;
@@ -87,6 +87,22 @@ defineProps({
                 }
             }
         }
+    }
+}
+
+@media (max-width:1280px) {
+    .link {
+        width: 49% !important;
+
+        .card {
+            width: 100% !important;
+        }
+    }
+}
+
+@media (max-width:768px) {
+    .link {
+        width: 100% !important;
     }
 }
 </style>

@@ -34,16 +34,20 @@ onMounted(fetchDocs)
 
 <style scoped lang="scss">
 .docs {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    // grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    width: 100%;
+    // display: flex;
+    // flex-wrap: wrap;
     gap: 10px;
-    padding-bottom: 10px;
+    // padding-bottom: 10px;
     max-height: 100%;
     overflow-x: auto;
 
 
     .card {
-        width: 270px;
+        width: 100%;
         flex-direction: row;
         align-items: center;
         padding: 20px 15px;
@@ -66,6 +70,23 @@ onMounted(fetchDocs)
                 max-width: 100%;
             }
         }
+    }
+}
+
+@media (max-width: 930px) {
+    .docs {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .card {
+        width: 49% !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .card {
+        width: 100% !important;
     }
 }
 </style>
