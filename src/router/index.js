@@ -1,11 +1,17 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { adminRoutes } from "./admin";
 import { studentRoutes } from "./student";
+import { teacherRoutes } from "./teacher";
 import { mockUser } from "@/mocks/user";
 
 import Registration from "@/pages/auth/Registration.vue";
 import Login from "@/pages/auth/Login.vue";
 import EmailVerification from "@/pages/auth/EmailVerification.vue";
+
+import Chat from "@/pages/chat/Chat.vue";
+import Attachments from "@/pages/chat/components/open/settings/components/attachments/Attachments.vue";
+import Docs from "@/pages/chat/components/open/settings/components/Docs.vue";
+import Members from "@/pages/chat/components/open/settings/components/members/Members.vue";
 
 const baseRoutes = [{
     path: '/',
@@ -30,7 +36,40 @@ const baseRoutes = [{
     meta: {
         title: 'Подтверждение электронной почты'
     }
-}
+},
+{
+    path: '/chat',
+    name: 'Chat',
+    component: Chat,
+    meta: {
+        title: 'Чат'
+    },
+    children: [
+        {
+            path: ':chatId',
+            name: 'ChatDialog',
+            component: Chat,
+            props: true,
+            children: [
+                {
+                    path: 'members',
+                    name: 'Members',
+                    component: Members,
+                },
+                {
+                    path: 'docs',
+                    name: 'Documents',
+                    component: Docs,
+                },
+                {
+                    path: 'attachments',
+                    name: 'Attachments',
+                    component: Attachments,
+                }
+            ]
+        }
+    ]
+},
 
 ];
 
@@ -40,6 +79,9 @@ function getRoleRoutes() {
     }
     if (mockUser.role === 'student') {
         return [...studentRoutes];
+    }
+    if (mockUser.role === 'teacher') {
+        return [...teacherRoutes]
     }
     return [];
 }

@@ -26,7 +26,7 @@
                             </RouterLink>
                         </div>
                     </RouterLink>
-                    <button v-else class="link" @click="handleCourseClick(item)">
+                    <button v-else class="link transparent" @click="handleCourseClick(item)">
                         <div class="link-content">
                             <img width="24" height="24" :src="item.imageUrl" alt="">
                             <span>{{ item.title }}</span>
@@ -178,12 +178,12 @@ const sidebarContent = {
                     title: 'Курс',
                     name: 'course',
                     imageUrl: '/icons/graduation.svg',
-                    linkTo: '/courses'
+                    linkTo: '/course/practicants'
                 },
                 {
                     title: 'Создать задание',
                     name: 'createTask',
-                    imageUrl: '/icons/plus.svg',
+                    imageUrl: '/icons/plus-black.svg',
                 }
             ]
         },
@@ -284,6 +284,8 @@ const sidebarContent = {
         margin-top: 10px;
 
         .link {
+            width: 100%;
+
             text-decoration: none;
             padding: 5px;
 
@@ -301,6 +303,7 @@ const sidebarContent = {
             }
 
             .link-content {
+                width: 100%;
                 display: flex;
                 gap: 8px;
                 align-items: center;

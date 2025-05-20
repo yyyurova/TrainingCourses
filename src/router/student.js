@@ -81,39 +81,7 @@ export const studentRoutes = [
             title: 'Выполненные задания'
         }
     },
-    {
-        path: '/chat',
-        name: 'Chat',
-        component: Chat,
-        meta: {
-            title: 'Чат'
-        },
-        children: [
-            {
-                path: ':chatId',
-                name: 'ChatDialog',
-                component: Chat,
-                props: true,
-                children: [
-                    {
-                        path: 'members',
-                        name: 'Members',
-                        component: Members,
-                    },
-                    {
-                        path: 'docs',
-                        name: 'Documents',
-                        component: Docs,
-                    },
-                    {
-                        path: 'attachments',
-                        name: 'Attachments',
-                        component: Attachments,
-                    }
-                ]
-            }
-        ]
-    },
+
     {
         path: '/courseCompletion/:courseId',
         name: 'CourseCompletion',
