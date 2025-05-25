@@ -4,20 +4,18 @@
             <div class="logo">
                 <img src="/icons/logo.svg" alt="Logo">
             </div>
-            <button class="burger-menu" @click="toggleSidebar">
-                ☰
-            </button>
+            <button class="burger-menu" @click="toggleSidebar">☰</button>
         </div>
         <div class="container">
-            <Sidebar :class="{
-                'sidebar-hidden': isMobile && !sidebarVisible,
-                'sidebar-mobile': isMobile
-            }" />
+            <Sidebar :isMobile="isMobile" :isActive="sidebarVisible" @close="sidebarVisible = false"
+                :onCreateTask="onCreateTask" />
+
             <div class="content">
                 <div class="content__inner">
                     <slot></slot>
                 </div>
             </div>
+
             <div class="sidebar-overlay" v-if="isMobile && sidebarVisible" @click="toggleSidebar"></div>
         </div>
     </main>
@@ -58,12 +56,6 @@ onBeforeUnmount(() => {
     min-height: 100vh;
     position: relative;
 
-    &:has(.sidebar-hidden) {
-        .content {
-            margin: 20px;
-        }
-    }
-
     .content {
         overflow-x: hidden;
         width: 100%;
@@ -77,10 +69,6 @@ onBeforeUnmount(() => {
     }
 }
 
-.sidebar-hidden {
-    transform: translateX(-100%);
-}
-
 .sidebar-overlay {
     position: fixed;
     top: 0;
@@ -91,54 +79,32 @@ onBeforeUnmount(() => {
     z-index: 1000;
 }
 
-.sidebar-mobile {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
+.mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow:
+        0px 0px 2px 0px #0000001A,
+        0px 2px 2px 0px #00000033;
 
-    .sidebar-hidden {
-        transform: translateX(-100%);
+    .logo img {
+        width: 50px;
+        height: auto;
     }
 
-    :not(.sidebar-hidden) {
-        transform: translateX(0);
+    .burger-menu {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 24px;
     }
 }
 
 @media (max-width: 930px) {
-    .mobile-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 20px;
-        border-radius: 8px;
-        box-shadow: 0px 0px 2px 0px #0000001A;
-        box-shadow: 0px 2px 2px 0px #00000033;
-
-        .logo img {
-            width: 50px;
-            height: auto;
-        }
-
-        .burger-menu {
-            background: none;
-            border: none;
-            cursor: pointer;
-
-            img {
-                width: 24px;
-                height: 24px;
-            }
-        }
-    }
-
-
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        z-index: 10000;
-        transition: transform 0.3s ease;
+    .content {
+        margin: 20px !important;
     }
 }
 </style>

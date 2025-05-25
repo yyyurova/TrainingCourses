@@ -6,11 +6,11 @@
                 <img src="/icons/logo.svg" alt="Logo">
             </div>
             <button class="burger-menu" @click="toggleSidebar">
-                ☰ <!-- <img src="/icons/menu.svg" alt="Menu"> -->
+                ☰
             </button>
         </div>
-        <Sidebar @close="toggleSidebar" :is-mobile="isMobile"
-            :class="{ 'sidebar-hidden': isMobile && !sidebarVisible }" />
+        <Sidebar :isMobile="isMobile" :isActive="sidebarVisible" @close="sidebarVisible = false" />
+
         <div class="content">
             <div class="content__inner">
                 <slot></slot>

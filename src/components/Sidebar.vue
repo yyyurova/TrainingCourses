@@ -1,5 +1,5 @@
 <template>
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ 'sidebar-mobile': isMobile, 'active': isActive }">
         <div class="top-row">
             <div class="logo">
                 <img src="/icons/logo.svg" alt="Logo">
@@ -19,9 +19,9 @@
                             <span v-if="item.counter" class="circle">{{ mockUser[item.name] }}</span>
                         </div>
                         <div v-if="item.list" class="courses-list" :class="{ 'active': isCoursesListOpen }">
-                            <RouterLink v-for="course in courses" :key="course.id"
-                                :to="mockUser.role === 'student' ? `/courses/${course.id}/my-study` : '/classrooms'"
-                                class="course-link">
+                            <RouterLink v-for="course in courses" :key="course.id" :to="mockUser.role === 'student'
+                                ? `/courses/${course.id}/my-study`
+                                : '/classrooms'" class="course-link">
                                 <img class="avatar" :src="course.imageUrl" alt="">
                                 <span class="name">{{ course.name }}</span>
                             </RouterLink>
@@ -57,6 +57,7 @@
             </div>
         </div>
     </aside>
+
     <ConfirmDelete v-if="showConfirmExit" right-button-text="Выйти" question="Выйти из профиля?"
         text="Вы потеряете доступ к функционалу сервиса." @cancel="closeModal" @confirm="exitFromProfile" />
     <EditUser v-if="showEditModal" @cancel="closeModal" @save="saveUserChanges" />
@@ -67,88 +68,30 @@ import { mockUser } from '@/mocks/user';
 import axios from 'axios';
 import { ref, watch, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-
 import ConfirmDelete from './modals/ConfirmDelete.vue';
 import EditUser from './modals/EditUser.vue';
 
-defineProps({
+const props = defineProps({
     isMobile: Boolean,
+    isActive: Boolean,
     onCreateTask: {
         type: Function,
         default: null,
-    },
-})
-
-defineEmits(['close'])
+    }
+});
+const emit = defineEmits(['close']);
 
 const route = useRoute();
-const router = useRouter()
+const router = useRouter();
 const isCoursesListOpen = ref(false);
 const courses = ref([]);
-
-const showUserActions = ref(false)
-const showConfirmExit = ref(false)
-const showEditModal = ref(false)
-
-const user = ref(mockUser)
-
-const isCoursesRoute = computed(() => route.path.startsWith('/courses'));
-
-const exitFromProfile = () => {
-    router.push('/')
-}
-
-const closeModal = () => {
-    if (showConfirmExit.value) { showConfirmExit.value = false }
-    if (showEditModal.value) { showEditModal.value = false }
-}
-
-const openConfirmExitModal = () => {
-    showConfirmExit.value = true
-}
-
-const openEditModal = () => {
-    showEditModal.value = true
-}
-
-const saveUserChanges = (changes) => {
-    if (changes.name) {
-        user.value.name = changes.name
-    }
-    if (changes.avatar) {
-        user.value.avatar = changes.avatar
-    }
-}
-
-const fetchCourses = async () => {
-    try {
-        const params = { sortBy: '-id' };
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses`, { params });
-        courses.value = data.map(obj => ({ ...obj }));
-    } catch (err) {
-        console.log(err);
-    }
-};
-
+const showUserActions = ref(false);
+const showConfirmExit = ref(false);
+const showEditModal = ref(false);
+const user = ref(mockUser);
 const loadedCourses = ref(false);
 
-const openList = () => {
-    isCoursesListOpen.value = !isCoursesListOpen.value;
-};
-
-const handleCourseClick = (item) => {
-    if (item.list && isCoursesRoute.value) {
-        openList();
-    }
-};
-
-const handleClickOutsideUser = (e) => {
-    if (showUserActions.value) {
-        if (!e.target.closest('.card-user') && !e.target.closest('.user ')) {
-            showUserActions.value = false
-        }
-    }
-}
+const isCoursesRoute = computed(() => route.path.startsWith('/courses'));
 
 const sidebarContent = {
     admin: [
@@ -237,11 +180,57 @@ const sidebarContent = {
     ]
 };
 
+const exitFromProfile = () => {
+    router.push('/');
+};
+
+const closeModal = () => {
+    showConfirmExit.value = false;
+    showEditModal.value = false;
+};
+
+const openConfirmExitModal = () => {
+    showConfirmExit.value = true;
+};
+
+const openEditModal = () => {
+    showEditModal.value = true;
+};
+
+const saveUserChanges = (changes) => {
+    if (changes.name) user.value.name = changes.name;
+    if (changes.avatar) user.value.avatar = changes.avatar;
+};
+
+const fetchCourses = async () => {
+    try {
+        const params = { sortBy: '-id' };
+        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses`, { params });
+        courses.value = data.map(obj => ({ ...obj }));
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+const openList = () => {
+    isCoursesListOpen.value = !isCoursesListOpen.value;
+};
+
+const handleCourseClick = (item) => {
+    if (item.list && isCoursesRoute.value) {
+        openList();
+    }
+};
+
+const handleClickOutsideUser = (e) => {
+    if (!e.target.closest('.card-user') && !e.target.closest('.user')) {
+        showUserActions.value = false;
+    }
+};
+
 watch(() => route.path, async (newPath) => {
     if (newPath.startsWith('/courses')) {
-        if (newPath.startsWith('/courses/'))
-            isCoursesListOpen.value = true
-
+        if (newPath.startsWith('/courses/')) isCoursesListOpen.value = true;
         if (!loadedCourses.value) {
             await fetchCourses();
             loadedCourses.value = true;
@@ -250,12 +239,13 @@ watch(() => route.path, async (newPath) => {
 }, { immediate: true });
 
 onMounted(() => {
-    document.addEventListener('click', handleClickOutsideUser)
-})
+    document.addEventListener('click', handleClickOutsideUser);
+});
 </script>
 
 <style scoped lang="scss">
 .sidebar {
+    transition: transform 0.3s ease;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -264,6 +254,20 @@ onMounted(() => {
     padding: 20px 8px;
     background-color: #F8F8F8;
     overflow-x: auto;
+    height: 100vh;
+
+    &.sidebar-mobile {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1001;
+        transform: translateX(-100%);
+        width: 95%;
+
+        &.active {
+            transform: translateX(0);
+        }
+    }
 
     .top-row {
         padding-top: 10px;
@@ -274,6 +278,9 @@ onMounted(() => {
 
         button.close-sidebar {
             font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
         }
 
         .logo {
@@ -284,7 +291,6 @@ onMounted(() => {
                 height: 78px;
             }
         }
-
     }
 
     h1 {
@@ -303,7 +309,6 @@ onMounted(() => {
 
         .link {
             width: 100%;
-
             text-decoration: none;
             padding: 5px;
 
@@ -326,7 +331,19 @@ onMounted(() => {
                 gap: 8px;
                 align-items: center;
                 padding: 8px 20px;
+                position: relative;
 
+                .circle {
+                    position: absolute;
+                    right: 20px;
+                    background: #E9F2FF;
+                    border-radius: 50%;
+                    width: 24px;
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
             }
         }
 
@@ -336,11 +353,11 @@ onMounted(() => {
             gap: 7px;
             padding-left: 40px;
             max-height: 0;
-            overflow: auto;
+            overflow: hidden;
             transition: max-height 0.3s ease, opacity 0.3s ease;
             opacity: 0;
 
-            &.active {
+            &.active:not(.sidebar) {
                 max-height: 500px;
                 opacity: 1;
                 margin-top: 10px;
@@ -362,11 +379,11 @@ onMounted(() => {
                 &:hover {
                     background-color: #E9F2FF;
                 }
-            }
 
-            .router-link-active {
-                background-color: #E9F2FF;
-                font-weight: bold;
+                &.router-link-active {
+                    background-color: #E9F2FF;
+                    font-weight: bold;
+                }
             }
         }
     }
@@ -383,6 +400,9 @@ onMounted(() => {
         button.icon {
             margin-left: 3px;
             padding: 3px;
+            background: none;
+            border: none;
+            cursor: pointer;
 
             &:hover {
                 background-color: #E9F2FF;
@@ -391,8 +411,9 @@ onMounted(() => {
 
         img.avatar {
             width: 36px;
-            height: auto;
+            height: 36px;
             border-radius: 4px;
+            object-fit: cover;
         }
 
         .card-user {
@@ -400,58 +421,38 @@ onMounted(() => {
             border: 1px solid #D9D9D9;
             background-color: #FFFFFF;
             border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            position: absolute;
-            z-index: 1000;
             position: absolute;
             bottom: calc(100% + 10px);
             left: 0;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
 
             .list {
                 list-style-type: none;
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-                padding: 0px 10px;
+                padding: 10px;
+                margin: 0;
 
                 .element {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    color: #141414;
-                    transition: all 0.3s ease-out;
+                    padding: 10px;
                     border-radius: 6px;
                     cursor: pointer;
-                    padding: 10px;
+                    transition: background-color 0.3s;
+
+                    &:hover {
+                        background-color: #f5f5f5;
+                    }
 
                     .label {
                         font-weight: 500;
                         font-size: 16px;
                         line-height: 20px;
-                        letter-spacing: 0px;
-                    }
 
+                        &.exit {
+                            color: #ff4444;
+                        }
+                    }
                 }
             }
-        }
-    }
-}
-
-@media (max-width: 930px) {
-    .sidebar {
-        width: 95% !important;
-        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-        z-index: 1001;
-
-        .close-sidebar {
-            display: block;
-        }
-
-        .logo {
-            padding-top: 20px;
         }
     }
 }
