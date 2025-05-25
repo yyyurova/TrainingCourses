@@ -20,13 +20,15 @@
                         </div>
                         <div v-if="item.list" class="courses-list" :class="{ 'active': isCoursesListOpen }">
                             <RouterLink v-for="course in courses" :key="course.id"
-                                :to="`/courses/${course.id}/my-study`" class="course-link">
+                                :to="mockUser.role === 'student' ? `/courses/${course.id}/my-study` : '/classrooms'"
+                                class="course-link">
                                 <img class="avatar" :src="course.imageUrl" alt="">
                                 <span class="name">{{ course.name }}</span>
                             </RouterLink>
                         </div>
                     </RouterLink>
-                    <button v-else class="link transparent" @click="handleCourseClick(item)">
+                    <button v-else class="link transparent"
+                        @click="item.name === 'createTask' ? onCreateTask?.() : null">
                         <div class="link-content">
                             <img width="24" height="24" :src="item.imageUrl" alt="">
                             <span>{{ item.title }}</span>
@@ -63,14 +65,18 @@
 <script setup>
 import { mockUser } from '@/mocks/user';
 import axios from 'axios';
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import ConfirmDelete from './modals/ConfirmDelete.vue';
 import EditUser from './modals/EditUser.vue';
 
 defineProps({
-    isMobile: Boolean
+    isMobile: Boolean,
+    onCreateTask: {
+        type: Function,
+        default: null,
+    },
 })
 
 defineEmits(['close'])
@@ -126,18 +132,6 @@ const fetchCourses = async () => {
 
 const loadedCourses = ref(false);
 
-watch(() => route.path, async (newPath) => {
-    if (newPath.startsWith('/courses')) {
-        if (newPath.startsWith('/courses/'))
-            isCoursesListOpen.value = true
-
-        if (!loadedCourses.value) {
-            await fetchCourses();
-            loadedCourses.value = true;
-        }
-    }
-}, { immediate: true });
-
 const openList = () => {
     isCoursesListOpen.value = !isCoursesListOpen.value;
 };
@@ -147,6 +141,14 @@ const handleCourseClick = (item) => {
         openList();
     }
 };
+
+const handleClickOutsideUser = (e) => {
+    if (showUserActions.value) {
+        if (!e.target.closest('.card-user') && !e.target.closest('.user ')) {
+            showUserActions.value = false
+        }
+    }
+}
 
 const sidebarContent = {
     admin: [
@@ -234,6 +236,22 @@ const sidebarContent = {
         }
     ]
 };
+
+watch(() => route.path, async (newPath) => {
+    if (newPath.startsWith('/courses')) {
+        if (newPath.startsWith('/courses/'))
+            isCoursesListOpen.value = true
+
+        if (!loadedCourses.value) {
+            await fetchCourses();
+            loadedCourses.value = true;
+        }
+    }
+}, { immediate: true });
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutsideUser)
+})
 </script>
 
 <style scoped lang="scss">
@@ -425,6 +443,8 @@ const sidebarContent = {
 @media (max-width: 930px) {
     .sidebar {
         width: 95% !important;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        z-index: 1001;
 
         .close-sidebar {
             display: block;

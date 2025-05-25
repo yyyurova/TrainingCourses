@@ -32,7 +32,6 @@ const selectedUsers = ref([])
 
 const usersInDropdown = computed(() => {
     if (!nameInput.value) return users.value
-    console.log(users.value)
     return users.value.filter(
         user => user.name.toLowerCase().includes(nameInput.value.toLowerCase())
     )

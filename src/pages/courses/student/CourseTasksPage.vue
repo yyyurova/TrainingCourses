@@ -152,10 +152,6 @@ watch(() => course.value, () => {
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
-
-                .overdue {
-                    color: #CD3232 !important;
-                }
             }
         }
     }

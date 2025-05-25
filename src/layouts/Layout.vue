@@ -5,12 +5,14 @@
                 <img src="/icons/logo.svg" alt="Logo">
             </div>
             <button class="burger-menu" @click="toggleSidebar">
-                ☰ <!-- <img src="/icons/menu.svg" alt="Menu"> -->
+                ☰
             </button>
         </div>
         <div class="container">
-            <Sidebar @close="toggleSidebar" :is-mobile="isMobile"
-                :class="{ 'sidebar-hidden': isMobile && !sidebarVisible }" />
+            <Sidebar :class="{
+                'sidebar-hidden': isMobile && !sidebarVisible,
+                'sidebar-mobile': isMobile
+            }" />
             <div class="content">
                 <div class="content__inner">
                     <slot></slot>
@@ -24,6 +26,10 @@
 <script setup>
 import Sidebar from '../components/Sidebar.vue'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+defineProps({
+    onCreateTask: { type: Function, required: false }
+});
 
 const isMobile = ref(false)
 const sidebarVisible = ref(false)
@@ -83,6 +89,19 @@ onBeforeUnmount(() => {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
+}
+
+.sidebar-mobile {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+
+    .sidebar-hidden {
+        transform: translateX(-100%);
+    }
+
+    :not(.sidebar-hidden) {
+        transform: translateX(0);
+    }
 }
 
 @media (max-width: 930px) {

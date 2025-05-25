@@ -26,7 +26,6 @@ const fetchDocs = async () => {
     } catch (err) {
         console.log(err)
     }
-
 }
 
 onMounted(fetchDocs)

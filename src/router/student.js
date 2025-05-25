@@ -9,10 +9,7 @@ import CourseCompletion from "@/pages/courseCompletion/CourseCompletion.vue"
 import StudentTasksAll from "@/pages/tasks/student/StudentTasksAll.vue"
 import StudentTasksOverdue from "@/pages/tasks/student/StudentTasksOverdue.vue"
 import StudentTasksDone from "@/pages/tasks/student/StudentTasksDone.vue"
-import Chat from "@/pages/chat/Chat.vue"
-import Members from "@/pages/chat/components/open/settings/components/members/Members.vue"
-import Docs from "@/pages/chat/components/open/settings/components/Docs.vue"
-import Attachments from "@/pages/chat/components/open/settings/components/attachments/Attachments.vue"
+
 
 export const studentRoutes = [
     {

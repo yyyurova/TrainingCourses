@@ -1,5 +1,7 @@
+// roles: admin, teacher, student
+
 export const mockUser = {
-    id: 1,
+    id: 32,
     name: "Иван Иванов",
     role: "teacher",
     avatar: "/avatar.png",
