@@ -154,7 +154,7 @@ html {
     color: #CD3232 !important;
   }
 
-  input:not(input[type="checkbox"]) {
+  input:not(input[type="checkbox"], input[type="radio"]) {
     &:not(.mark) {
       flex: 1;
     }
@@ -202,6 +202,20 @@ html {
       width: 24px;
       height: 24px;
       transition: 300ms;
+    }
+  }
+
+  input[type="radio"] {
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border: 5px solid #513DEB;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+
+    &:checked {
+      background-color: #513DEB;
     }
   }
 

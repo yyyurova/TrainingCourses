@@ -55,7 +55,6 @@ import Card from '@/components/Card.vue';
 const emit = defineEmits(['update:modelValue']);
 const fileInput = ref(null);
 
-// Состояния форматов
 const isBold = ref(false);
 const isItalic = ref(false);
 const isUnderline = ref(false);
@@ -172,6 +171,7 @@ const handleInput = (e) => {
         .format-toolbar {
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
             gap: 12px;
             padding: 8px 16px;
 

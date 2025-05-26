@@ -15,7 +15,7 @@
             <p>Посмотрите присланные работы практикантов и выставьте оценки за них</p>
             <button class="blue" @click="goToTasks">К заданиям</button>
         </div>
-        <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" />
+        <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" :users="students" />
     </Layout>
 </template>
 

@@ -11,29 +11,20 @@
                 </div>
 
                 <div class="group">
-                    <p for="taskDescription">Описание</p>
-                    <Card class="no-hover">
-                        <!-- <div contenteditable="true"></div> -->
-                        <textarea v-model="description" autocomplete="off"></textarea>
-                        <div class="icons">
-                            <button class="icon">
-                                <img src="/icons/paperclip.svg" alt="">
-                            </button>
+                    <p>Описание</p>
+                    <TextEditorCard />
+                </div>
 
-                            <button class="icon">
-                                <img src="/icons/bold.svg" alt="">
-                            </button>
-                            <button class="icon" data-style="underline">
-                                <img src="/icons/underline.svg" alt="">
-                            </button>
-                            <button class="icon" data-style="italic">
-                                <img src="/icons/italics.svg" alt="">
-                            </button>
-                            <button class="icon" data-style="code">
-                                <img src="/icons/code.svg" alt="">
-                            </button>
+                <div class="group">
+                    <p>Для кого<span class="required">*</span></p>
+                    <input type="text" :value="selectedUsers.map(u => u.name).join(', ')">
+                    <div class="dropdown">
+                        <div v-for="user in users" :key="user.id" class="item">
+                            <input type="checkbox" :checked="isSelected(user)" @click="toggleMember(user)">
+                            <img src="/icons/Avatar.svg" :alt="user.name">
+                            <span>{{ user.name }}</span>
                         </div>
-                    </Card>
+                    </div>
                 </div>
 
                 <div class="group">
@@ -54,27 +45,48 @@
 <script setup>
 import { ref } from 'vue';
 
-import Card from '@/components/Card.vue';
+import TextEditorCard from '@/components/TextEditorCard.vue';
 
 const emit = defineEmits(['cancel', 'draft', 'create'])
+defineProps({
+    users: Array
+})
 
 const taskName = ref(null)
 const description = ref('')
 const deadline = ref(null)
+const selectedUsers = ref([])
 
 const create = () => {
     if (taskName.value.value.trim() === '') {
         taskName.value.style.border = '1px solid red'
         return
     }
+
+    const assignedTo = selectedUsers.value.map(u => Number(u.id))
+
     const task = {
         title: taskName.value.value,
         description: description.value,
-        deadline: (new Date(deadline.value).toISOString())
+        deadline: (new Date(deadline.value).toISOString()),
+        assignedTo: assignedTo
     }
-
+    // console.log(members)
     emit('create', task)
 }
+
+const isSelected = (user) => {
+    return selectedUsers.value.some(u => u.id === user.id);
+};
+
+const toggleMember = (user) => {
+    const index = selectedUsers.value.findIndex(u => u.id === user.id);
+    if (index === -1) {
+        selectedUsers.value.push(user);
+    } else {
+        selectedUsers.value.splice(index, 1);
+    }
+};
 </script>
 
 <style scoped lang="scss">
@@ -99,6 +111,19 @@ input {
     flex-direction: column;
     gap: 10px;
     margin-bottom: 10px;
+
+    :deep(.format-toolbar) {
+        padding: 0 !important;
+        gap: 10px !important;
+    }
+
+    :deep(.editor-content) {
+        min-height: 50px !important;
+    }
+
+    .dropdown {
+        max-height: 100px;
+    }
 }
 
 .icons {

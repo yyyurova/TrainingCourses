@@ -2,7 +2,7 @@
     <FillCourseContentLayout>
         <h1>Содержание курса</h1>
 
-        <div v-if="content.modules.length === 0" class="no-lessons">
+        <div v-if="content.chapters.length === 0" class="no-lessons">
             <h2>В курсе пока нет ни одного урока.</h2>
             <h2> Создайте первый модуль, чтобы добавить уроки</h2>
             <button class="blue" @click="newModule">
@@ -10,12 +10,12 @@
                 <img src="/icons/plus.svg" alt="">
             </button>
         </div>
-        <div v-if="content.modules.length > 0" class="content-of-course">
-            <Module v-for="(m, index) in content.modules" :key="index" :num="index + 1" :mod="m" :module-index="index"
-                @update:name="updateModuleName(index, $event)" @delete-module="deleteModule(index)"
+        <div v-if="content.chapters.length > 0" class="content-of-course">
+            <Module v-for="(m, index) in content.chapters" :key="index" :num="index + 1" :mod="m" :module-index="index"
+                @update:name="updateModuleName(index, $event)" @delete-module="deleteChapter(index)"
                 @add-lesson="addLesson(index)" @update-lesson-name="updateLessonName" />
         </div>
-        <div v-if="content.modules.length > 0" class="save-block">
+        <div v-if="content.chapters.length > 0" class="save-block">
             <button @click="saveCourse" class="blue">Сохранить изменения</button>
         </div>
     </FillCourseContentLayout>
@@ -30,7 +30,7 @@ import FillCourseContentLayout from '@/layouts/FillCourseContentLayout.vue';
 import Module from './components/Module.vue';
 
 const course = ref(null)
-const content = ref({ modules: [] })
+const content = ref({ chapters: [] })
 
 const route = useRoute()
 const router = useRouter()
@@ -43,34 +43,34 @@ const fetchCourse = async () => {
 }
 
 const newModule = () => {
-    content.value.modules.push({
+    content.value.chapters.push({
         name: 'Новый модуль',
         lessons: []
     });
 }
 
 const updateModuleName = (index, newName) => {
-    content.value.modules[index].name = newName;
+    content.value.chapters[index].name = newName;
 }
 
-const updateLessonName = (moduleIndex, lessonIndex, newName) => {
-    content.value.modules[moduleIndex].lessons[lessonIndex].name = newName;
+const updateLessonName = (chapterIndex, lessonIndex, newName) => {
+    content.value.chapters[chapterIndex].lessons[lessonIndex].name = newName;
 };
 
-const addLesson = (moduleIndex) => {
+const addLesson = (chapterIndex) => {
     const newLesson = {
         name: 'Новый урок',
         id: Date.now()
     };
-    content.value.modules[moduleIndex].lessons.push(newLesson);
+    content.value.chapters[chapterIndex].lessons.push(newLesson);
 };
 
-const deleteModule = (index) => {
-    content.value.modules.splice(index, 1);
+const deleteChapter = (index) => {
+    content.value.chapters.splice(index, 1);
 }
 
-const deleteLesson = (moduleIndex, lessonIndex) => {
-    content.value.modules[moduleIndex].lessons.splice(lessonIndex, 1);
+const deleteLesson = (chapterIndex, lessonIndex) => {
+    content.value.chapters[chapterIndex].lessons.splice(lessonIndex, 1);
 }
 
 const saveCourse = async () => {
@@ -91,7 +91,7 @@ const saveCourse = async () => {
         const contentData = {
             [courseData.contentId]: {
                 courseId: course.value.id,
-                chapters: content.value.modules.map(module => ({
+                chapters: content.value.chapters.map(module => ({
                     name: module.name,
                     steps: module.lessons.map(lesson => ({
                         name: lesson.name,

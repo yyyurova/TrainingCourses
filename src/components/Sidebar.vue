@@ -254,7 +254,7 @@ onMounted(() => {
     padding: 20px 8px;
     background-color: #F8F8F8;
     overflow-x: auto;
-    height: 100vh;
+    min-height: 100vh;
 
     &.sidebar-mobile {
         position: fixed;

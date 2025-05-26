@@ -41,7 +41,6 @@ const emit = defineEmits(['cancel', 'create']);
 
 const handleCreate = () => {
     emit('create', selectedType.value);
-    console.log(selectedType.value)
     selectedType.value = 'text';
 };
 </script>

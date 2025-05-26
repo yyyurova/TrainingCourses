@@ -18,7 +18,7 @@
         <div v-if="nothingFoundMessage && tasks.length === 0 && !isLoading" class="no-found-message">
             <h2> {{ nothingFoundMessage }}</h2>
         </div>
-        <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" @create="createTask" />
+        <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" @create="createTask" :users="allPraricants" />
         <Popup v-if="showPopup" :text="popupText" :is-success="isSuccess" @close-popup="closePopup" />
         <ConfirmDelete v-if="showDeleteModal" @confirm="deleteTask(taskToDelete.id)" @cancel="closeModal"
             question="Удалить задание?" right-button-text="Удалить"
@@ -44,6 +44,7 @@ import EditTask from '../components/modals/EditTask.vue';
 
 const course = ref(null)
 const practicant = ref(null)
+const allPraricants = ref([])
 const tasks = ref([])
 const taskFilter = ref(null)
 const originalTasks = ref([])
@@ -288,8 +289,20 @@ const filterTasks = () => {
     }
 }
 
+const fetchPracticants = async () => {
+    try {
+
+        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users?role=student`);
+        allPraricants.value = data
+    } catch (err) { console.log(err) }
+    finally {
+        isLoading.value = false
+    }
+}
+
 onMounted(async () => {
-    fetchData()
+    await fetchData()
+    await fetchPracticants()
 })
 </script>
 

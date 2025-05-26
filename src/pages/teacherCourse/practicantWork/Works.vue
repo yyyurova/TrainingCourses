@@ -192,30 +192,18 @@ const fetchTask = async () => {
 
 const fetchPracticants = async () => {
     try {
+        if (!task.value.assignedTo) { return }
         const membersParams = task.value.assignedTo.map(id => `id[]=${id}`).join('&');
         const url = `https://c1a9f09250b13f61.mokky.dev/users?${membersParams}`;
 
         const { data: all } = await axios.get(url);
-
         allPracticants.value = all.map(practicant => ({
             ...practicant,
-            mark: task.value.marks[practicant.id],
+            mark: task.value.marks ? task.value.marks[practicant.id] : null,
             isSelect: false,
             // cancelled: false
         }));
         updateTaskStatuse()
-
-        // assigned.value = allPracticants.value.filter(pr => pr.mark === null)
-        // done.value = allPracticants.value.filter(pr => pr.mark !== null);
-
-        // const cancelledParams = task.value.cancelled.map(id => `id[]=${id}`).join('&');
-        // const { data: canc } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users?${cancelledParams}`);
-        // cancelled.value = canc.map(pr => ({
-        //     ...pr,
-        //     mark: task.value.marks[pr.id],
-        //     isSelect: false,
-        //     cancelled: true
-        // }));
     }
     catch (err) { console.log(err) }
 }

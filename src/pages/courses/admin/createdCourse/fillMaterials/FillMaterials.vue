@@ -37,19 +37,31 @@
                     <p>Ссылка <span class="required">*</span></p>
                     <input type="url" placeholder="Введите ссылку">
                 </div>
-                <button class="blue" :disabled="selectedWay === 'other'">Загрузить</button>
+                <input type="file" ref="fileInput" style="display: none" @change="handleFileUpload" accept="video/*">
+
+                <div v-if="uploadedFiles.length" class="uploaded-files">
+                    <Card class="no-hover" v-for="(file, index) in uploadedFiles" :key="index">
+                        <img src="/icons/video.svg" alt="">
+                        <div class="text">
+                            <p> {{ file.name }}</p>
+                            <p> {{ formatFileSize(file.size) }}</p>
+                        </div>
+                        <button class="icon" @click="removeFile(index)"><img src="/icons/x.svg" alt=""></button>
+                    </Card>
+                </div>
+                <button class="blue" @click="fileInput.click()" :disabled="selectedWay === 'other'">Загрузить</button>
             </div>
 
             <div class="quiz" v-if="subStep.type === 'quiz'">
-                <button class="blue">
+                <button class="blue" @click="addAnswer">
                     Добавить вопрос
                     <img src="/icons/plus.svg" alt="">
                 </button>
 
                 <div class="fill-question">
-                    <p>Условие<span class="required">*</span>
-                    </p>
-                    <TextEditorCard />
+                    <p>Условие<span class="required">*</span></p>
+                    <TextEditorCard v-model="subStep.content.question" />
+
                     <h4>Настройка</h4>
                     <p>Количество правильных ответов:</p>
                     <div class="radio-inputs">
@@ -68,25 +80,14 @@
                             </span>
                         </label>
                     </div>
-                    <div class="answers" v-if="selectedQuantity === 'several'">
-                        <Card v-for="(answer, index) in answers" :key="index">
-                            <input type="checkbox">
-                            <input type="text" :value="answer.text">
-                            <button class="icon">
-                                <img src="/icons/x.svg" alt="">
-                            </button>
-                        </Card>
+
+                    <div class="answers">
+                        <Answer v-for="(option, index) in subStep.content.options" :key="index"
+                            :input-type="selectedQuantity" :option="option" :index="index" @remove="removeAnswer"
+                            @update:option="updateOption(index, $event)" @update:correct="updateCorrectAnswers" />
                     </div>
-                    <div class="answers" v-if="selectedQuantity === 'one'">
-                        <Card v-for="(answer, index) in answers" :key="index">
-                            <input type="radio">
-                            <input type="text" :value="answer.text">
-                            <button class="icon">
-                                <img src="/icons/x.svg" alt="">
-                            </button>
-                        </Card>
-                    </div>
-                    <button class="transparent">
+
+                    <button class="transparent" @click="addAnswer">
                         Добавить вариант ответа
                         <img src="/icons/plus-black.svg" alt="">
                     </button>
@@ -94,15 +95,17 @@
             </div>
         </Card>
         <div class="save-block">
-            <button class="blue">Сохранить изменения</button>
+            <button class="blue" @click="saveCourse">Сохранить изменения</button>
             <button class="transparent">Вернуться к просмотру</button>
         </div>
         <CreateStep v-if="showCreateStepModal" @cancel="closeModal" @create="createNewStep" />
+        <SaveChanges v-if="showSaveChangesModal" @cancel="closeModal" @confirm="saveCourse" />
+        <Popup v-if="showPopup" :text="popupText" @close="closePopup" />
     </FillCourseMaterialsLayout>
 </template>
 
 <script setup>
-import { ref, provide, onMounted, watchEffect, nextTick } from 'vue';
+import { ref, provide, onMounted, watchEffect, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 
@@ -110,6 +113,9 @@ import TextEditorCard from '@/components/TextEditorCard.vue';
 import FillCourseMaterialsLayout from '@/layouts/FillCourseMaterialsLayout.vue';
 import Card from '@/components/Card.vue';
 import CreateStep from './components/modals/CreateStep.vue';
+import Answer from './components/Answer.vue';
+import SaveChanges from './components/modals/SaveChanges.vue';
+import Popup from '@/components/Popup.vue';
 
 const course = ref(null);
 const material = ref(null);
@@ -117,38 +123,120 @@ const openStep = ref(null);
 const subStep = ref({ number: 1, type: 'text' });
 const content = ref('')
 
+const uploadedFiles = ref([]);
+const fileInput = ref(null);
+
 const selectedWay = ref('upload')
 const selectedQuantity = ref('several')
 
-const answers = ref([])
+const isSaved = ref(false)
+const showSaveChangesModal = ref(false)
+
+// const answers = ref([])
 
 const route = useRoute();
 
 const showCreateStepModal = ref(false)
 
+const openSaveChangesModal = () => {
+    showSaveChangesModal.value = true
+}
+
 const closeModal = () => {
     if (showCreateStepModal.value) { showCreateStepModal.value = false }
+    if (showSaveChangesModal.value) { showSaveChangesModal.value = false }
 }
 
 const openCreateStepModal = () => {
     showCreateStepModal.value = true
 }
 
-const createNewStep = (type) => {
-    if (!openStep.value?.subSteps) {
-        openStep.value.subSteps = [];
-    }
+const handleFileUpload = (e) => {
+    const files = e.target.files;
+    if (!files.length) return;
 
-    const newStep = {
+    const newFiles = Array.from(files).map(file => ({
+        id: Date.now(),
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        file: file
+    }));
+
+    uploadedFiles.value = [...uploadedFiles.value, ...newFiles];
+};
+
+const removeFile = (index) => {
+    uploadedFiles.value.splice(index, 1);
+};
+
+const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+const saveCourse = async () => {
+    try {
+
+        isSaved.value = true;
+        closeModal();
+    } catch (err) {
+        console.error('Ошибка сохранения:', err);
+    }
+};
+
+const createNewStep = (type) => {
+    const newSubStep = {
         number: openStep.value.subSteps.length + 1,
         type: type,
-        content: ''
+        content: type === 'quiz' ? {
+            question: '',
+            options: [],
+            correct: []
+        } : ''
     };
 
-    openStep.value.subSteps.push(newStep);
-    subStep.value = newStep;
-    closeModal();
-}
+    openStep.value.subSteps.push(newSubStep);
+    subStep.value = newSubStep;
+    closeModal()
+    popupText.value = 'Шаг создан'
+    showPopup.value = true
+    setTimeout(() => {
+        showPopup.value = false
+    }, 3000);
+};
+
+const addAnswer = () => {
+    subStep.value.content.options.push('');
+};
+
+const updateOption = (index, value) => {
+    subStep.value.content.options[index] = value;
+};
+
+const removeAnswer = (index) => {
+    subStep.value.content.options.splice(index, 1);
+
+    subStep.value.content.correct = subStep.value.content.correct
+        .filter(correctIndex => correctIndex !== index)
+        .map(correctIndex => correctIndex > index ? correctIndex - 1 : correctIndex);
+};
+
+const updateCorrectAnswers = ({ index, isChecked }) => {
+    if (selectedQuantity.value === 'several') {
+        const pos = subStep.value.content.correct.indexOf(index);
+        if (isChecked && pos === -1) {
+            subStep.value.content.correct.push(index);
+        } else if (!isChecked && pos !== -1) {
+            subStep.value.content.correct.splice(pos, 1);
+        }
+    } else {
+        subStep.value.content.correct = isChecked ? [index] : [];
+    }
+};
 
 const translateType = (type) => {
     switch (type) {
@@ -160,6 +248,12 @@ const translateType = (type) => {
     }
 }
 
+const showPopup = ref(false)
+const popupText = ref('')
+
+const closePopup = () => {
+    showPopup.value = false
+}
 const findMaterialByCourseId = (materials, targetCourseId) => {
     return materials.find(materialObj => {
         return Object.values(materialObj).some(content =>
@@ -189,6 +283,12 @@ const fetchMaterial = async () => {
         console.error("Ошибка загрузки материалов:", err);
     }
 };
+
+watch(route, newPath => {
+    if (isSaved.value === false) {
+        openSaveChangesModal()
+    }
+})
 
 watchEffect(() => {
     if (material.value?.chapters && route.params.chapterId && route.params.stepId) {
@@ -338,6 +438,28 @@ provide('material', material);
                 color: #6f6d6d;
             }
         }
+
+        .uploaded-files {
+            display: flex;
+            // flex-direction: column;
+            flex-wrap: wrap;
+            gap: 10px;
+
+            .card {
+                width: 40%;
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
+
+                .text {
+                    flex: 1;
+
+                    p:nth-child(2) {
+                        color: #787878;
+                    }
+                }
+            }
+        }
     }
 
     .quiz {
@@ -359,7 +481,12 @@ provide('material', material);
             button.transparent {
                 border: 1px solid #513DEB;
             }
+        }
 
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
     }
 }
@@ -376,6 +503,13 @@ provide('material', material);
 
     button.transparent {
         border: 1px solid #513DEB;
+    }
+}
+
+@media (max-width: 480px) {
+    .save-block {
+        flex-direction: column;
+        align-items: center;
     }
 }
 </style>

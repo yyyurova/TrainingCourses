@@ -13,7 +13,7 @@
 
         <EditTask v-if="showEditModal" :task="taskToEdit" @cancel="closeModal" @save="editTask" />
 
-        <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" @create="createTask" />
+        <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" @create="createTask" :users="practicants" />
 
         <Loading v-if="isLoading" />
         <Popup v-if="showPopup" :text="popupText" :is-success="isSuccess" @close-popup="closePopup" />
@@ -48,6 +48,7 @@ const isLoading = ref(false)
 const showPopup = ref(false)
 const popupText = ref('')
 const isSuccess = ref(true)
+const practicants = ref([])
 
 const showEditModal = ref(false)
 const taskToEdit = ref(null)
@@ -212,7 +213,21 @@ const editTask = async (updatedTask) => {
     }
 };
 
-onMounted(fetchTasks)
+const fetchPracticants = async () => {
+    try {
+
+        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users?role=student`);
+        practicants.value = data
+    } catch (err) { console.log(err) }
+    finally {
+        isLoading.value = false
+    }
+}
+
+onMounted(async () => {
+    await fetchTasks()
+    await fetchPracticants()
+})
 </script>
 
 <style scoped lang="scss">

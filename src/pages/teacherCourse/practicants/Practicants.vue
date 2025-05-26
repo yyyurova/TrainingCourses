@@ -16,7 +16,7 @@
         <div v-else-if="practicants.length === 0 && !isLoading" class="no-pracricants">
             <h2>В данном курсе нет практикантов.</h2>
         </div>
-        <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" />
+        <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" :users="practicants" />
     </Layout>
 </template>
 
