@@ -83,11 +83,8 @@ const create = () => {
     width: 100%;
 
     textarea {
-        outline: none;
         margin: 5px;
-        border: none;
         border-radius: 8px;
-        resize: vertical;
         width: calc(100% - 10px);
         min-height: 50px;
     }

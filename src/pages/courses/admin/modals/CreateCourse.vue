@@ -34,17 +34,15 @@ import Card from '@/components/Card.vue';
 const emit = defineEmits(['cancel', 'create']);
 
 const courseName = ref('');
-const courseImageBase64 = ref(null); // Здесь храним Base64 изображения
-const courseImagePreview = ref('/avatar.png'); // Превью (может быть Base64 или дефолтным изображением)
+const courseImageBase64 = ref(null);
+const courseImagePreview = ref('/avatar.png');
 const fileInput = ref(null);
 const nameError = ref(false);
 
-// Открываем диалог выбора файла
 const triggerFileInput = () => {
     fileInput.value.click();
 };
 
-// Обрабатываем загрузку файла
 const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -63,14 +61,12 @@ const removeImage = () => {
     if (fileInput.value) fileInput.value.value = '';
 };
 
-// Отмена создания
 const cancel = () => {
     removeImage();
     courseName.value = '';
     emit('cancel');
 };
 
-// Создание курса
 const create = () => {
     if (!courseName.value.trim()) {
         nameError.value = true;
@@ -79,7 +75,7 @@ const create = () => {
 
     const courseData = {
         name: courseName.value,
-        imageUrl: courseImageBase64.value || '/images/avatar.png', // Если нет Base64, используем дефолтное изображение
+        imageUrl: courseImageBase64.value || '/avatar.png',
     };
 
     emit('create', courseData);

@@ -1,0 +1,151 @@
+<template>
+    <div class="module">
+        <Card class="no-hover">
+            <h3 class="number">{{ num }}.</h3>
+            <div class="input-container">
+                <input @blur="checkEmptyness" type="text" class="name" :value="mod.name"
+                    @input="$emit('update:name', $event.target.value)">
+                <p v-if="warning !== ''">{{ warning }}</p>
+            </div>
+
+            <div class="action-buttons">
+                <button v-if="mod.lessons.length > 0" class="icon" @click="isLessonsListOpen = !isLessonsListOpen">
+                    <img :class="isLessonsListOpen ? 'arrow-down' : 'arrow-up'" src="/icons/arrow.svg" alt="">
+                </button>
+                <button class="icon" @click="$emit('delete-module')">
+                    <img src="/icons/x.svg" alt="">
+                </button>
+            </div>
+        </Card>
+
+        <Transition>
+            <div class="lessons" v-if="mod.lessons.length && isLessonsListOpen">
+                <Lesson v-for="(lesson, lessonIndex) in mod.lessons" :key="lessonIndex" :lesson="lesson"
+                    :module-index="moduleIndex" :lesson-index="lessonIndex"
+                    @update:name="emit('update-lesson-name', moduleIndex, lessonIndex, $event)" />
+            </div>
+        </Transition>
+
+        <button class="blue new-lesson" @click="addLesson">
+            Новый урок
+            <img src="/icons/plus.svg" alt="">
+        </button>
+    </div>
+</template>
+
+<script setup>
+import { defineProps, defineEmits, ref } from 'vue';
+
+import Card from '@/components/Card.vue';
+import Lesson from './Lesson.vue';
+
+const isLessonsListOpen = ref(false)
+const warning = ref('')
+
+const props = defineProps({
+    num: Number,
+    mod: Object,
+    moduleIndex: Number
+});
+
+const emit = defineEmits([
+    'update:name',
+    'delete-module',
+    'add-lesson',
+    'update-lesson-name'
+]);
+
+const addLesson = () => {
+    emit('add-lesson')
+    isLessonsListOpen.value = true
+}
+
+const checkEmptyness = (e) => {
+    if (e.target.value.trim() === '') {
+        e.target.style.border = '1px solid red'
+        warning.value = 'Это поле нельзя оставлять пустым'
+    } else {
+        e.target.style.border = '1px solid transparent'
+        warning.value = ''
+    }
+}
+</script>
+
+<style scoped lang="scss">
+.module {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .card {
+        padding: 10px 15px;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+
+        .number {
+            font-weight: 600;
+            font-size: 24px;
+            line-height: 28px;
+            letter-spacing: 1px;
+        }
+
+        .name {
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: 0px;
+
+            border: 1px solid transparent;
+            outline: none;
+
+            &:focus {
+                border: 1px solid #513DEB !important;
+            }
+        }
+
+        .input-container {
+            flex: 1;
+
+            input {
+                width: 50%;
+            }
+
+            p {
+                color: red;
+                font-weight: 400;
+                font-size: 16px;
+                line-height: 20px;
+                letter-spacing: 0px;
+            }
+        }
+    }
+
+    .lessons {
+        margin-left: 50px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    button.new-lesson {
+        margin-left: 50px;
+    }
+}
+
+.slide-enter-active,
+.slide-leave-active {
+    transition: all 0.3s ease;
+    max-height: 1000px;
+    overflow: hidden;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+}
+</style>

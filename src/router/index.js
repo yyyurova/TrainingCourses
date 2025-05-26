@@ -37,39 +37,7 @@ const baseRoutes = [{
         title: 'Подтверждение электронной почты'
     }
 },
-{
-    path: '/chat',
-    name: 'Chat',
-    component: Chat,
-    meta: {
-        title: 'Чат'
-    },
-    children: [
-        {
-            path: ':chatId',
-            name: 'ChatDialog',
-            component: Chat,
-            props: true,
-            children: [
-                {
-                    path: 'members',
-                    name: 'Members',
-                    component: Members,
-                },
-                {
-                    path: 'docs',
-                    name: 'Documents',
-                    component: Docs,
-                },
-                {
-                    path: 'attachments',
-                    name: 'Attachments',
-                    component: Attachments,
-                }
-            ]
-        }
-    ]
-},
+
 
 ];
 
@@ -78,10 +46,76 @@ function getRoleRoutes() {
         return [...adminRoutes];
     }
     if (mockUser.role === 'student') {
-        return [...studentRoutes];
+        return [...studentRoutes,
+        {
+            path: '/chat',
+            name: 'Chat',
+            component: Chat,
+            meta: {
+                title: 'Чат'
+            },
+            children: [
+                {
+                    path: ':chatId',
+                    name: 'ChatDialog',
+                    component: Chat,
+                    props: true,
+                    children: [
+                        {
+                            path: 'members',
+                            name: 'Members',
+                            component: Members,
+                        },
+                        {
+                            path: 'docs',
+                            name: 'Documents',
+                            component: Docs,
+                        },
+                        {
+                            path: 'attachments',
+                            name: 'Attachments',
+                            component: Attachments,
+                        }
+                    ]
+                }
+            ]
+        }
+        ];
     }
     if (mockUser.role === 'teacher') {
-        return [...teacherRoutes]
+        return [...teacherRoutes, {
+            path: '/chat',
+            name: 'Chat',
+            component: Chat,
+            meta: {
+                title: 'Чат'
+            },
+            children: [
+                {
+                    path: ':chatId',
+                    name: 'ChatDialog',
+                    component: Chat,
+                    props: true,
+                    children: [
+                        {
+                            path: 'members',
+                            name: 'Members',
+                            component: Members,
+                        },
+                        {
+                            path: 'docs',
+                            name: 'Documents',
+                            component: Docs,
+                        },
+                        {
+                            path: 'attachments',
+                            name: 'Attachments',
+                            component: Attachments,
+                        }
+                    ]
+                }
+            ]
+        },]
     }
     return [];
 }

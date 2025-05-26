@@ -51,11 +51,8 @@ const save = () => {
 
 <style scoped lang="scss">
 textarea {
-    outline: none;
     padding: 10px;
-    border: none;
     border-radius: 8px;
-    resize: vertical;
     width: 100%;
     min-height: 42px;
     border: 1px solid #D9D9D9;

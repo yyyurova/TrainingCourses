@@ -86,6 +86,10 @@ html {
       }
     }
 
+    &.wide {
+      width: 100%;
+    }
+
     &.transparent {
       background-color: transparent;
       color: #292929;
@@ -199,5 +203,15 @@ html {
       height: 24px;
       transition: 300ms;
     }
+  }
+
+  a {
+    outline: none;
+  }
+
+  textarea {
+    resize: vertical;
+    outline: none;
+    border: none;
   }
 }

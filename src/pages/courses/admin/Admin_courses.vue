@@ -8,7 +8,7 @@
         <div class="courses">
             <Card v-for="course in courses" :key="course.id">
                 <div class="top">
-                    <img width="36px" height="36px" :src="course.imageUrl" alt="avatar">
+                    <img width="36px" height="auto" :src="course.imageUrl" alt="avatar">
                     <span class="name-of-course">{{ course.name }}</span>
 
                     <div class="action-buttons">
@@ -38,7 +38,7 @@
 
 <script setup>
 import axios from "axios";
-
+import { useRouter } from "vue-router";
 import { onMounted, provide, ref } from "vue";
 
 import Layout from '@/layouts/Layout.vue'
@@ -55,6 +55,8 @@ const courses = ref([])
 const showCreateCourseModal = ref(false)
 const showConfirmDeleteModal = ref(false)
 const showEditCourseModal = ref(false)
+
+const router = useRouter()
 
 const showPopup = ref(false)
 const popupText = ref('')
@@ -98,6 +100,7 @@ const fetchCourses = async () => {
         courses.value = data.map(obj => ({
             ...obj
         }))
+
     } catch (err) {
         console.log(err)
     } finally {
@@ -140,7 +143,8 @@ const createCourse = async (course) => {
         setTimeout(() => {
             showPopup.value = false
         }, 5000);
-        await fetchCourses()
+        // await fetchCourses()
+        router.push(`/course-fill-content/${data.id}`)
     }
     catch (err) {
         console.log(err)
