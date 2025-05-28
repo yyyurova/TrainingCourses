@@ -6,15 +6,15 @@
             <div class="cards">
                 <Card class="course">
                     <div class="top">
-                        <img width="36px" height="36px" :src="course.imageUrl" alt="avatar">
-                        <p class="name-of-course">{{ course.name }}</p>
+                        <img width="36px" height="36px" :src="course.imageUrl || '/image.png'" alt="avatar">
+                        <p class="name-of-course">{{ course.title }}</p>
                     </div>
                     <button class="blue" @click="continueStudy(course.id)">Продолжить обучение</button>
                 </Card>
                 <Card class="teacher">
                     <div class="top">
                         <p>Куратор</p>
-                        <span class="teacher-name">{{ teacherName }}</span>
+                        <span class="teacher-name">{{ teacherName || 'teacher name' }}</span>
                     </div>
                     <button class="transparent">Написать сообщение</button>
                 </Card>
@@ -45,9 +45,9 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios';
 import { mockUser } from '@/mocks/user';
-
+import { getUser } from '@/api/modules/users.api';
+import { getCourse } from '@/api/modules/courses.api';
 
 import Loading from '@/components/Loading.vue';
 import Layout from '@/layouts/Layout.vue';
@@ -63,8 +63,8 @@ const router = useRouter()
 
 const fetchTeacherName = async (teacherId) => {
     try {
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users/${teacherId}`);
-        teacherName.value = data.name; // Берем только имя учителя
+        const user = await getUser(teacherId)
+        teacherName.value = user.name;
     } catch (err) {
         console.log(err);
         teacherName.value = 'Учитель не найден';
@@ -87,14 +87,14 @@ const continueStudy = (id) => {
 const fetchCourse = async (id) => {
     try {
         isLoading.value = true;
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses/${id}`);
-        course.value = data;
+        course.value = await getCourse(id);
+        console.log(course.value)
 
-        if (data.teacher) {
-            await fetchTeacherName(data.teacher);
-        } else {
-            teacherName.value = 'Учитель не назначен';
-        }
+        // if (data.teacher) {
+        //     await fetchTeacherName(data.teacher);
+        // } else {
+        //     teacherName.value = 'Учитель не назначен';
+        // }
     } catch (error) {
         console.error('Ошибка загрузки курса:', error);
     } finally {
@@ -151,7 +151,7 @@ watch(() => route.params.id, (newId) => {
 });
 
 watch(() => course.value, () => {
-    document.title = course.value.name
+    document.title = course.value.title
 })
 </script>
 

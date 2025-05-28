@@ -87,7 +87,6 @@ const create = () => {
             role: userRole.value,
             status: userStatus.value,
         }
-        console.log(user)
         emit('create', user)
         userEmail.value = ''
         userRole.value = ''

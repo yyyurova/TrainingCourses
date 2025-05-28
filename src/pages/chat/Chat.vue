@@ -16,6 +16,9 @@ import axios from 'axios';
 import { provide, ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+import { getChats } from '@/api/modules/chats.api';
+import { getUser } from '@/api/modules/users.api';
+
 import ChatLayout from '@/layouts/ChatLayout.vue';
 import AllChats from './components/all/AllChats.vue';
 import OpenEmpty from './components/open/OpenEmpty.vue';
@@ -82,31 +85,25 @@ const openSettings = () => {
 
 const fetchChats = async () => {
     try {
-        isLoading.value = true
-        const params = { sortBy: '-date' };
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/chats`, { params });
+        isLoading.value = true;
 
-        const chatsWithUsers = await Promise.all(data.map(async chat => {
-            if (!chat.user_id) {
-                return {
-                    ...chat,
-                };
-            }
+        const chatsData = await getChats();
+        const chatsWithUsers = await Promise.all(
+            chatsData.map(async (chat) => {
+                if (!chat.user_id) {
+                    return chat;
+                }
 
-            try {
-                const userResponse = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users/${chat.user_id}`);
+                const userData = await getUser(chat.user_id);
+
+                const userName = userData?.name || 'Пользователь не найден';
+
                 return {
                     ...chat,
-                    userName: userResponse.data.name || 'Неизвестный пользователь'
+                    userName
                 };
-            } catch (error) {
-                console.error(`Ошибка загрузки пользователя ${chat.user_id}:`, error);
-                return {
-                    ...chat,
-                    userName: 'Пользователь не найден'
-                };
-            }
-        }));
+            })
+        );
 
         chats.value = chatsWithUsers;
         originalChats.value = [...chatsWithUsers];
@@ -117,11 +114,8 @@ const fetchChats = async () => {
                 openDialog(chatToOpen);
             }
         }
-    } catch (err) {
-        console.error('Ошибка загрузки чатов:', err);
-    }
-    finally {
-        isLoading.value = false
+    } finally {
+        isLoading.value = false;
     }
 };
 

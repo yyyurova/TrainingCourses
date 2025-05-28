@@ -86,5 +86,13 @@ export const studentRoutes = [
         meta: {
             title: 'Прохождение курса'
         }
+    },
+    {
+        path: '/courseCompletion/:courseId/:moduleIndex?/:pageIndex?',
+        name: 'CourseCompletion',
+        component: CourseCompletion,
+        meta: {
+            title: 'Прохождение курса'
+        }
     }
 ]

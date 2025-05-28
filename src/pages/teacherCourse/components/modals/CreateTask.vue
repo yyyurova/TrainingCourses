@@ -71,7 +71,6 @@ const create = () => {
         deadline: (new Date(deadline.value).toISOString()),
         assignedTo: assignedTo
     }
-    // console.log(members)
     emit('create', task)
 }
 

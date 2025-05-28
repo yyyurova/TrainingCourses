@@ -33,6 +33,7 @@
 <script setup>
 import { ref, onMounted, nextTick, watch, provide, onUnmounted } from 'vue'
 import axios from 'axios'
+import { getUsers } from '@/api/modules/users.api'
 
 import Layout from '../../layouts/Layout.vue'
 
@@ -46,7 +47,6 @@ import SelectRole from './modals/SelectRole.vue'
 import CreateUser from './modals/CreateUser.vue'
 import EditUser from './modals/EditUser.vue'
 import Popup from '@/components/Popup.vue'
-
 
 const users = ref([])
 
@@ -83,44 +83,33 @@ const fetchUsers = async () => {
         saveScrollPosition();
 
         const params = {
-            page: currentPage.value,
-            sortBy: '-id'
+            // token: localStorage.getItem('token'),
+            // page: currentPage.value,
+            // per_page: 15, // Добавляем количество элементов на страницу
+            // sortBy: '-id'
         };
 
-        if (filters.value.role) {
-            params.role = filters.value.role;
-        }
-        if (filters.value.status) {
-            params.status = filters.value.status;
-        }
-        if (filters.value.email) {
-            params.email = `*${filters.value.email}*`
-        }
-        if (filters.value.name) {
-            params.name = filters.value.name.join(',');
-        }
+        if (filters.value.role) params.role = filters.value.role;
+        if (filters.value.status) params.status = filters.value.status;
+        if (filters.value.email) params.email = filters.value.email;
+        if (filters.value.name) params.name = filters.value.name;
 
         isLoading.value = true;
 
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users`, {
-            params
-        });
-
-        users.value = data.items.map(obj => ({
-            ...obj
-        }));
-        totalItems.value = data.meta.total_items;
+        const response = await getUsers();
+        users.value = response.data;
+        totalItems.value = response.meta.total;
 
         nextTick(() => {
             window.scrollTo(0, scrollPosition.value);
         });
     } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Ошибка:', error);
     } finally {
         isLoading.value = false;
-
     }
 };
+
 
 const updateCurrentPage = (newPage) => {
     currentPage.value = newPage

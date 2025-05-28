@@ -87,7 +87,6 @@ const fetchStudents = async () => {
                 };
             })
             .filter(student => student.tasks.length > 0);
-        console.log(students.value)
     } catch (err) {
         console.error('Ошибка при загрузке студентов:', err);
     } finally {

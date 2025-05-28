@@ -81,7 +81,6 @@ const deleteFromSelected = () => {
 
 onMounted(async () => {
     await fetchFiles()
-    console.log(props.practicant)
 })
 </script>
 

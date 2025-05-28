@@ -27,6 +27,7 @@
 <script setup>
 import { inject, ref, computed, onMounted, provide } from 'vue';
 import axios from 'axios';
+import { getUsers } from '@/api/modules/users.api';
 
 import MemberCard from './MemberCard.vue';
 import Card from '@/components/Card.vue';
@@ -70,8 +71,9 @@ const fetchMembers = async () => {
         const params = new URLSearchParams();
         chat.value.members.forEach(id => params.append('id[]', id));
 
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users?${params.toString()}`);
-        allMembers.value = data;
+        // const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users?${params.toString()}`);
+        // allMembers.value = data;
+        allMembers.value = await getUsers(params)
     } catch (err) {
         console.error('Ошибка при загрузке участников:', err);
         allMembers.value = [];

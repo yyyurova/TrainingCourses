@@ -39,6 +39,7 @@
 <script setup>
 import axios from 'axios';
 import { inject, watch, ref } from 'vue';
+import { getUser } from '@/api/modules/users.api';
 
 import Card from '@/components/Card.vue';
 import Message from '@/components/Message.vue';
@@ -77,10 +78,9 @@ const sendMessage = () => {
 
 const fetchTeacherName = async (teacherId) => {
     try {
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users/${teacherId}`);
-        teacherName.value = data.name;
+        const user = await getUser(teacherId);
+        teacherName.value = user.name;
     } catch (err) {
-        console.log(err);
         teacherName.value = 'Учитель не найден';
     }
 };

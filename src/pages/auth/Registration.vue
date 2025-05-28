@@ -50,6 +50,7 @@
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { register } from '@/api/modules/auth.api';
 
 const name = ref('')
 const email = ref('')
@@ -110,10 +111,24 @@ const validateForm = () => {
 
 const router = useRouter()
 
-const handleSubmit = () => {
-    localStorage.setItem('userEmail', email.value)
+const handleSubmit = async () => {
+    console.log({
+        name: name.value,
+        email: email.value,
+        password: password.value
+    })
     if (validateForm()) {
-        router.push('/verification')
+        try {
+            const resp = await register(
+                name.value,
+                email.value,
+                password.value
+            )
+            localStorage.setItem('token', resp.data.data)
+            localStorage.setItem('user_role', resp.data.role)
+            router.push('/verification')
+        }
+        catch (err) { console.log(err) }
     }
 }
 </script>

@@ -107,7 +107,8 @@
 <script setup>
 import { ref, provide, onMounted, watchEffect, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import axios from 'axios';
+import { getCourse } from '@/api/modules/courses.api';
+import { getModules } from '@/api/modules/materials.api';
 
 import TextEditorCard from '@/components/TextEditorCard.vue';
 import FillCourseMaterialsLayout from '@/layouts/FillCourseMaterialsLayout.vue';
@@ -264,8 +265,7 @@ const findMaterialByCourseId = (materials, targetCourseId) => {
 
 const fetchCourse = async () => {
     try {
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses/${route.params.courseId}`);
-        course.value = data;
+        course.value = await getCourse(route.params.courseId);
     } catch (err) {
         console.error("Ошибка загрузки курса:", err);
     }
@@ -273,7 +273,7 @@ const fetchCourse = async () => {
 
 const fetchMaterial = async () => {
     try {
-        const { data: materials } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/materials`);
+        const materials = await getModules()
         const foundMaterial = findMaterialByCourseId(materials, course.value.id);
         if (foundMaterial) {
             const contentKey = Object.keys(foundMaterial)[0];

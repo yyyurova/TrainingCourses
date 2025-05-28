@@ -10,6 +10,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
+import { getCourses } from '@/api/modules/courses.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
@@ -23,7 +24,7 @@ const isLoading = ref(false)
 const fetchCurrentTasks = async () => {
     try {
         isLoading.value = true
-        const { data: courses } = await axios.get('https://c1a9f09250b13f61.mokky.dev/courses')
+        const courses = await getCourses()
 
         tasks.value = courses.flatMap(course =>
             course.tasks
@@ -33,9 +34,6 @@ const fetchCurrentTasks = async () => {
                     courseId: course.id,
                 }))
         )
-    }
-    catch (err) {
-        console.log(err)
     } finally {
         isLoading.value = false
     }

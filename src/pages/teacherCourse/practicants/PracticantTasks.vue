@@ -33,6 +33,7 @@ import axios from 'axios';
 import { useRoute } from 'vue-router';
 import { checkOverdueDeadline } from '@/utils/utils';
 import { mockUser } from '@/mocks/user';
+import { getUser } from '@/api/modules/users.api';
 
 import Layout from '@/layouts/Layout.vue';
 import TaskCard from '../components/TaskCard.vue';
@@ -102,8 +103,7 @@ const fetchData = async () => {
             return
         }
 
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users/${route.params.practicantId}`);
-        practicant.value = data
+        practicant.value = await getUser(route.params.practicantId)
 
         tasks.value = course.value.tasks.filter(task =>
             Array.isArray(task.assignedTo) && task.assignedTo.includes(practicant.value.id)
@@ -114,7 +114,7 @@ const fetchData = async () => {
             nothingFoundMessage.value = 'У данного учащегося нет заданий.'
         }
 
-    } catch (err) { console.log(err) }
+    }
     finally {
         isLoading.value = false
     }
@@ -152,7 +152,6 @@ const deleteTask = async (taskId) => {
             tasks: currentCourse.tasks
         });
 
-        // console.log(tasks.value)
         if (tasks.value.length === 0) {
             nothingFoundMessage.value = 'У данного учащегося нет заданий.'
         }

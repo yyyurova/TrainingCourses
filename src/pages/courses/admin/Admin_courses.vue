@@ -8,8 +8,8 @@
         <div class="courses">
             <Card v-for="course in courses" :key="course.id">
                 <div class="top">
-                    <img width="36px" height="auto" :src="course.imageUrl" alt="avatar">
-                    <span class="name-of-course">{{ course.name }}</span>
+                    <img class="avatar" width :src="course.imageUrl || '/image.png'" alt="avatar">
+                    <span class="name-of-course">{{ course.title }}</span>
 
                     <div class="action-buttons">
                         <button class="icon edit" @click="openEditCourseModal(course)">
@@ -40,6 +40,7 @@
 import axios from "axios";
 import { useRouter } from "vue-router";
 import { onMounted, provide, ref } from "vue";
+import { getCourses } from "@/api/modules/courses.api";
 
 import Layout from '@/layouts/Layout.vue'
 import Card from '@/components/Card.vue'
@@ -93,16 +94,7 @@ const openDeleteModal = (course) => {
 const fetchCourses = async () => {
     try {
         isLoading.value = true
-        const params = {
-            sortBy: '-id'
-        }
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses`, { params })
-        courses.value = data.map(obj => ({
-            ...obj
-        }))
-
-    } catch (err) {
-        console.log(err)
+        courses.value = await getCourses()
     } finally {
         isLoading.value = false
     }
@@ -143,7 +135,6 @@ const createCourse = async (course) => {
         setTimeout(() => {
             showPopup.value = false
         }, 5000);
-        // await fetchCourses()
         router.push(`/course-fill-content/${data.id}`)
     }
     catch (err) {
@@ -199,8 +190,7 @@ button.blue {
             display: flex;
             gap: 10px;
             // justify-content: space-between;
-            align-items: center;
-
+            align-items: flex-start;
 
             .name-of-course {
                 flex: 1;
@@ -208,6 +198,12 @@ button.blue {
                 font-size: 24px;
                 line-height: 28px;
                 letter-spacing: 1px;
+            }
+
+            .avatar {
+                width: 36px;
+                height: auto;
+                border-radius: 4px;
             }
         }
     }

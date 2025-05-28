@@ -6,8 +6,8 @@
             <div class="courses">
                 <Card v-for="course in courses" :key="course.id">
                     <div class="top">
-                        <img width="36px" height="36px" :src="course.imageUrl" alt="avatar">
-                        <span class="name-of-course">{{ course.name }}</span>
+                        <img class="avatar" :src="course.imageUrl || '/image.png'" alt="avatar">
+                        <span class="name-of-course">{{ course.title }}</span>
                     </div>
                     <button class="blue" @click="continueStudy(course.id)">Продолжить обучение</button>
                 </Card>
@@ -19,13 +19,13 @@
 </template>
 
 <script setup>
-import axios from 'axios';
 import { onMounted, provide, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { getCourses } from '@/api/modules/courses.api';
 
 import Loading from '@/components/Loading.vue';
 import Layout from '@/layouts/Layout.vue';
 import Card from '@/components/Card.vue';
-import { useRouter } from 'vue-router';
 
 const courses = ref([])
 const router = useRouter()
@@ -34,15 +34,7 @@ const isLoading = ref(false)
 const fetchCourses = async () => {
     try {
         isLoading.value = true
-        const params = {
-            sortBy: '-id'
-        }
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses`, { params })
-        courses.value = data.map(obj => ({
-            ...obj
-        }))
-    } catch (err) {
-        console.log(err)
+        courses.value = await getCourses()
     } finally {
         isLoading.value = false
     }
@@ -51,8 +43,6 @@ const fetchCourses = async () => {
 const continueStudy = (id) => {
     router.push(`/courseCompletion/${id}`)
 }
-
-// provide('courses', courses)
 
 onMounted(async () => {
     await fetchCourses()
@@ -80,6 +70,12 @@ onMounted(async () => {
                 font-size: 24px;
                 line-height: 28px;
                 letter-spacing: 1px;
+            }
+
+            .avatar {
+                border-radius: 4px;
+                width: 36px;
+                height: 36px
             }
         }
 

@@ -1,60 +1,51 @@
 <template>
     <CourseCompletionLayout>
         <Card v-if="end" class="no-hover end">
-            <h1>Ты завершил шаг!!!</h1>
+            <h1>Ты завершил модуль!!!</h1>
             <img src="/nice.jfif" alt="">
         </Card>
-        <Card v-if="section && !end" class="no-hover" :style="!material ? 'height:100vh' : ''">
+        <Card v-if="module && !end" class="no-hover" :style="!material ? 'height:100vh' : ''">
             <h1 class="chapterName">
-                {{ section.name }}
-                <span class="score">{{ completedSteps + " из " + section.substeps.length + " шагов пройдено" }}</span>
+                {{ module.title }}
+                <span class="score">{{ completedPages + " из " + module.pages.length + " шагов пройдено" }}</span>
             </h1>
             <div class="squares-score">
-                <span class="square" :class="substep.completed ? 'filled' : ''"
-                    v-for="(substep, index) in section.substeps" :key="index" @click="goToStep(index)"></span>
+                <span class="square" :class="page.completed ? 'filled' : ''" v-for="(page, index) in module.pages"
+                    :key="index" @click="goToPage(index)"></span>
             </div>
 
-            <!-- Текстовый контент -->
-            <div v-if="currentStepContent.type === 'text'" class="content"
-                v-html="formatTextContent(currentStepContent.content)"></div>
+            <div v-if="currentPageData && !loading" class="content">
+                <div v-if="currentPageData.questions && currentPageData.questions.length">
+                    <div v-for="(question, qIndex) in currentPageData.questions" :key="qIndex">
+                        <div v-if="question.description" v-html="formatTextContent(question.description)"></div>
 
-            <!-- Блок с кодом -->
-            <div v-if="currentStepContent.type === 'code'" class="content">
-                <pre><code>{{ currentStepContent.content }}</code></pre>
-                <div v-if="currentStepContent.explanation" class="explanation">
-                    {{ currentStepContent.explanation }}
-                </div>
-            </div>
+                        <div v-if="question.variants && question.variants.length" class="quiz-section">
+                            <h2>{{ question.title || 'Тест' }}</h2>
+                            <div class="options">
+                                <div v-for="(variant, vIndex) in question.variants" :key="vIndex">
+                                    <input type="checkbox" v-model="selectedAnswers[qIndex]" :value="variant.id"
+                                        :disabled="quizChecked[qIndex]">
+                                    {{ (vIndex + 1) + ') ' + variant.title }}
+                                </div>
+                            </div>
 
-            <!-- Тест -->
-            <div v-if="currentStepContent.type === 'quiz'" class="content">
-                <h2>Тест</h2>
-                <p>{{ currentStepContent.content.question }}</p>
-                <div class="options">
-                    <div v-for="(option, index) in currentStepContent.content.options" :key="index">
-                        <input type="checkbox" v-model="selectedAnswers" :value="index" :disabled="quizChecked">
-                        {{ (index + 1) + ') ' + option }}
+                            <div v-if="quizChecked[qIndex]" class="quiz-result"
+                                :class="quizPassed[qIndex] ? 'success' : 'error'">
+                                <p v-if="quizPassed[qIndex]">✅ Верно!</p>
+                                <p v-else>❌ Неверно. Попробуйте еще раз.</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-
-                <div v-if="quizChecked" class="quiz-result" :class="quizPassed ? 'success' : 'error'">
-                    <p v-if="quizPassed">✅ Верно! {{ currentStepContent.content.explanation }}</p>
-                    <p v-else>❌ Неверно. Попробуйте еще раз. {{ currentStepContent.content.explanation }}</p>
                 </div>
             </div>
 
             <div class="action-buttons">
-                <button v-if="currentStepContent.type === 'quiz'" @click="checkQuiz"
-                    :disabled="selectedAnswers.length === 0 || quizChecked">
+                <button v-if="hasQuizzes" @click="checkQuiz" :disabled="!hasSelectedAnswers || loading">
                     Проверить тест
                 </button>
 
-                <button v-if="currentStepContent.type === 'quiz'" class="blue" @click="nextStep">
-                    {{ isLastStep ? 'Завершить раздел' : 'Следующий шаг' }}
-                </button>
-
-                <button v-if="currentStepContent.type !== 'quiz'" class="blue" @click="nextStep">
-                    {{ isLastStep ? 'Завершить раздел' : 'Следующий шаг' }}
+                <button class="blue" @click="nextPage" :disabled="(hasQuizzes && !allQuizzesPassed) || loading">
+                    {{ isLastPage ? 'Завершить модуль' : 'Следующий шаг' }}
                 </button>
             </div>
         </Card>
@@ -62,111 +53,165 @@
 </template>
 
 <script setup>
-import axios from 'axios';
-import { computed, onMounted, provide, ref } from 'vue';
+import { computed, onMounted, ref, watch, provide } from 'vue';
 import { useRoute } from 'vue-router';
+import { getCourse } from '@/api/modules/courses.api';
+import { getModules } from '@/api/modules/materials.api';
+import { getModulePage } from '@/api/modules/materials.api';
 
 import CourseCompletionLayout from '@/layouts/CourseCompletionLayout.vue';
 import Card from '@/components/Card.vue';
 
-const material = ref(null)
-const route = useRoute()
-const course = ref(null)
-const courseId = route.params.courseId
-const end = ref(false)
+const material = ref(null);
+const route = useRoute();
+const course = ref(null);
+const courseId = route.params.courseId;
+const end = ref(false);
+const loading = ref(false);
 
-const section = ref(null)
-const currentStepIndex = ref(0)
-const selectedAnswers = ref([])
-const quizChecked = ref(false)
-const quizPassed = ref(false)
+// const module = ref(null);
+// const currentPageIndex = ref(0);
+const currentPageData = ref(null);
+const selectedAnswers = ref({});
+const quizChecked = ref({});
+const quizPassed = ref({});
+
+const moduleIndex = computed(() => parseInt(route.params.moduleIndex) || 0)
+const pageIndex = computed(() => parseInt(route.params.pageIndex) || 0)
+
+const module = computed(() => {
+    return material.value?.[moduleIndex.value] || null
+})
+
+const currentPageIndex = ref(pageIndex.value)
 
 const fetchMaterial = async () => {
     try {
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses/${courseId}`)
-        course.value = data
-
-        const { data: materials } = await axios.get('https://c1a9f09250b13f61.mokky.dev/materials')
-        const materialData = materials.find(m => m[course.value.contentId])
-        material.value = materialData[course.value.contentId]
-
+        course.value = await getCourse(courseId);
+        material.value = await getModules(courseId);
+        if (material.value?.length > 0) {
+            module.value = material.value[0];
+            await loadPageContent();
+        }
     } catch (err) {
-        console.error('Ошибка загрузки данных:', err)
+        console.error('Ошибка загрузки данных:', err);
     }
-}
+};
 
-const currentStepContent = computed(() => {
-    return section.value?.substeps[currentStepIndex.value] || null
-})
+const loadPageContent = async () => {
+    if (!module.value || !module.value.pages[currentPageIndex.value]) return;
 
-const completedSteps = computed(() => {
-    return section.value?.substeps.filter(step => step.completed).length || 0
-})
+    const pageId = module.value.pages[currentPageIndex.value].id;
+    loading.value = true;
+    resetQuizState();
 
-const isLastStep = computed(() => {
-    return currentStepIndex.value === section.value?.substeps.length - 1
-})
+    try {
+        currentPageData.value = await getModulePage(module.value.id, pageId);
+
+
+        if (currentPageData.value.questions) {
+            currentPageData.value.questions.forEach((_, index) => {
+                selectedAnswers.value[index] = [];
+                quizChecked.value[index] = false;
+                quizPassed.value[index] = false;
+            });
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки страницы:', error);
+    } finally {
+        loading.value = false;
+    }
+};
+
+const completedPages = computed(() => {
+    return module.value?.pages.filter(page => page.completed).length || 0;
+});
+
+const isLastPage = computed(() => {
+    return currentPageIndex.value === module.value?.pages.length - 1;
+});
+
+const hasQuizzes = computed(() => {
+    return currentPageData.value?.questions?.some(q => q.variants?.length > 0);
+});
+
+const allQuizzesPassed = computed(() => {
+    return Object.values(quizPassed.value).every(passed => passed);
+});
+
+const hasSelectedAnswers = computed(() => {
+    return Object.values(selectedAnswers.value).some(answers => answers.length > 0);
+});
 
 const formatTextContent = (text) => {
     return text
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/`(.*?)`/g, '<code>$1</code>')
-        .replace(/\n/g, '<br>')
-}
+        .replace(/\n/g, '<br>');
+};
 
 const checkQuiz = () => {
-    if (currentStepContent.value.type !== 'quiz') return
+    if (!currentPageData.value?.questions) return;
 
-    const correctAnswers = currentStepContent.value.content.correct
-    const userAnswers = [...selectedAnswers.value].sort().toString()
-    const correctAnswersStr = [...correctAnswers].sort().toString()
+    currentPageData.value.questions.forEach((question, qIndex) => {
+        if (question.variants?.length > 0) {
+            const correctAnswers = question.variants
+                .filter(v => v.is_correct)
+                .map(v => v.id);
 
-    quizPassed.value = userAnswers === correctAnswersStr
-    quizChecked.value = true
+            const userAnswers = [...selectedAnswers.value[qIndex]].sort();
+            const correctAnswersSorted = [...correctAnswers].sort();
 
-    if (quizPassed.value) {
-        currentStepContent.value.completed = true
+            quizPassed.value[qIndex] =
+                userAnswers.length === correctAnswers.length &&
+                userAnswers.every((val, idx) => val === correctAnswersSorted[idx]);
+
+            quizChecked.value[qIndex] = true;
+        }
+    });
+};
+
+const nextPage = () => {
+    if (!module.value.pages[currentPageIndex.value].completed) {
+        module.value.pages[currentPageIndex.value].completed = true;
     }
-}
 
-const nextStep = () => {
-    if (!quizChecked.value && currentStepContent.value.type === 'quiz') {
-        return
-    }
-
-    if (currentStepIndex.value < section.value.substeps.length - 1) {
-        section.value.substeps[currentStepIndex.value].completed = true
-        currentStepIndex.value++
-        resetQuizState()
+    if (currentPageIndex.value < module.value.pages.length - 1) {
+        currentPageIndex.value++;
     } else {
-        completeSection()
+        completeModule();
     }
-}
+};
 
 const resetQuizState = () => {
-    selectedAnswers.value = []
-    quizChecked.value = false
-    quizPassed.value = false
-}
+    selectedAnswers.value = {};
+    quizChecked.value = {};
+    quizPassed.value = {};
+};
 
-const goToStep = (index) => {
-    currentStepIndex.value = index
-    resetQuizState()
-}
+const goToPage = (index) => {
+    currentPageIndex.value = index;
+};
 
-const completeSection = () => {
-    section.value.substeps[currentStepIndex.value].completed = true
-    end.value = true
-}
+const completeModule = () => {
+    end.value = true;
+};
 
-onMounted(async () => {
-    await fetchMaterial()
-    section.value = material.value.chapters[0].steps[0]
+watch(currentPageIndex, async () => {
+    await loadPageContent();
+});
+
+watch(() => route.params.pageIndex, (newIndex) => {
+    if (newIndex !== undefined) {
+        currentPageIndex.value = parseInt(newIndex)
+        loadPageContent()
+    }
 })
 
-provide('material', material)
-provide('course', course)
+onMounted(fetchMaterial);
+provide('material', material);
+provide('course', course);
 </script>
 
 <style scoped lang="scss">

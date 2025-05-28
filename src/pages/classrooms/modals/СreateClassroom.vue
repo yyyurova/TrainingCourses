@@ -49,6 +49,8 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
 import axios from 'axios';
+import { getCourses } from '@/api/modules/courses.api';
+import { getUsers } from '@/api/modules/users.api';
 
 const emit = defineEmits(['cancel', 'create']);
 
@@ -82,27 +84,11 @@ const create = () => {
 };
 
 const fetchUsers = async () => {
-    try {
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users`);
-
-        users.value = data.map(obj => ({
-            ...obj
-        }));
-    } catch (error) {
-        console.error('Error fetching users:', error);
-    }
+    users.value = await getUsers()
 };
 
 const fetchCourses = async () => {
-    try {
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses`);
-
-        courses.value = data.map(obj => ({
-            ...obj
-        }));
-    } catch (error) {
-        console.error('Error fetching users:', error);
-    }
+    courses.value = await getCourses()
 };
 
 const handleDropdownPosition = (event) => {

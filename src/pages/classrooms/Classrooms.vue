@@ -44,6 +44,7 @@
 <script setup>
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
+import { getClassrooms } from '@/api/modules/classrooms.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Card from '@/components/Card.vue';
@@ -125,7 +126,6 @@ const editClassroom = async (updatedClassroom) => {
 const createClassroom = async (classroomData) => {
     if (!classroomData) return
     try {
-        console.log(classroomData)
         await axios.post(`https://c1a9f09250b13f61.mokky.dev/classrooms`, {
             name: classroomData.name,
             course: classroomData.course.name,
@@ -142,15 +142,7 @@ const createClassroom = async (classroomData) => {
 }
 
 const fetchClassrooms = async () => {
-    try {
-        const params = {
-            sortBy: '-id'
-        }
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/classrooms`, { params })
-        classrooms.value = data
-    } catch (err) {
-        console.log(err)
-    }
+    classrooms.value = await getClassrooms()
 }
 
 onMounted(async () => {

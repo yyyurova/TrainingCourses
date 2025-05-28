@@ -10,24 +10,20 @@
         </button>
 
         <div class="navigation" v-if="material">
-            <div v-for="(chapter, index) in material.chapters" :key="index" class="chapter">
-                <div class="chapter-header" @click="toggleChapter(index)">
-                    <span>{{ index + 1 + '. ' + chapter.name }}</span>
-                    <img src="/icons/arrow.svg" class="arrow-up" :class="{ 'arrow-down': openChapters[index] }" alt="">
+            <div v-for="(module, moduleIndex) in material" :key="moduleIndex" class="chapter">
+                <div class="chapter-header" @click="toggleChapter(moduleIndex)">
+                    <span>{{ moduleIndex + 1 + '. ' + module.title }}</span>
+                    <img src="/icons/arrow.svg" class="arrow-up" :class="{ 'arrow-down': openModules[moduleIndex] }"
+                        alt="">
                 </div>
 
-                <div class="steps" v-if="chapter.steps" v-show="openChapters[index]">
-                    <div v-for="(step, stepIndex) in chapter.steps" :key="stepIndex" class="step-link"
-                        active-class="active-step">
+                <div class="steps" v-if="module.pages" v-show="openModules[moduleIndex]">
+                    <RouterLink v-for="(page, pageIndex) in module.pages" :key="pageIndex" class="step-link"
+                        :to="getPageRoute(moduleIndex, pageIndex)" active-class="active-step">
                         <div class="step-content">
-                            {{ index + 1 + '.' + (stepIndex + 1) + ' ' + step.name }}
+                            {{ moduleIndex + 1 + '.' + (pageIndex + 1) + ' ' + page.title }}
                         </div>
-                    </div>
-                    <!-- <RouterLink :to="`/courseCompletion/${route.params.courseId}/${index}/${stepIndex}`"
-                        v-for="(step, stepIndex) in chapter.steps" :key="stepIndex" class="step-link"
-                        active-class="active-step">
-
-                    </RouterLink> -->
+                    </RouterLink>
                 </div>
             </div>
         </div>
@@ -35,7 +31,7 @@
 </template>
 
 <script setup>
-import { inject, ref, watch } from 'vue'
+import { inject, ref, watch, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -43,42 +39,58 @@ const router = useRouter()
 const material = inject('material')
 const course = inject('course')
 
-const currentCourse = ref(null)
-const openChapters = ref({})
+const openModules = ref({})
+
+const initOpenModules = () => {
+    if (!material.value) return
+    material.value.forEach((_, index) => {
+        openModules.value[index] = index === 0
+    })
+}
+
+const getPageRoute = (moduleIndex, pageIndex) => {
+    return {
+        name: 'CourseCompletion',
+        params: {
+            courseId: route.params.courseId,
+            moduleIndex: moduleIndex,
+            pageIndex: pageIndex
+        }
+    }
+}
 
 const toggleChapter = (index) => {
-    openChapters.value = {
-        ...openChapters.value,
-        [index]: !openChapters.value[index]
+    openModules.value = {
+        ...openModules.value,
+        [index]: !openModules.value[index]
     }
 }
 
 const goBack = () => {
-    router.back()
+    router.push('/courses')
 }
 
+const currentModuleIndex = computed(() => {
+    return parseInt(route.params.moduleIndex) || 0
+})
+
 watch(
-    () => [material.value, route.params.courseId],
+    () => [material.value, currentModuleIndex.value],
     () => {
-        if (!material.value || !route.params.courseId) return
-
-        const courseId = course.id
-
-        const materialEntry = Object.values(material.value).find(
-            courseMaterial => courseMaterial?.courseId === courseId
-        )
-
-        if (materialEntry) {
-            currentCourse.value = materialEntry
-            if (currentCourse.value.chapters?.length) {
-                openChapters.value = { 0: true }
-            }
-        } else {
-            currentCourse.value = null
+        if (material.value && currentModuleIndex.value !== undefined) {
+            // Закрываем все модули
+            Object.keys(openModules.value).forEach(key => {
+                openModules.value[key] = false
+            })
+            // Открываем текущий модуль
+            openModules.value[currentModuleIndex.value] = true
         }
     },
     { immediate: true }
 )
+
+// Инициализация при монтировании
+onMounted(initOpenModules)
 </script>
 
 <style scoped lang="scss">
@@ -176,12 +188,6 @@ watch(
                         &:hover {
                             background-color: #E9F2FF;
                         }
-                    }
-
-                    &.active-step .step-content {
-                        background: #E9F2FF;
-                        font-weight: 500;
-                        color: #513DEB;
                     }
                 }
             }

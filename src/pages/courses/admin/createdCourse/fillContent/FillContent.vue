@@ -25,6 +25,7 @@
 import { onMounted, provide, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
+import { getCourse } from '@/api/modules/courses.api';
 
 import FillCourseContentLayout from '@/layouts/FillCourseContentLayout.vue';
 import Module from './components/Module.vue';
@@ -37,8 +38,7 @@ const router = useRouter()
 
 const fetchCourse = async () => {
     try {
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses/${route.params.courseId}`)
-        course.value = data
+        course.value = await getCourse(route.params.courseId)
     } catch (err) { console.log(err) }
 }
 

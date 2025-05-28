@@ -7,7 +7,7 @@
             <button class="close-sidebar icon" v-if="isMobile" @click="$emit('close')">×</button>
         </div>
         <div class="navigation">
-            <template v-for="(section, sectionIndex) in sidebarContent[mockUser.role]" :key="sectionIndex">
+            <template v-for="(section, sectionIndex) in sidebarContent[user.role]" :key="sectionIndex">
                 <h1 v-if="section.header">{{ section.header }}</h1>
                 <template v-for="(item, itemIndex) in section.items || [section]" :key="itemIndex">
                     <RouterLink v-if="item.linkTo" :to="item.linkTo" class="link" @click="handleCourseClick(item)">
@@ -16,14 +16,14 @@
                             <span>{{ item.title }}</span>
                             <img v-if="item.list" class="arrow" :class="{ 'arrow-up': isCoursesListOpen }"
                                 src="/icons/arrow.svg" alt="">
-                            <span v-if="item.counter" class="circle">{{ mockUser[item.name] }}</span>
+                            <!-- <span v-if="item.counter" class="circle">{{ user[item.name] }}</span> -->
                         </div>
                         <div v-if="item.list" class="courses-list" :class="{ 'active': isCoursesListOpen }">
-                            <RouterLink v-for="course in courses" :key="course.id" :to="mockUser.role === 'student'
+                            <RouterLink v-for="course in courses" :key="course.id" :to="user.role === 'student'
                                 ? `/courses/${course.id}/my-study`
                                 : '/classrooms'" class="course-link">
-                                <img class="avatar" :src="course.imageUrl" alt="">
-                                <span class="name">{{ course.name }}</span>
+                                <img class="avatar" :src="course.imageUrl || '/image.png'" alt="">
+                                <span class="name">{{ course.title }}</span>
                             </RouterLink>
                         </div>
                     </RouterLink>
@@ -40,7 +40,7 @@
             </template>
         </div>
         <div class="user" @click="showUserActions = !showUserActions">
-            <img class="avatar" :src="user.avatar" alt="User-Avatar">
+            <img class="avatar" :src="user.avatar || '/image.png'" alt="User-Avatar">
             <span>{{ user.name }}</span>
             <button class="icon">
                 <img src="/icons/menu-vertical.svg" alt="">
@@ -64,10 +64,13 @@
 </template>
 
 <script setup>
-import { mockUser } from '@/mocks/user';
+// import { mockUser } from '@/mocks/user';
 import axios from 'axios';
 import { ref, watch, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { getCourses } from '@/api/modules/courses.api';
+import { resetRoleRoutes } from '@/router';
+
 import ConfirmDelete from './modals/ConfirmDelete.vue';
 import EditUser from './modals/EditUser.vue';
 
@@ -88,7 +91,7 @@ const courses = ref([]);
 const showUserActions = ref(false);
 const showConfirmExit = ref(false);
 const showEditModal = ref(false);
-const user = ref(mockUser);
+const user = ref({ role: localStorage.getItem('user_role'), name: localStorage.getItem('user_name') });
 const loadedCourses = ref(false);
 
 const isCoursesRoute = computed(() => route.path.startsWith('/courses'));
@@ -115,7 +118,7 @@ const sidebarContent = {
             linkTo: '/classrooms'
         }
     ],
-    teacher: [
+    curator: [
         {
             header: 'Преподавание',
             items: [
@@ -181,6 +184,8 @@ const sidebarContent = {
 };
 
 const exitFromProfile = () => {
+    localStorage.clear()
+    resetRoleRoutes()
     router.push('/');
 };
 
@@ -203,14 +208,8 @@ const saveUserChanges = (changes) => {
 };
 
 const fetchCourses = async () => {
-    try {
-        const params = { sortBy: '-id' };
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses`, { params });
-        courses.value = data.map(obj => ({ ...obj }));
-    } catch (err) {
-        console.log(err);
-    }
-};
+    courses.value = await getCourses()
+}
 
 const openList = () => {
     isCoursesListOpen.value = !isCoursesListOpen.value;
@@ -332,18 +331,6 @@ onMounted(() => {
                 align-items: center;
                 padding: 8px 20px;
                 position: relative;
-
-                .circle {
-                    position: absolute;
-                    right: 20px;
-                    background: #E9F2FF;
-                    border-radius: 50%;
-                    width: 24px;
-                    height: 24px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
             }
         }
 
@@ -364,8 +351,9 @@ onMounted(() => {
             }
 
             .avatar {
-                width: 24px;
-                height: 24px;
+                width: 30px;
+                height: 30px;
+                border-radius: 4px;
             }
 
             .course-link {

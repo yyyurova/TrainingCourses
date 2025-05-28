@@ -37,6 +37,9 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { login } from '@/api/modules/auth.api';
+import { initRouter } from '@/router';
+import { addRoleRoutes } from '@/router';
 
 import { mockUser } from '@/mocks/user';
 
@@ -88,12 +91,28 @@ const validateForm = () => {
 }
 
 const router = useRouter()
-const handleSubmit = () => {
+const handleSubmit = async () => {
     if (validateForm()) {
-        if (mockUser.role === 'admin')
-            router.push('/users')
-        if (mockUser.role === 'student') {
-            router.push('/courses')
+        try {
+            const resp = await login(email.value, password.value)
+            localStorage.removeItem('user')
+            localStorage.setItem('token', resp.data.data.access_token)
+            localStorage.setItem('user_name', resp.data.data.name)
+            localStorage.setItem('user_role', resp.data.data.role)
+            console.log(resp.data.data.access_token)
+            // Обновляем маршруты
+            addRoleRoutes(resp.data.data.role);
+            console.log(2)
+            if (resp.data.data.role === 'admin') {
+                router.push('/users')
+            } else if (resp.data.data.role === 'curator') {
+                router.push('/course/practicants')
+            } else {
+                router.push('/courses')
+            }
+        }
+        catch (err) {
+            console.log(err)
         }
     }
 }

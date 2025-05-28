@@ -39,6 +39,7 @@ import { onMounted, ref, computed, watch } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
 import { mockUser } from '@/mocks/user';
+import { getCourse } from '@/api/modules/courses.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
@@ -64,10 +65,7 @@ const navbarItems = computed(() => {
 const fetchCourse = async (id) => {
     try {
         isLoading.value = true;
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses/${id}`);
-        course.value = data;
-    } catch (error) {
-        console.error('Ошибка загрузки курса:', error);
+        course.value = await getCourse(id);
     } finally {
         isLoading.value = false;
     }

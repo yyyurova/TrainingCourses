@@ -43,6 +43,8 @@
 <script setup>
 import axios from 'axios';
 import { ref, computed, inject, onMounted } from 'vue';
+import { getUsers } from '@/api/modules/users.api';
+
 import Card from '@/components/Card.vue';
 
 const emit = defineEmits(['cancel', 'confirm']);
@@ -100,15 +102,7 @@ const clearSearch = () => {
 };
 
 const fetchUsers = async () => {
-    try {
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users`);
-
-        allUsers.value = data.map(obj => ({
-            ...obj
-        }));
-    } catch (error) {
-        console.error('Error fetching users:', error);
-    }
+    allUsers.value = await getUsers()
 };
 
 const addMembers = () => {

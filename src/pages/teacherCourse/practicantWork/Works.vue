@@ -178,7 +178,6 @@ const updateMark = async ({ practicantId, mark, taskId, courseId }) => {
             tasks: updatedCourse.tasks
         });
 
-        console.log("Оценка успешно обновлена");
     } catch (err) {
         console.error("Ошибка при обновлении оценки:", err);
     }
