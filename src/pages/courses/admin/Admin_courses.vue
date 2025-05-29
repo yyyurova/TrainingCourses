@@ -8,7 +8,7 @@
         <div class="courses">
             <Card v-for="course in courses" :key="course.id">
                 <div class="top">
-                    <img class="avatar" width :src="course.imageUrl || '/image.png'" alt="avatar">
+                    <img class="avatar" width :src="course.photo || '/image.png'" alt="avatar">
                     <span class="name-of-course">{{ course.title }}</span>
 
                     <div class="action-buttons">
@@ -40,7 +40,7 @@
 import axios from "axios";
 import { useRouter } from "vue-router";
 import { onMounted, provide, ref } from "vue";
-import { getCourses } from "@/api/modules/courses.api";
+import { getCourses, deleteCourse as apiDeleteCourse, editCourse as apiEditCourse, createCourse as apiCreateCourse } from "@/api/modules/adminCourses.api";
 
 import Layout from '@/layouts/Layout.vue'
 import Card from '@/components/Card.vue'
@@ -103,7 +103,7 @@ const fetchCourses = async () => {
 const deleteCourse = async () => {
     if (!selectedCourse.value) return
     try {
-        await axios.delete(`https://c1a9f09250b13f61.mokky.dev/courses/${selectedCourse.value.id}`)
+        await apiDeleteCourse(selectedCourse.value.id)
         await fetchCourses()
         showConfirmDeleteModal.value = false
         popupText.value = 'Курс удален'
@@ -124,18 +124,14 @@ const deleteCourse = async () => {
 
 const createCourse = async (course) => {
     if (!course) return
+
     try {
         closeModal()
-        const { data } = await axios.post(`https://c1a9f09250b13f61.mokky.dev/courses`, {
-            name: course.name,
-            imageUrl: course.imageUrl
+        const data = await apiCreateCourse({
+            title: course.title,
+            // photo: course.photo || null
         })
-        popupText.value = 'Курс создан'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000);
-        router.push(`/course-fill-content/${data.id}`)
+        router.push(`/course-fill-content/${data.data.data.id}`)
     }
     catch (err) {
         console.log(err)
@@ -143,12 +139,12 @@ const createCourse = async (course) => {
 }
 
 const editCourse = async (updatedCourse) => {
-    if (!updatedCourse) return;
+    if (!updatedCourse || !selectedCourse.value) return;
     try {
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${updatedCourse.id}`, {
-            name: updatedCourse.name,
-            imageUrl: updatedCourse.imageUrl
-        });
+        await apiEditCourse(selectedCourse.value.id, {
+            title: updatedCourse.title,
+            photo: updatedCourse.imageUrl
+        })
 
         closeModal();
         popupText.value = 'Изменения сохранены';
@@ -182,7 +178,8 @@ button.blue {
     margin: 15px 0;
 
     .card {
-        width: 32%;
+        width: calc(50% - 5px) !important;
+
         cursor: pointer;
 
         .top {
@@ -206,12 +203,6 @@ button.blue {
                 border-radius: 4px;
             }
         }
-    }
-}
-
-@media (max-width:1280px) {
-    .card {
-        width: 49% !important;
     }
 }
 

@@ -6,8 +6,8 @@
                 <select v-model="selectedRole" id="selectRole">
                     <option value="" disabled selected hidden>Выберите роль</option>
                     <option value="admin">Администратор</option>
-                    <option value="student">Студент</option>
-                    <option value="teacher">Куратор</option>
+                    <option value="user">Студент</option>
+                    <option value="curator">Куратор</option>
                 </select>
                 <div class="modal-buttons">
                     <button @click="cancel" class="transparent">Отмена</button>
@@ -24,7 +24,6 @@ import { ref } from 'vue';
 const selectedRole = ref('')
 
 const emit = defineEmits(['cancel', 'save'])
-
 
 const save = () => {
     if (!selectedRole.value || selectedRole.value === '') {

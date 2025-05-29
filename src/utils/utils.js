@@ -5,10 +5,10 @@ export function translateRole(role) {
         case 'admin':
             translated = 'Администратор'
             break
-        case 'student':
+        case 'user':
             translated = 'Студент'
             break
-        case 'teacher':
+        case 'curator':
             translated = 'Куратор'
             break
         default:
@@ -22,13 +22,13 @@ export function translateStatus(status) {
     let translated;
 
     switch (status.toLowerCase()) {
-        case 'new user':
+        case 'pending':
             translated = 'Новый пользователь'
             break
         case 'approved':
             translated = 'Доступ одобрен'
             break
-        case 'disapproved':
+        case 'rejected':
             translated = 'Доступ не одобрен'
             break
         default:

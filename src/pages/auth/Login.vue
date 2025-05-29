@@ -5,7 +5,8 @@
             <h1 id="header">Вход</h1>
             <div class="field">
                 <label for="email">Электронная почта<span class="required">*</span></label>
-                <input v-model="email" type="email" class="email credintals" placeholder="name@email.com" required>
+                <input autocomplete="email" v-model="email" type="email" class="email credintals"
+                    placeholder="name@email.com" required>
                 <span v-if="errors.email" class="error">{{ errors.email }}</span>
             </div>
             <div class="field">
@@ -16,6 +17,7 @@
                 </div>
                 <span v-if="errors.password" class="error">{{ errors.password }}</span>
             </div>
+            <span v-if="errors.all" class="error">{{ errors.all }}</span>
             <button type="submit" class="sign-in">Войти</button>
             <div class="separator">или</div>
             <div class="google-container">
@@ -35,7 +37,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { login } from '@/api/modules/auth.api';
 import { initRouter } from '@/router';
@@ -95,14 +97,15 @@ const handleSubmit = async () => {
     if (validateForm()) {
         try {
             const resp = await login(email.value, password.value)
-            localStorage.removeItem('user')
+            localStorage.removeItem('user_role')
             localStorage.setItem('token', resp.data.data.access_token)
             localStorage.setItem('user_name', resp.data.data.name)
             localStorage.setItem('user_role', resp.data.data.role)
-            console.log(resp.data.data.access_token)
-            // Обновляем маршруты
+            // setTimeout(() => {
+            //     localStorage.removeItem('user_role')
+            // }, 20000000000000);
+
             addRoleRoutes(resp.data.data.role);
-            console.log(2)
             if (resp.data.data.role === 'admin') {
                 router.push('/users')
             } else if (resp.data.data.role === 'curator') {
@@ -113,9 +116,15 @@ const handleSubmit = async () => {
         }
         catch (err) {
             console.log(err)
+            errors.all = 'Неправильные email или пароль'
+            // router.push('/')
         }
     }
 }
+
+onMounted(() => {
+    localStorage.setItem('user_role', 'student')
+})
 </script>
 
 <style scoped lang="scss">

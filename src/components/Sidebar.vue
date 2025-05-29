@@ -19,7 +19,7 @@
                             <!-- <span v-if="item.counter" class="circle">{{ user[item.name] }}</span> -->
                         </div>
                         <div v-if="item.list" class="courses-list" :class="{ 'active': isCoursesListOpen }">
-                            <RouterLink v-for="course in courses" :key="course.id" :to="user.role === 'student'
+                            <RouterLink v-for="course in courses" :key="course.id" :to="user.role === 'user'
                                 ? `/courses/${course.id}/my-study`
                                 : '/classrooms'" class="course-link">
                                 <img class="avatar" :src="course.imageUrl || '/image.png'" alt="">
@@ -68,7 +68,8 @@
 import axios from 'axios';
 import { ref, watch, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getCourses } from '@/api/modules/courses.api';
+import { getCourses as studentCoursesApi } from '@/api/modules/courses.api';
+import { getCourses as adminCoursesApi } from '@/api/modules/adminCourses.api';
 import { resetRoleRoutes } from '@/router';
 
 import ConfirmDelete from './modals/ConfirmDelete.vue';
@@ -148,7 +149,7 @@ const sidebarContent = {
             ]
         }
     ],
-    student: [
+    user: [
         {
             header: 'Обучение',
             items: [
@@ -208,7 +209,11 @@ const saveUserChanges = (changes) => {
 };
 
 const fetchCourses = async () => {
-    courses.value = await getCourses()
+    if (user.value.role === 'user') {
+        courses.value = await studentCoursesApi()
+    } else {
+        courses.value = await adminCoursesApi()
+    }
 }
 
 const openList = () => {

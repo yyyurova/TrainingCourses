@@ -71,7 +71,7 @@ onMounted(() => {
 });
 
 watch(() => course.value, () => {
-    document.title = course.value.name
+    document.title = course.value.title
 })
 
 </script>

@@ -25,7 +25,8 @@
 import { onMounted, provide, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-import { getCourse } from '@/api/modules/courses.api';
+// import { getCourse } from '@/api/modules/courses.api';
+import { getCourse } from '@/api/modules/adminCourses.api';
 
 import FillCourseContentLayout from '@/layouts/FillCourseContentLayout.vue';
 import Module from './components/Module.vue';

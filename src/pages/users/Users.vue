@@ -32,8 +32,7 @@
 </template>
 <script setup>
 import { ref, onMounted, nextTick, watch, provide, onUnmounted } from 'vue'
-import axios from 'axios'
-import { getUsers } from '@/api/modules/users.api'
+import { getUsers, deleteUser as apiDeleteUser, editUser, createUser } from '@/api/modules/users.api'
 
 import Layout from '../../layouts/Layout.vue'
 
@@ -82,13 +81,6 @@ const fetchUsers = async () => {
     try {
         saveScrollPosition();
 
-        const params = {
-            // token: localStorage.getItem('token'),
-            // page: currentPage.value,
-            // per_page: 15, // Добавляем количество элементов на страницу
-            // sortBy: '-id'
-        };
-
         if (filters.value.role) params.role = filters.value.role;
         if (filters.value.status) params.status = filters.value.status;
         if (filters.value.email) params.email = filters.value.email;
@@ -109,7 +101,6 @@ const fetchUsers = async () => {
         isLoading.value = false;
     }
 };
-
 
 const updateCurrentPage = (newPage) => {
     currentPage.value = newPage
@@ -159,7 +150,7 @@ const deleteUser = async (user) => {
     if (!user) return
     closeModal()
     try {
-        await axios.delete(`https://c1a9f09250b13f61.mokky.dev/users/${user.id}`)
+        await apiDeleteUser(user.id)
         await fetchUsers()
     } catch (error) {
         console.error('Error deleting user:', error)
@@ -171,10 +162,19 @@ const disapproveUser = async (user) => {
     closeModal()
     try {
         isLoading.value = true
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/users/${user.id}`, {
-            status: 'Доступ не одобрен'
+        await editUser(user.id, {
+            ...user,
+            status: 'rejected'
         })
+        // await axios.patch(`https://c1a9f09250b13f61.mokky.dev/users/${user.id}`, {
+        //     status: 'Доступ не одобрен'
+        // })
         await fetchUsers()
+        popupText.value = 'Пользователь удален'
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 5000);
     } catch (error) {
         console.error('Error disapproving user:', error)
     } finally {
@@ -191,10 +191,12 @@ const approveUser = async (role) => {
     if (!selectedUser.value || !role) return;
     closeModal();
     try {
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/users/${selectedUser.value.id}`, {
+
+        await editUser(selectedUser.value.id, {
+            ...selectedUser.value,
             role: role,
             status: 'approved'
-        });
+        })
         await fetchUsers();
     } catch (error) {
         console.error('Error approving user:', error);
@@ -218,16 +220,21 @@ const handleFilter = ({ type, value }) => {
         filters.value[type] = value;
     }
 };
+
 const handleCreateUser = async (user) => {
     try {
         closeModal()
-        const { data } = await axios.post(`https://c1a9f09250b13f61.mokky.dev/users`, {
+
+        await createUser({
             name: user.name,
             email: user.email,
             status: user.status,
             role: user.role,
             date: new Date()
         })
+        // const { data } = await axios.post(`https://c1a9f09250b13f61.mokky.dev/users`, {
+
+        // })
         await fetchUsers()
         popupText.value = 'Пользователь создан'
         showPopup.value = true
@@ -244,10 +251,12 @@ const openEditModal = (user) => {
     showEditModal.value = true;
 };
 
-const handleEditUser = async (user, newInfo) => {
+const handleEditUser = async (user, newUser) => {
     try {
+        console.log(newUser)
         closeModal()
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/users/${user.id}`, newInfo);
+        await editUser(user.id, newUser)
+        // await axios.patch(`https://c1a9f09250b13f61.mokky.dev/users/${user.id}`, newInfo);
         await fetchUsers();
         popupText.value = 'Изменения сохранены'
         showPopup.value = true
@@ -273,6 +282,7 @@ const closePopup = () => {
 
 onMounted(async () => {
     await fetchUsers()
+    console.log(localStorage.getItem('token'))
 })
 
 provide('filters', filters)

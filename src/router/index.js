@@ -78,8 +78,7 @@ export const router = createRouter({
 });
 
 export function addRoleRoutes(role) {
-    resetRoleRoutes(); // Сначала очищаем старые маршруты
-
+    resetRoleRoutes();
     let routes = [];
 
     switch (role) {
@@ -98,12 +97,32 @@ export function addRoleRoutes(role) {
         router.addRoute(route);
     });
 }
-
-export function initRouter() {
-    console.log(localStorage.getItem('user_role'))
+export async function initRouter() {
+    const token = localStorage.getItem('token');
     const role = localStorage.getItem('user_role');
-    if (role) addRoleRoutes(role);
+
+    if (role && token) {
+        addRoleRoutes(role);
+        return true;
+    }
+    return false;
 }
+
+// Добавьте этот хук в самом конце файла
+router.beforeEach(async (to, from, next) => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('user_role');
+
+    if (token && role) {
+        if (!router.hasRoute(to.name)) {
+            addRoleRoutes(role);
+            next(to.fullPath); // Повторим навигацию после добавления маршрутов
+            return;
+        }
+    }
+
+    next();
+});
 
 router.afterEach((to) => {
     document.title = to.meta?.title || 'Training Courses';
@@ -117,91 +136,3 @@ export function resetRoleRoutes() {
         }
     });
 }
-
-// function getRoleRoutes() {
-//     if (user_role === 'admin') {
-//         return [...adminRoutes];
-//     }
-//     if (user_role === 'user') {
-//         return [...studentRoutes,
-//         {
-//             path: '/chat',
-//             name: 'Chat',
-//             component: Chat,
-//             meta: {
-//                 title: 'Чат'
-//             },
-//             children: [
-//                 {
-//                     path: ':chatId',
-//                     name: 'ChatDialog',
-//                     component: Chat,
-//                     props: true,
-//                     children: [
-//                         {
-//                             path: 'members',
-//                             name: 'Members',
-//                             component: Members,
-//                         },
-//                         {
-//                             path: 'docs',
-//                             name: 'Documents',
-//                             component: Docs,
-//                         },
-//                         {
-//                             path: 'attachments',
-//                             name: 'Attachments',
-//                             component: Attachments,
-//                         }
-//                     ]
-//                 }
-//             ]
-//         }
-//         ];
-//     }
-//     if (user_role === 'teacher') {
-//         return [...teacherRoutes, {
-//             path: '/chat',
-//             name: 'Chat',
-//             component: Chat,
-//             meta: {
-//                 title: 'Чат'
-//             },
-//             children: [
-//                 {
-//                     path: ':chatId',
-//                     name: 'ChatDialog',
-//                     component: Chat,
-//                     props: true,
-//                     children: [
-//                         {
-//                             path: 'members',
-//                             name: 'Members',
-//                             component: Members,
-//                         },
-//                         {
-//                             path: 'docs',
-//                             name: 'Documents',
-//                             component: Docs,
-//                         },
-//                         {
-//                             path: 'attachments',
-//                             name: 'Attachments',
-//                             component: Attachments,
-//                         }
-//                     ]
-//                 }
-//             ]
-//         },]
-//     }
-//     return [];
-// }
-
-// export const router = createRouter({
-//     history: createWebHistory(),
-//     routes: [...baseRoutes, ...getRoleRoutes()]
-// });
-
-// router.afterEach((to) => {
-//     document.title = to.meta?.title || 'Training Courses';
-// });

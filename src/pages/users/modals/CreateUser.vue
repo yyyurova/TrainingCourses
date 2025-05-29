@@ -15,16 +15,16 @@
                     <select v-model="userRole" id="userRole">
                         <option value="" disabled selected hidden>Выберите роль</option>
                         <option value="admin">Администратор</option>
-                        <option value="student">Студент</option>
+                        <option value="user">Студент</option>
                         <option value="curator">Куратор</option>
                     </select>
 
                     <p>Статус<span class="required">*</span></p>
                     <select v-model="userStatus" id="userStatus">
                         <option value="" disabled selected hidden>Выберите статус</option>
-                        <option value="new user">Новый пользователь</option>
+                        <option value="pending">Новый пользователь</option>
                         <option value="approved">Доступ одобрен</option>
-                        <option value="disapprove">Доступ не одобрен</option>
+                        <option value="rejected">Доступ не одобрен</option>
                     </select>
 
                     <div class="modal-buttons">

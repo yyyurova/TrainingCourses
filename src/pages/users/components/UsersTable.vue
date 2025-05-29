@@ -51,7 +51,7 @@
                     <td>{{ user.email }}</td>
                     <td>
                         <p :style="{ backgroundColor: statusBackgrounds[user.status] }">{{ translateStatus(user.status)
-                            }}</p>
+                        }}</p>
                     </td>
                     <td>
                         {{ translateStatus(user.status) === 'Доступ не одобрен' || translateStatus(user.status) ===
@@ -125,8 +125,8 @@ const toggleArrow = (event) => {
 
 const statusBackgrounds = {
     'approved': '#007843',
-    'disapproved': '#CD3232',
-    'new user': '#513DEB'
+    'rejected': '#CD3232',
+    'pending': '#513DEB'
 }
 
 const actionButtons = {
@@ -138,7 +138,7 @@ const actionButtons = {
             src: '/icons/delete.svg', class: 'delete'
         }
     ],
-    'new user': [
+    'pending': [
         {
             src: '/icons/tick.svg', class: 'approve'
         },
@@ -146,7 +146,7 @@ const actionButtons = {
             src: '/icons/cross.svg', class: 'disapprove'
         }
     ],
-    'disapproved': [
+    'rejected': [
         {
             src: '/icons/tick.svg', class: 'approve'
         },
@@ -156,7 +156,7 @@ const actionButtons = {
     ],
 }
 
-const emit = defineEmits(['delete-user', 'disapprove-user', 'open-approve-modal', 'filter',]);
+const emit = defineEmits(['delete-user', 'disapprove-user', 'open-approve-modal', 'filter', 'edit-user']);
 
 const handleAction = (actionType, user) => {
     switch (actionType) {

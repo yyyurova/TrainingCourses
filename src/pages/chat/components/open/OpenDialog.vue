@@ -109,7 +109,7 @@ const openConfirmDeleteModal = () => {
 }
 
 const pluralizeParticipants = computed(() => {
-    const count = Number(selectedChat.value.members.length) || 0;
+    const count = Number(selectedChat.value.members_count) || 0;
     return count + ' ' + pluralize(count, 'нет участников', 'участник', 'участника', 'участников');
 });
 

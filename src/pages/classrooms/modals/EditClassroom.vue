@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 const emit = defineEmits(['cancel', 'edit']);
 
@@ -28,11 +28,10 @@ const props = defineProps({
     }
 });
 
-const classroomName = ref(props.classroom.name);
+console.log(props.classroom)
 
-watch(() => props.classroom, (newVal) => {
-    classroomName.value = newVal.name;
-}, { immediate: true });
+const classroomName = ref(props.classroom.title);
+console.log(classroomName.value)
 
 const cancel = () => {
     emit('cancel');
@@ -40,10 +39,10 @@ const cancel = () => {
 
 const save = () => {
     const classroomData = {
+        title: classroomName.value,
         id: props.classroom.id,
-        name: classroomName.value,
+        course_id: props.classroom.course.id
     };
-
     emit('edit', classroomData);
 };
 </script>

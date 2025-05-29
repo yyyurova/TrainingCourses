@@ -5,7 +5,7 @@
                 <h2>Редактировать курс</h2>
                 <div class="form-group">
                     <Card class="no-hover">
-                        <img :src="courseImagePreview" alt="Course image">
+                        <img :src="courseImagePreview || '/image.png'" alt="Course image">
                         <div class="modal-buttons">
                             <button class="transparent" type="button" @click="triggerFileInput">Загрузить</button>
                             <button class="transparent" type="button" @click="removeImage">Удалить</button>
@@ -40,16 +40,16 @@ const props = defineProps({
     }
 });
 
-const courseName = ref(props.course.name);
+
+const courseName = ref(props.course.title);
 const courseImageBase64 = ref(null);
-const courseImagePreview = ref(props.course.imageUrl);
+const courseImagePreview = ref(props.course.photo);
 const fileInput = ref(null);
 const nameError = ref(false);
 
-// Следим за изменениями пропса course
 watch(() => props.course, (newVal) => {
-    courseName.value = newVal.name;
-    courseImagePreview.value = newVal.imageUrl;
+    courseName.value = newVal.title;
+    courseImagePreview.value = newVal.phoyo;
     courseImageBase64.value = null;
     if (fileInput.value) fileInput.value.value = '';
 }, { immediate: true });
@@ -88,10 +88,9 @@ const save = () => {
 
     const courseData = {
         id: props.course.id,
-        name: courseName.value,
-        imageUrl: courseImageBase64.value || courseImagePreview.value
+        title: courseName.value,
+        photo: courseImageBase64.value || courseImagePreview.value
     };
-
     emit('edit', courseData);
 };
 </script>

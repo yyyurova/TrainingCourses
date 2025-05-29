@@ -5,11 +5,12 @@
             <span>Создать учебный класс</span>
             <img src="/icons/plus.svg" alt="">
         </button>
-        <div class="classrooms">
+        <Loading v-if="isLoading" />
+        <div class="classrooms" v-if="classrooms && !isLoading">
             <Card v-for="classroom in classrooms" :key="classroom.id">
                 <div class="left">
-                    <p class="name">{{ classroom.name }}</p>
-                    <p class="course">{{ classroom.course }}</p>
+                    <p class="name">{{ classroom.title }}</p>
+                    <p class="course">{{ classroom.course.title }}</p>
                     <p class="members">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -37,14 +38,16 @@
 
         <EditClassroom v-if="showEditModal" :classroom="selectedClassroom" @cancel="closeModal" @edit="editClassroom" />
 
-        <CreateClassroom v-if="showCreateModal" @cancel="closeModal" @create="createClassroom" />
+        <CreateClassroom v-if="showCreateModal" @cancel="closeModal" @next="openAddModal" />
+
+        <AddCuratorAndMEmbers v-if="showAddcuretorAndMembersModal" @cancel="closeModal" @save="handleSave" />
     </Layout>
 </template>
 
 <script setup>
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
-import { getClassrooms } from '@/api/modules/classrooms.api';
+import { getClassrooms, deleteClass, createClassroom, addCuratorToClass, addUsersToClass, editClass } from '@/api/modules/classrooms.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Card from '@/components/Card.vue';
@@ -52,12 +55,17 @@ import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 import Popup from '@/components/Popup.vue';
 import EditClassroom from './modals/EditClassroom.vue';
 import CreateClassroom from './modals/СreateClassroom.vue'
+import Loading from '@/components/Loading.vue';
+import AddCuratorAndMEmbers from './modals/AddCuratorAndMEmbers.vue';
 
-const classrooms = ref('')
+const classrooms = ref([])
+
+const isLoading = ref(false)
 
 const showConfirmDeleteModal = ref(false)
 const showEditModal = ref(false)
 const showCreateModal = ref(false)
+const showAddcuretorAndMembersModal = ref(false)
 
 const selectedClassroom = ref(null)
 
@@ -68,6 +76,7 @@ const closeModal = () => {
     if (showConfirmDeleteModal.value) { showConfirmDeleteModal.value = false }
     if (showEditModal.value) { showEditModal.value = false }
     if (showCreateModal.value) { showCreateModal.value = false }
+    if (showAddcuretorAndMembersModal.value) { showAddcuretorAndMembersModal.value = false }
 }
 
 const closePopup = () => {
@@ -88,20 +97,62 @@ const openEeditModal = (classroom) => {
 const openCreateModal = () => {
     showCreateModal.value = true
 }
+const openAddModal = async (classroomData) => {
+    try {
+        isLoading.value = true;
+        const response = await createClassroom({
+            title: classroomData.title,
+            course_id: classroomData.course_id
+        });
+        createdClassroomId.value = response.id;
+        closeModal();
+        showAddcuretorAndMembersModal.value = true;
+    } catch (error) {
+        popupText.value = 'Ошибка при создании класса';
+        showPopup.value = true;
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const handleSave = async (data) => {
+    try {
+        isLoading.value = true;
+
+        if (data.curator) {
+            await addCuratorToClass(createdClassroomId.value, data.curator);
+        }
+
+        if (data.members && data.members.length > 0) {
+            await addUsersToClass(createdClassroomId.value, data.members);
+        }
+
+        popupText.value = 'Класс успешно создан';
+        showPopup.value = true;
+        closeModal();
+        await fetchClassrooms();
+    } catch (error) {
+        popupText.value = 'Ошибка при сохранении данных';
+        showPopup.value = true;
+    } finally {
+        isLoading.value = false;
+    }
+};
 
 const deleteClassroom = async () => {
     if (!selectedClassroom.value) return
     try {
+        isLoading.value = true
         closeModal()
-        await axios.delete(`https://c1a9f09250b13f61.mokky.dev/classrooms/${selectedClassroom.value.id}`)
+        await deleteClass(selectedClassroom.value.id)
         await fetchClassrooms()
         popupText.value = 'Учебный класс удален'
         showPopup.value = true
         setTimeout(() => {
             showPopup.value = false
         }, 5000)
-    } catch (err) {
-        console.log(err)
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -109,9 +160,7 @@ const editClassroom = async (updatedClassroom) => {
     if (!updatedClassroom) return
     try {
         closeModal()
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/classrooms/${updatedClassroom.id}`, {
-            name: updatedClassroom.name
-        })
+        await editClass(updatedClassroom.id, updatedClassroom)
         await fetchClassrooms()
         popupText.value = 'Изменения сохранены'
         showPopup.value = true
@@ -123,27 +172,63 @@ const editClassroom = async (updatedClassroom) => {
     }
 }
 
-const createClassroom = async (classroomData) => {
-    if (!classroomData) return
-    try {
-        await axios.post(`https://c1a9f09250b13f61.mokky.dev/classrooms`, {
-            name: classroomData.name,
-            course: classroomData.course.name,
-            members: classroomData.members.map(member => member.id)
-        })
-        await fetchClassrooms()
-        popupText.value = 'Учебный класс создан'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
-    }
-    catch (err) { console.log(err) }
-}
+// const createClassroom = async (classroomData) => {
+//     if (!classroomData) return
+//     try {
+//         await axios.post(`https://c1a9f09250b13f61.mokky.dev/classrooms`, {
+//             name: classroomData.name,
+//             course: classroomData.course.name,
+//             members: classroomData.members.map(member => member.id)
+//         })
+//         await fetchClassrooms()
+//         popupText.value = 'Учебный класс создан'
+//         showPopup.value = true
+//         setTimeout(() => {
+//             showPopup.value = false
+//         }, 5000)
+//     }
+//     catch (err) { console.log(err) }
+// }
 
 const fetchClassrooms = async () => {
-    classrooms.value = await getClassrooms()
-}
+    isLoading.value = true;
+    try {
+        classrooms.value = await getClassrooms();
+    } catch (error) {
+        popupText.value = 'Ошибка загрузки классов';
+        showPopup.value = true;
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const createdClassroomId = ref(null);
+
+
+const save = async () => {
+    try {
+        isLoading.value = true;
+
+        // Добавляем куратора (первый выбранный пользователь с ролью куратора)
+        const curator = classroomMembers.value.find(member => member.role === 'curator');
+        if (curator) {
+            await addCuratorToClass(createdClassroomId.value, curator.id);
+        }
+
+        // Добавляем участников
+        await addUsersToClass(createdClassroomId.value, classroomMembers.value);
+
+        popupText.value = 'Класс успешно создан';
+        showPopup.value = true;
+        closeModal();
+        await fetchClassrooms();
+    } catch (error) {
+        popupText.value = 'Ошибка при сохранении данных';
+        showPopup.value = true;
+    } finally {
+        isLoading.value = false;
+    }
+};
 
 onMounted(async () => {
     await fetchClassrooms()

@@ -9,11 +9,9 @@ import 'v-calendar/style.css';
 
 const app = createApp(App)
 
-initRouter()
-
 app.use(VCalendar, {})
 app.use(router)
 
-app.mount('#app').$nextTick(() => {
-    localStorage.setItem('user_role', 'student')
-});
+// initRouter()
+
+app.mount('#app')

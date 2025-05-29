@@ -10,36 +10,21 @@
 
                 <div class="form-group">
                     <p>Курс<span class="required">*</span></p>
-                    <input :value="classroomCourse !== null ? classroomCourse.name : ''"
-                        @blur="handleCourseBlur($event)"
+                    <input :value="classroomCourse?.title || ''" @blur="handleCourseBlur($event)"
                         @focus="showCoursesDropdown = true; handleDropdownPosition($event)" type="text"
                         placeholder="Начните вводить название курса">
                     <div v-show="showCoursesDropdown" class="dropdown courses">
                         <div v-for="course in courses" :key="course.id" class="item"
                             @mousedown="classroomCourse = course">
-                            <img :src="course.imageUrl" :alt="course.name">
-                            <span>{{ course.name }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <p>Участники<span class="required">*</span></p>
-                    <input :value="classroomMembers.map(member => member.name).join(', ')"
-                        @blur="handleUserBlur($event)" @focus="showUsersDropdown = true; handleDropdownPosition($event)"
-                        @input="handleInput" type="text" placeholder="Начните вводить имя или фамилию">
-                    <div v-show="showUsersDropdown" class="dropdown">
-                        <div v-for="user in users" :key="user.id" class="item" @mousedown.prevent>
-                            <input type="checkbox" :value="user" v-model="classroomMembers">
-                            <img src="/icons/Avatar.svg" :alt="user.name">
-                            <span>{{ user.name }}</span>
+                            <img :src="course.imageUrl || 'image.png'" :alt="course.title">
+                            <span>{{ course.title }}</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-buttons">
                     <button class="transparent" @click="cancel">Отмена</button>
-                    <button class="blue" @click="create">Создать</button>
+                    <button class="blue" @click="next">Далее</button>
                 </div>
             </div>
         </div>
@@ -49,42 +34,38 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
 import axios from 'axios';
-import { getCourses } from '@/api/modules/courses.api';
+import { getCourses } from '@/api/modules/adminCourses.api';
 import { getUsers } from '@/api/modules/users.api';
 
-const emit = defineEmits(['cancel', 'create']);
+const emit = defineEmits(['cancel', 'next']);
 
 const classroomName = ref('');
-const classroomMembers = ref([])
 const classroomCourse = ref(null)
 
-const showUsersDropdown = ref(false)
 const showCoursesDropdown = ref(false)
-
-const users = ref([])
 
 const courses = ref([])
 
 const cancel = () => {
     classroomName.value = '';
     classroomCourse.value = null
-    classroomMembers.value = []
     emit('cancel');
 };
 
-const create = () => {
-    const classroomData = {
-        name: classroomName.value,
-        course: classroomCourse.value,
-        members: classroomMembers.value,
-    };
+const next = () => {
+    if (!classroomName.value || !classroomCourse.value) {
+        // Можно добавить обработку ошибки
+        return;
+    }
 
-    emit('create', classroomData);
-    cancel();
-};
-
-const fetchUsers = async () => {
-    users.value = await getUsers()
+    // console.log({
+    //     title: classroomName.value,
+    //     course_id: classroomCourse.value.id
+    // })
+    emit('next', {
+        title: classroomName.value,
+        course_id: classroomCourse.value.id
+    });
 };
 
 const fetchCourses = async () => {
@@ -102,19 +83,6 @@ const handleDropdownPosition = (event) => {
     dropdown.style.minWidth = `${rect.width}px`
 }
 
-const handleUserBlur = (event) => {
-    setTimeout(() => {
-        showUsersDropdown.value = false;
-        const input = event.target
-        const dropdown = input.nextElementSibling
-        if (!dropdown) return
-
-        // const rect = input.getBoundingClientRect()
-        dropdown.style.top = `0px`
-        dropdown.style.left = `0px`
-    }, 100);
-};
-
 const handleCourseBlur = (event) => {
     setTimeout(() => {
         showCoursesDropdown.value = false;
@@ -130,7 +98,6 @@ const handleCourseBlur = (event) => {
 };
 
 onMounted(async () => {
-    await fetchUsers()
     await fetchCourses()
 })
 </script>

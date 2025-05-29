@@ -9,7 +9,7 @@
 
         <div class="course-info">
             <img :src="course.imageUrl || '/avatar.png'" alt="">
-            <p class="course-name">{{ course.name }}</p>
+            <p class="course-name">{{ course.title }}</p>
         </div>
 
         <button class="blue wide">Опубликовать курс</button>
@@ -27,7 +27,7 @@
             </RouterLink>
         </div>
         <div class="user" @click="showUserActions = !showUserActions">
-            <img class="avatar" :src="user.avatar" alt="User-Avatar">
+            <img class="avatar" :src="user.avatar || '/image.png'" alt="User-Avatar">
             <span>{{ user.name }}</span>
             <button class="icon">
                 <img src="/icons/menu-vertical.svg" alt="">
@@ -60,7 +60,7 @@ import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 const showUserActions = ref(false);
 const showConfirmExit = ref(false);
 const showEditModal = ref(false);
-const user = ref(mockUser);
+const user = ref({ name: localStorage.getItem('user_name'), role: localStorage.getItem('user_role') });
 
 const course = inject('course')
 

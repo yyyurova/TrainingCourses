@@ -16,7 +16,7 @@ import axios from 'axios';
 import { provide, ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { getChats } from '@/api/modules/chats.api';
+import { getChats, createChat as apiCreateChat } from '@/api/modules/chat.api';
 import { getUser } from '@/api/modules/users.api';
 
 import ChatLayout from '@/layouts/ChatLayout.vue';
@@ -137,13 +137,14 @@ const createChat = async (selectedMembers) => {
     }
 
     const newChat = {
-        name: groupName,
-        members: selectedMembers.map(m => m.id),
-        date: new Date().toISOString(),
-        avatar: groupImage || null
+        title: groupName,
+        // members: selectedMembers.map(m => m.id),
+        // date: new Date().toISOString(),
+        // avatar: groupImage || null
     };
 
     try {
+        await apiCreateChat(newChat)
         const response = await axios.post('https://c1a9f09250b13f61.mokky.dev/chats', newChat);
         await fetchChats();
 

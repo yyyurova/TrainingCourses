@@ -74,8 +74,8 @@ const create = () => {
     }
 
     const courseData = {
-        name: courseName.value,
-        imageUrl: courseImageBase64.value || '/avatar.png',
+        title: courseName.value,
+        // photo: courseImageBase64.value || null,
     };
 
     emit('create', courseData);

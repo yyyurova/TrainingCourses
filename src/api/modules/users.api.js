@@ -13,12 +13,15 @@ const apiClient = axios.create({
 
 export const getUsers = async (params = {}) => {
     try {
-        console.log(localStorage.getItem('token'))
         const response = await apiClient.get("/users", { params });
-        console.log(response)
         return response.data;
     } catch (error) {
-        console.error('Ошибка загрузки пользователей:', error);
+        console.error('Полная ошибка:', error);
+        if (error.response) {
+            console.error('Данные ошибки:', error.response.data);
+            console.error('Статус:', error.response.status);
+            console.error('Заголовки:', error.response.headers);
+        }
         return { data: [], meta: {} };
     }
 };
@@ -32,9 +35,10 @@ export const getUser = async (userId) => {
         return null;
     }
 };
+
 export const deleteUser = async (userId) => {
     try {
-        await axios.delete(`https://api-course.hellishworld.ru/api/admin/users/${userId}`);
+        await apiClient.delete(`https://api-course.hellishworld.ru/api/admin/users/${userId}`);
         // return response.data.data
     } catch (error) {
         console.error('Ошибка :', error);
@@ -42,10 +46,19 @@ export const deleteUser = async (userId) => {
     }
 };
 
-
-export const editUser = async (userId) => {
+export const editUser = async (userId, newUser) => {
     try {
-        await axios.put(`https://api-course.hellishworld.ru/api/admin/users/${userId}`);
+        await apiClient.patch(`/users/${userId}`, newUser);
+        // return response.data.data
+    } catch (error) {
+        console.error('Ошибка :', error);
+        return null;
+    }
+};
+
+export const createUser = async (newUser) => {
+    try {
+        await apiClient.post(`/users`, newUser);
         // return response.data.data
     } catch (error) {
         console.error('Ошибка :', error);

@@ -16,14 +16,14 @@
                         <option value="" disabled selected hidden>Выберите роль</option>
                         <option value="admin">Администратор</option>
                         <option value="student">Студент</option>
-                        <option value="teacher">Преподаватель</option>
+                        <option value="curator">Преподаватель</option>
                     </select>
 
                     <p>Статус<span class="required">*</span></p>
                     <select v-model="form.status" id="userStatus">
                         <option value="approved">Доступ одобрен</option>
-                        <option value="disapproved">Доступ не одобрен</option>
-                        <option value="new user">Новый пользователь</option>
+                        <option value="rejected">Доступ не одобрен</option>
+                        <option value="pending">Новый пользователь</option>
                     </select>
 
                     <div class="modal-buttons">
@@ -54,7 +54,9 @@ const form = ref({
     name: '',
     email: '',
     role: '',
-    status: ''
+    status: '',
+    // password: props.user.password,
+    // image: props.user.image || '/image.png'
 });
 
 const validate = () => {
@@ -100,8 +102,8 @@ watch(() => props.user, (newVal) => {
         form.value = {
             name: newVal.name,
             email: newVal.email,
-            role: newVal.role || '',
-            status: newVal.status || 'new user'
+            role: newVal.role || 'student',
+            status: newVal.status || 'pending'
         };
     }
 }, { immediate: true });
