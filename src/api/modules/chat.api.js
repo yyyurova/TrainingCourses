@@ -29,13 +29,26 @@ export const getChatMessages = async (chatId) => {
 }
 
 export const createMessage = async (chatId, message, attachments) => {
-    try {
-        await client.post(`${ENDPOINTS.CHAT}/${chatId}/messages`, { message: message, attachments: attachments || [] })
-    } catch (error) {
-        console.error('Ошибка добавления участников:', error);
-        // throw error;
+    const formData = new FormData();
+    formData.append('message', message);
+    console.log(message)
+    if (attachments) {
+        attachments.forEach(file => {
+            formData.append('attachments[]', file);
+        });
     }
-}
+
+    try {
+        await client.post(`${ENDPOINTS.CHAT}/${chatId}/messages`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+    } catch (error) {
+        console.error('Ошибка отправки сообщения:', error);
+        throw error;
+    }
+};
 
 export const deleteChat = async (chatId) => {
     try {

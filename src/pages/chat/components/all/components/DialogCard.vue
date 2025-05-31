@@ -12,7 +12,10 @@
         </div>
         <div class="dialog-content">
             <div class="text" v-if="chat.latest_message">
-                <p class="message-preview">{{ chat.latest_message.message }}</p>
+                <p class="message-preview">
+                    <img v-if="chat.latest_message.attachments.length > 0" src="/icons/file.svg" alt="">
+                    {{ chat.latest_message.message !== 'null' ? chat.latest_message.message : '' }}
+                </p>
                 <p class="date">{{ format(chat.latest_message.created_at, 'short') }}</p>
             </div>
             <!-- <span v-if="chat.unread" class="circle">{{ chat.latest_message.created_at }}</span> -->

@@ -2,7 +2,7 @@
     <Layout>
         <h1>Мое обучение</h1>
         <Navbar :elements="navbarItems" />
-        <div v-if="course && !isLoading">
+        <div class="page__inner" v-if="course && !isLoading">
             <div class="cards">
                 <Card class="course">
                     <div class="top">
@@ -164,53 +164,58 @@ h2 {
     margin: 15px 0 10px 0;
 }
 
-.cards {
-    margin: 15px 0;
-    display: flex;
-    gap: 10px;
+.page__inner {
+    margin-bottom: 15px;
+
+    .cards {
+        margin: 15px 0;
+        display: flex;
+        gap: 10px;
 
 
-    .card {
-        width: 50%;
+        .card {
+            width: 50%;
 
-        &.course {
-            .top {
-                width: 100%;
-                display: flex;
-                gap: 10px;
-                align-items: center;
+            &.course {
+                .top {
+                    width: 100%;
+                    display: flex;
+                    gap: 10px;
+                    align-items: center;
+                }
+            }
+
+            .top p {
+                flex: 1;
+                font-weight: 600;
+                font-size: 24px;
+                line-height: 28px;
+                letter-spacing: 1px;
+            }
+
+            &.teacher {
+                .teacher-name {
+                    font-weight: 400;
+                    font-size: 16px;
+                    line-height: 20px;
+                    letter-spacing: 0px;
+                }
+
             }
         }
 
-        .top p {
-            flex: 1;
-            font-weight: 600;
-            font-size: 24px;
-            line-height: 28px;
-            letter-spacing: 1px;
-        }
 
-        &.teacher {
-            .teacher-name {
-                font-weight: 400;
-                font-size: 16px;
-                line-height: 20px;
-                letter-spacing: 0px;
+        button {
+            margin: 10px 0;
+            height: 46px;
+
+            &.transparent {
+                border: 1px solid #513DEB;
             }
-
-        }
-    }
-
-
-    button {
-        margin: 10px 0;
-        height: 46px;
-
-        &.transparent {
-            border: 1px solid #513DEB;
         }
     }
 }
+
 
 .card:has(.calendar) {
     width: 100%;

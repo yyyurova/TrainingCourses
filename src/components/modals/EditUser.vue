@@ -28,16 +28,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 
-import { mockUser } from '@/mocks/user';
 import Card from '../Card.vue';
 
 const emit = defineEmits(['cancel', 'save'])
 
-const userName = ref(mockUser.name);
+const user = inject('user')
+const userName = ref(user.value.name);
 const avatarBase64 = ref(null);
-const avatarPreview = ref(mockUser.avatar || '/avatar.png');
+const avatarPreview = ref(user.value.avatar || '/avatar.png');
 const fileInput = ref(null);
 const nameError = ref(false);
 
@@ -65,7 +65,7 @@ const removeImage = () => {
 
 const cancel = () => {
     removeImage();
-    userName.value = mockUser.name;
+    userName.value = user.value.name;
     emit('cancel');
 };
 

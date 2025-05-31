@@ -37,7 +37,6 @@
                     <th class="date">
                         <p>
                             <span>Дата создания</span>
-                            <img class="arrow-up" src="/icons/arrow.svg" alt="">
                         </p>
                     </th>
                     <th class="actions"><span>Действия</span></th>
@@ -51,7 +50,7 @@
                     <td>{{ user.email }}</td>
                     <td>
                         <p :style="{ backgroundColor: statusBackgrounds[user.status] }">{{ translateStatus(user.status)
-                        }}</p>
+                            }}</p>
                     </td>
                     <td>
                         {{ translateStatus(user.status) === 'Доступ не одобрен' || translateStatus(user.status) ===

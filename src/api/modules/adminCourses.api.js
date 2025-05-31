@@ -38,7 +38,7 @@ export const editCourse = async (courseId, newUser) => {
 
 export const createCourse = async (newCourse) => {
     try {
-        return await apiClient.post(`/course`, newCourse);
+        return await client.post(`${ENDPOINTS.ADMIN_COURSE}`, newCourse);
     } catch (error) {
         console.error('Ошибка :', error);
         return null;

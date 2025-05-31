@@ -11,5 +11,7 @@ export const ENDPOINTS = {
     MODULES: '/modules',
     USERS: '/users',
 
+    PROFILE: '/user',
+
     CURATOR_STUDENTS: '/curator/students'
 }

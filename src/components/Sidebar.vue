@@ -64,13 +64,14 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue';
+import { ref, watch, computed, onMounted, provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getCourses as studentCoursesApi } from '@/api/modules/courses.api';
 import { getCourses as adminCoursesApi } from '@/api/modules/adminCourses.api';
 import { resetRoleRoutes } from '@/router';
 import { getCurrentUser } from '@/utils/auth';
 import { logout } from '@/utils/auth';
+import { editProfile } from '@/api/modules/profile.api';
 
 import ConfirmDelete from './modals/ConfirmDelete.vue';
 import EditUser from './modals/EditUser.vue';
@@ -204,8 +205,11 @@ const openEditModal = () => {
     showEditModal.value = true;
 };
 
-const saveUserChanges = (changes) => {
-    if (changes.name) user.value.name = changes.name;
+const saveUserChanges = async (changes) => {
+    if (changes.name) {
+        user.value.name = changes.name;
+        await editProfile(changes.name)
+    }
     if (changes.avatar) user.value.avatar = changes.avatar;
 };
 
@@ -255,6 +259,8 @@ watch(() => route.path, async (newPath) => {
 onMounted(() => {
     document.addEventListener('click', handleClickOutsideUser);
 });
+
+provide('user', user)
 </script>
 
 <style scoped lang="scss">

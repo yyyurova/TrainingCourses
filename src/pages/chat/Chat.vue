@@ -179,6 +179,7 @@ onMounted(async () => {
     selectedChat.value = null
     await fetchChats()
     window.addEventListener('resize', updateWindowWidth);
+    // console.log(chats.value)
 })
 </script>
 

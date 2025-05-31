@@ -104,7 +104,8 @@ const deleteCourse = async () => {
     if (!selectedCourse.value) return
     try {
         await apiDeleteCourse(selectedCourse.value.id)
-        await fetchCourses()
+        courses.value = courses.value.filter(c => c.id !== selectedCourse.value.id)
+        // await fetchCourses()
         showConfirmDeleteModal.value = false
         popupText.value = 'Курс удален'
         showPopup.value = true
@@ -141,11 +142,16 @@ const createCourse = async (course) => {
 const editCourse = async (updatedCourse) => {
     if (!updatedCourse || !selectedCourse.value) return;
     try {
+        courses.value = courses.value.filter(c => c.id !== selectedCourse.value.id)
         await apiEditCourse(selectedCourse.value.id, {
             title: updatedCourse.title,
             photo: updatedCourse.imageUrl
         })
-
+        courses.value.push({
+            ...selectedCourse.value, title: updatedCourse.title,
+            photo: updatedCourse.imageUrl
+        })
+        courses.value.sort(c => -c.id)
         closeModal();
         popupText.value = 'Изменения сохранены';
         showPopup.value = true;
@@ -153,7 +159,7 @@ const editCourse = async (updatedCourse) => {
             showPopup.value = false;
         }, 5000);
 
-        await fetchCourses();
+        // await fetchCourses();
     } catch (err) {
         console.error('Error updating course:', err);
     }

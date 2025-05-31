@@ -14,8 +14,14 @@
             </button>
         </div>
         <div class="dialog-content">
-            <div class="text">
-                <p class="message-preview">{{ chat.latest_message.message }}</p>
+            <div class="text" v-if="chat.latest_message">
+                <p v-if="chat.latest_message.message && chat.latest_message.message !== 'null'" class="message-preview">
+                    {{
+                        chat.latest_message.message }} </p>
+                <p v-else-if="chat.latest_message.attachments.length > 0" class="attachment-preview">
+                    <img src="/icons/file.svg" alt="">
+                    {{ chat.latest_message.attachments[0].url }}
+                </p>
                 <p class="date">{{ format(chat.latest_message.created_at, 'short') }}</p>
             </div>
             <!-- <span v-if="chat.unread" class="circle">{{ chat.unread }}</span> -->
@@ -85,7 +91,8 @@ const emit = defineEmits(['delete'])
             gap: 10px;
             flex: 1;
 
-            .message-preview {
+            .message-preview,
+            .attachment-preview {
                 flex: 1;
                 white-space: nowrap;
                 overflow: hidden;
@@ -95,6 +102,12 @@ const emit = defineEmits(['delete'])
                 font-size: 16px;
                 line-height: 20px;
                 letter-spacing: 0px;
+            }
+
+            .attachment-preview {
+                display: flex;
+                align-items: center;
+                gap: 5px;
             }
 
             .date {

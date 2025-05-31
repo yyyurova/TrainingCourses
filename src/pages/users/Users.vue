@@ -285,8 +285,6 @@ const closePopup = () => {
 
 onMounted(async () => {
     await fetchUsers()
-    console.log(getCurrentUser().role)
-    console.log(getUserRole())
 })
 
 provide('filters', filters)

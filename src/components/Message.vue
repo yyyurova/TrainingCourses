@@ -3,13 +3,17 @@
         <div v-if="!message.isMe" class="message-header">
             <span class="username">{{ message.user.name }}</span>
         </div>
-        <div class="message-content">
-            <p v-if="message">{{ message.message }}</p>
-            <div class="files" v-if="message.files">
-                <div v-for="file in message.files" :key="file.name" class="file">
-                    <img src="/icons/file.svg" alt="">
-                    <p>{{ file.name }}</p>
-                    <!-- <a href="#" @click.prevent="downloadFile(file)">{{ file.name }}</a> -->
+        <div class="message__inner">
+            <div class="message-content">
+                <p v-if="message.message !== 'null'">{{ message.message }}</p>
+                <div class="files" v-if="message.attachments.length > 0">
+                    <div v-for="attachment in message.attachments" :key="attachment.id" class="file">
+                        <button class="icon">
+                            <img src="/icons/file.svg" alt="">
+                        </button>
+                        <!-- <p>{{ attachment.url }}</p> -->
+                        <a :href="attachment.url">{{ attachment.url }}</a>
+                    </div>
                 </div>
             </div>
             <span class="timestamp">{{ format(message.created_at, { time: 'short' }) }}</span>
@@ -51,36 +55,65 @@ const props = defineProps({
         margin-bottom: 5px;
     }
 
-    .message-content {
+    .message__inner {
         display: flex;
         gap: 10px;
-        justify-content: space-between;
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 20px;
-        letter-spacing: 0px;
-        word-break: break-all;
-        overflow-wrap: break-word;
-        word-break: break-word;
 
-        .files {
-            width: 100%;
+        .message-content {
             display: flex;
             flex-direction: column;
-            gap: 7px;
+            gap: 10px;
+            justify-content: space-between;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 20px;
+            letter-spacing: 0px;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            word-break: break-word;
 
-            .file {
+            .files {
                 width: 100%;
                 display: flex;
-                gap: 10px;
-                align-items: center;
+                flex-direction: column;
+                gap: 7px;
 
-                a {
-                    text-decoration: none;
+                .file {
+                    width: 100%;
+                    display: flex;
+                    gap: 10px;
+                    align-items: flex-start;
+
+                    p {
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                    }
+
+                    button.icon {
+                        padding: 7px;
+                        border: 1px solid #513DEB;
+
+                        img {
+                            width: 20px;
+                        }
+                    }
+
+                    a {
+                        text-decoration: none;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                    }
                 }
             }
         }
     }
+
 
     .username {
         font-weight: 400;

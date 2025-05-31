@@ -120,11 +120,15 @@ const fileUpload = () => {
         const files = Array.from(e.target.files);
 
         files.forEach(file => {
-            attachedFiles.value.push({
-                name: file.name,
-                size: formatFileSize(file.size),
-                file: file
-            });
+            if (attachedFiles.value.length < 10) { // API допускает до 10 вложений
+                attachedFiles.value.push({
+                    name: file.name,
+                    size: formatFileSize(file.size),
+                    file: file
+                });
+            } else {
+                alert('Максимум 10 файлов');
+            }
         });
     };
 
@@ -150,31 +154,20 @@ const toBase64 = (file) => {
 
 const sendMessage = async () => {
     const text = input.value.value.trim();
+
+    // Если нет текста и нет файлов - не отправляем
     if (!text && attachedFiles.value.length === 0) return;
 
-    let base64Attachments = [];
-
-    if (attachedFiles.value.length > 0) {
-        try {
-            base64Attachments = await Promise.all(
-                attachedFiles.value.map(fileObj => toBase64(fileObj.file))
-            );
-        } catch (error) {
-            console.error('Ошибка преобразования файлов', error);
-            return;
-        }
-    }
-
     try {
+        // Всегда отправляем текст (даже если он пустой)
         await createMessage(
             selectedChat.value.id,
-            text || null,
-            base64Attachments.length > 0 ? base64Attachments : null
+            text || null, // Отправляем пробел если нет текста
+            attachedFiles.value.map(f => f.file)
         );
 
         input.value.value = '';
         attachedFiles.value = [];
-
         await fetchMessages();
 
         setTimeout(() => {
@@ -183,11 +176,11 @@ const sendMessage = async () => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
         }, 50);
-
     } catch (error) {
         console.error('Ошибка отправки сообщения', error);
     }
 };
+
 const deleteFile = (file) => {
     attachedFiles.value = attachedFiles.value.filter(item => item.name !== file.name)
 }

@@ -3,7 +3,7 @@ import { ENDPOINTS } from '../constants/endpoints';
 
 export const getModules = async (courseId) => {
     try {
-        const response = await axios.get(`${ENDPOINTS.COURSES}/${courseId}/modules`);
+        const response = await client.get(`${ENDPOINTS.COURSES}/${courseId}/modules`);
         return response.data.data
     } catch (error) {
         console.error('Ошибка :', error);
@@ -13,7 +13,7 @@ export const getModules = async (courseId) => {
 
 export const getModulePages = async (moduleId) => {
     try {
-        const response = await axios.get(`${ENDPOINTS.MODULES}/${moduleId}/pages`);
+        const response = await client.get(`${ENDPOINTS.MODULES}/${moduleId}/pages`);
         return response.data.data
     } catch (error) {
         console.error('Ошибка :', error);
@@ -23,7 +23,7 @@ export const getModulePages = async (moduleId) => {
 
 export const getModulePage = async (moduleId, pageId) => {
     try {
-        const response = await axios.get(`${ENDPOINTS.MODULES}/${moduleId}/pages/${pageId}`);
+        const response = await client.get(`${ENDPOINTS.MODULES}/${moduleId}/pages/${pageId}`);
         return response.data.data
     } catch (error) {
         console.error('Ошибка :', error);
