@@ -1,14 +1,14 @@
 <template>
-    <Card v-if="lesson" class="no-hover">
-        <h3 class="number">{{ (moduleIndex + 1) + '.' + (lessonIndex + 1) }}</h3>
+    <Card v-if="page" class="no-hover">
+        <h3 class="number">{{ (moduleIndex + 1) + '.' + (pageIndex + 1) }}</h3>
         <div class="input-container">
-            <input type="text" class="name" :value="lesson.name" @input="$emit('update:name', $event.target.value)"
+            <input type="text" class="name" :value="page.name" @input="$emit('update:name', $event.target.value)"
                 @blur="checkEmptyness">
             <p v-if="warning !== ''">{{ warning }}</p>
         </div>
 
         <div class="action-buttons">
-            <button class="icon" @click="deleteLesson(moduleIndex, lessonIndex)">
+            <button class="icon" @click="deletePage(moduleIndex, pageIndex)">
                 <img src="/icons/x.svg" alt="">
             </button>
         </div>
@@ -16,31 +16,32 @@
 </template>
 
 <script setup>
-import { inject, ref } from 'vue';
-
+import { ref } from 'vue';
 import Card from '@/components/Card.vue';
 
-const warning = ref('')
+const warning = ref('');
 
-defineProps({
-    lesson: Object,
+const props = defineProps({
+    page: Object,
     moduleIndex: Number,
-    lessonIndex: Number
-})
+    pageIndex: Number
+});
 
-defineEmits(['update:name']);
+const emit = defineEmits(['update:name']);
 
-const deleteLesson = inject('deleteLesson')
+const deletePage = (moduleIdx, pageIdx) => {
+    emit('delete-page', moduleIdx, pageIdx);
+};
 
 const checkEmptyness = (e) => {
     if (e.target.value.trim() === '') {
-        e.target.style.border = '1px solid red'
-        warning.value = 'Это поле нельзя оставлять пустым'
+        e.target.style.border = '1px solid red';
+        warning.value = 'Это поле нельзя оставлять пустым';
     } else {
-        e.target.style.border = '1px solid transparent'
-        warning.value = ''
+        e.target.style.border = '1px solid transparent';
+        warning.value = '';
     }
-}
+};
 </script>
 
 <style scoped lang="scss">

@@ -8,13 +8,13 @@
                         <button v-if="isMobile" class="icon" @click="() => emit('backToAllChats')">
                             <img class="arrow-left" src="/icons/arrow.svg" alt="">
                         </button>
-                        <img src="/icons/Avatar.svg">
-                        <h1>{{ selectedChat.userName ? selectedChat.userName : selectedChat.name }}</h1>
+                        <img :src="selectedChat.avatar || '/icons/Avatar.svg'">
+                        <h1>{{ selectedChat.title }}</h1>
                     </div>
-                    <p v-if="selectedChat.members" class="am-members">{{ pluralizeParticipants }}</p>
+                    <p v-if="selectedChat.is_group === 1" class="am-members">{{ pluralizeParticipants }}</p>
                 </div>
 
-                <div v-if="selectedChat.members" class="right-part">
+                <div v-if="selectedChat.is_group === 1" class="right-part">
                     <button class="icon" @click.stop="openAddModal">
                         <img src="/icons/add.svg" alt="">
                     </button>
@@ -24,7 +24,7 @@
                 </div>
             </div>
         </div>
-        <div v-if="selectedChat.content || messages.length > 0" class="messages-in-chat">
+        <div v-if="messages.length > 0" class="messages-in-chat">
             <div class="spacer"></div>
             <Message v-for="(message, index) in messages" :key="index" :message="message" />
         </div>
@@ -50,16 +50,16 @@
     <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить чат?"
         text="Удалённую переписку нельзя будет восстановить" right-button-text="Удалить"
         @confirm="deleteChat(selectedChat.id)" @cancel="closeModal" />
-    <AddUserModal v-if="showAddModal" :members="selectedChat.members" @cancel="closeModal" @confirm="handleAddMembers"
-        rightButtonText="Добавить" />
+    <AddUserModal v-if="showAddModal" :members="selectedChat.members" @cancel="closeModal" @add="addToExistingChat"
+        right-button-text="Добавить" />
 </template>
 
 <script setup>
-import axios from 'axios';
 import pluralize from 'pluralize-ru';
 import { inject, watch, ref, computed, onMounted } from 'vue';
 import { format } from '@formkit/tempo';
 import { decodeUtf8 } from '@/utils/utils';
+import { getChatMessages, getChat, getChatMembers, createMessage } from '@/api/modules/chat.api';
 
 import NoMessages from './components/NoMessages.vue';
 import Message from '@/components/Message.vue';
@@ -69,6 +69,7 @@ import AddUserModal from './components/modals/AddUserModal.vue';
 
 const emit = defineEmits(['openSettings', 'backToAllChats'])
 const deleteChat = inject('deleteChat')
+const addMembers = inject('addMembers');
 
 defineProps({ isMobile: Boolean })
 
@@ -80,20 +81,16 @@ const attachedFiles = ref([])
 const showConfirmDeleteModal = ref(false)
 const showAddModal = ref(false)
 
-const handleAddMembers = async (newMembers) => {
-    try {
-        const updatedMembers = [...selectedChat.value.members, ...newMembers.map(m => m.id)];
+const fetchMessages = async () => {
+    messages.value = await getChatMessages(selectedChat.value.id)
+    messages.value.sort((a, b) =>
+        new Date(a.created_at) - new Date(b.created_at)
+    );
+}
 
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/chats/${selectedChat.value.id}`, {
-            members: updatedMembers
-        });
-
-        selectedChat.value.members = updatedMembers;
-        // await fetchMembers();
-    } catch (err) {
-        console.error('Ошибка при добавлении участников:', err);
-    }
-};
+const fetchMembers = async () => {
+    selectedChat.value.members = await getChatMembers(selectedChat.value.id)
+}
 
 const closeModal = () => {
     if (showConfirmDeleteModal.value) { showConfirmDeleteModal.value = false }
@@ -109,7 +106,7 @@ const openConfirmDeleteModal = () => {
 }
 
 const pluralizeParticipants = computed(() => {
-    const count = Number(selectedChat.value.members_count) || 0;
+    const count = Number(selectedChat.value.members_count);
     return count + ' ' + pluralize(count, 'нет участников', 'участник', 'участника', 'участников');
 });
 
@@ -142,79 +139,82 @@ const formatFileSize = (bytes) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
+const toBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+    });
+};
+
 const sendMessage = async () => {
     const text = input.value.value.trim();
     if (!text && attachedFiles.value.length === 0) return;
 
-    let uploadedFiles = [];
+    let base64Attachments = [];
+
     if (attachedFiles.value.length > 0) {
         try {
-            uploadedFiles = await Promise.all(
-                attachedFiles.value.map(async (fileObj) => {
-                    const formData = new FormData();
-                    formData.append('file', fileObj.file);
-
-                    const res = await fetch('https://c1a9f09250b13f61.mokky.dev/uploads', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (!res.ok) throw new Error('Ошибка загрузки файла');
-
-                    return await res.json();
-                })
+            base64Attachments = await Promise.all(
+                attachedFiles.value.map(fileObj => toBase64(fileObj.file))
             );
         } catch (error) {
-            console.error('Ошибка при загрузке файлов:', error);
+            console.error('Ошибка преобразования файлов', error);
             return;
         }
     }
 
-    if (text) {
-        messages.value.push({
-            text,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            isMe: true,
-        });
+    try {
+        await createMessage(
+            selectedChat.value.id,
+            text || null,
+            base64Attachments.length > 0 ? base64Attachments : null
+        );
+
+        input.value.value = '';
+        attachedFiles.value = [];
+
+        await fetchMessages();
+
+        setTimeout(() => {
+            const messagesContainer = document.querySelector('.messages-in-chat');
+            if (messagesContainer) {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }, 50);
+
+    } catch (error) {
+        console.error('Ошибка отправки сообщения', error);
     }
-
-    if (uploadedFiles.length > 0) {
-        messages.value.push({
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            isMe: true,
-            files: uploadedFiles.map(file => ({
-                name: decodeUtf8(file.fileName),
-                url: file.url,
-                size: formatFileSize(file.bytes)
-            }))
-        });
-    }
-
-    input.value.value = '';
-    attachedFiles.value = [];
-
-    setTimeout(() => {
-        const messagesContainer = document.querySelector('.messages-in-chat');
-        if (messagesContainer) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-    }, 50);
 };
-
 const deleteFile = (file) => {
     attachedFiles.value = attachedFiles.value.filter(item => item.name !== file.name)
 }
 
-watch(selectedChat, (newChat) => {
-    if (newChat.content) {
-        messages.value = [{
-            userName: newChat.userName || newChat.name,
-            text: newChat.content,
-            time: format(newChat.date, { time: 'short' })
-        }]
+const addToExistingChat = async (members) => {
+    try {
+        closeModal()
+        const memberIds = members.map(m => m.id);
+
+        await addMembers(memberIds);
+
+        const response = await getChat(selectedChat.value.id);
+        selectedChat.value = response;
+        await fetchMembers()
+    } catch (error) {
+        console.error("Ошибка добавления участников", error);
     }
+};
+
+watch(selectedChat, async (newChat) => {
+    await fetchMessages()
 }, { immediate: true })
 
+onMounted(async () => {
+    await fetchMembers()
+    await fetchMessages()
+})
 </script>
 <style scoped lang="scss">
 .open {

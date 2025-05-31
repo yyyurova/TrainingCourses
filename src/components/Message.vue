@@ -1,10 +1,10 @@
 <template>
-    <div v-if="message" class="message" :class="message.isMe ? 'right' : 'left'">
+    <div v-if="message" class="message" :class="message.user.id === getUserId() ? 'right' : 'left'">
         <div v-if="!message.isMe" class="message-header">
-            <span class="username">{{ message.userName }}</span>
+            <span class="username">{{ message.user.name }}</span>
         </div>
         <div class="message-content">
-            <p v-if="message.text">{{ message.text }}</p>
+            <p v-if="message">{{ message.message }}</p>
             <div class="files" v-if="message.files">
                 <div v-for="file in message.files" :key="file.name" class="file">
                     <img src="/icons/file.svg" alt="">
@@ -12,39 +12,18 @@
                     <!-- <a href="#" @click.prevent="downloadFile(file)">{{ file.name }}</a> -->
                 </div>
             </div>
-            <span class="timestamp">{{ message.time }}</span>
+            <span class="timestamp">{{ format(message.created_at, { time: 'short' }) }}</span>
         </div>
     </div>
-    <!-- <div v-else class="message" :class="selectedChat.isMe ? 'right' : 'left'">
-        <div v-if="!selectedChat.isMe" class="message-header">
-            <span class="username">{{ selectedChat.name || selectedChat.userName }}</span>
-        </div>
-        <div class="message-content">
-            {{ selectedChat.content }}
-            <span class="timestamp">{{ format(selectedChat.date, { time: 'short' }) }}</span>
-        </div>
-    </div> -->
 </template>
 
 <script setup>
-// import { format } from '@formkit/tempo';
+import { format } from '@formkit/tempo';
+import { getUserId } from '@/utils/auth';
 
-defineProps({
+const props = defineProps({
     message: Object,
-    // selectedChat: Object
 })
-
-// const downloadFile = (file) => {
-//     const link = document.createElement('a');
-//     link.href = file.url;
-//     link.download = file.name || 'download';
-//     link.target = '_blank';
-
-//     document.body.appendChild(link);
-//     link.click();
-
-//     document.body.removeChild(link);
-// };
 </script>
 
 <style scoped lang="scss">

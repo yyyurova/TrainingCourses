@@ -7,18 +7,18 @@
                 <!-- <img :src="chat.avatar ? chat.avatar : '/avatar.png'"> -->
                 <img src="/avatar.png" alt="">
 
-                <p class="partner-name">{{ chat.name }}</p>
+                <p class="partner-name">{{ chat.title }}</p>
             </div>
             <button class="icon" @click="$emit('delete', chat.id)">
                 <img src="/icons/delete.svg" alt="">
             </button>
         </div>
         <div class="dialog-content">
-            <div class="text-left">
-                <p v-if="chat.content" class="message-preview">{{ chat.content }}</p>
-                <p class="date">{{ format(chat.date, 'short') }}</p>
+            <div class="text">
+                <p class="message-preview">{{ chat.latest_message.message }}</p>
+                <p class="date">{{ format(chat.latest_message.created_at, 'short') }}</p>
             </div>
-            <span v-if="chat.unread" class="circle">{{ chat.unread }}</span>
+            <!-- <span v-if="chat.unread" class="circle">{{ chat.unread }}</span> -->
         </div>
     </div>
 </template>

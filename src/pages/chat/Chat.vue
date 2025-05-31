@@ -16,8 +16,8 @@ import axios from 'axios';
 import { provide, ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { getChats, createChat as apiCreateChat } from '@/api/modules/chat.api';
-import { getUser } from '@/api/modules/users.api';
+import { getChats, createChat as apiCreateChat, deleteChat as apiDeleteChat, addMembersToChat } from '@/api/modules/chat.api';
+import { getUser } from '@/api/modules/adminUsers.api';
 
 import ChatLayout from '@/layouts/ChatLayout.vue';
 import AllChats from './components/all/AllChats.vue';
@@ -70,7 +70,7 @@ const goBackToChats = () => {
 
 const openSettings = () => {
     settingsIsOpen.value = true
-    if (selectedChat.value.members) {
+    if (selectedChat.value.is_group === 1) {
         router.push({
             name: 'Members',
             params: { chatId: selectedChat.value.id }
@@ -121,40 +121,37 @@ const fetchChats = async () => {
 
 const deleteChat = async (id) => {
     try {
-        await axios.delete(`https://c1a9f09250b13f61.mokky.dev/chats/${id}`)
+        await apiDeleteChat(id)
         selectedChat.value = null
         await fetchChats()
     } catch (err) { console.log(err) }
 }
 
-const createChat = async (selectedMembers) => {
-    const groupImage = localStorage.getItem('groupImage');
-    const groupName = localStorage.getItem('groupName');
-
-    if (!groupName) {
-        console.error('Название группы обязательно');
-        return;
-    }
-
-    const newChat = {
-        title: groupName,
-        // members: selectedMembers.map(m => m.id),
-        // date: new Date().toISOString(),
-        // avatar: groupImage || null
-    };
-
+const createChat = async (newChat) => {
     try {
-        await apiCreateChat(newChat)
-        const response = await axios.post('https://c1a9f09250b13f61.mokky.dev/chats', newChat);
-        await fetchChats();
+        // Создаем чат с названием и типом
+        const response = await apiCreateChat({
+            title: newChat.title,
+            is_group: newChat.isGroup,
+            avatar: newChat.avatar // Добавляем аватар
+        });
 
         const createdChat = response.data;
-        openDialog(createdChat);
+        await fetchChats(); // Обновляем список чатов
+
+        return createdChat; // Возвращаем созданный чат
     } catch (err) {
         console.error('Ошибка создания чата:', err);
-    } finally {
-        localStorage.removeItem('groupName');
-        localStorage.removeItem('groupImage');
+        throw err;
+    }
+};
+
+const addMembers = async (newMembers) => {
+    try {
+        await addMembersToChat(selectedChat.value.id, newMembers)
+        await fetchChats()
+    } catch (err) {
+        console.error('Ошибка при добавлении участников:', err);
     }
 };
 
@@ -176,6 +173,7 @@ provide('originalChats', originalChats)
 provide('settingsIsOpen', settingsIsOpen)
 provide('createChat', createChat)
 provide('deleteChat', deleteChat)
+provide('addMembers', addMembers)
 
 onMounted(async () => {
     selectedChat.value = null

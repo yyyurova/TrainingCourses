@@ -32,9 +32,7 @@
             </div>
             <div class="modal-buttons">
                 <button class="transparent" @click="emit('cancel')">Отмена</button>
-                <button class="blue" @click="confirm">{{
-                    rightButtonText
-                }}</button>
+                <button class="blue" @click="add">{{ rightButtonText }}</button>
             </div>
         </div>
     </div>
@@ -47,7 +45,8 @@ import { getUsers } from '@/api/modules/users.api';
 
 import Card from '@/components/Card.vue';
 
-const emit = defineEmits(['cancel', 'confirm']);
+const emit = defineEmits(['cancel', 'add']);
+
 const props = defineProps({
     rightButtonText: String,
     members: {
@@ -64,10 +63,12 @@ const allUsers = ref([])
 const nameInput = ref('');
 const selectedMembers = ref([]);
 
+const addMembers = inject('addMembers')
+
 const availableUsers = computed(() => {
     if (!props.members || props.members.length === 0) return allUsers.value
     return allUsers.value.filter(user =>
-        !props.members.some(member => member === user.id)
+        !props.members.some(member => member.id === user.id)
     );
 });
 
@@ -103,30 +104,19 @@ const clearSearch = () => {
 
 const fetchUsers = async () => {
     allUsers.value = await getUsers()
+    allUsers.value = allUsers.value.filter(u => u.id)
 };
 
-const addMembers = () => {
-    emit('cancel');
-    emit('confirm', selectedMembers.value);
+const add = () => {
+    if (selectedMembers.value.length === 0) return;
+
+    emit('add', selectedMembers.value); // Передаем выбранных пользователей
     selectedMembers.value = [];
 };
 
-const createChat = () => {
-    emit('cancel')
-    emit('confirm', selectedMembers.value)
-    selectedMembers.value = []
-    clearSearch()
-}
-
-const confirm = () => {
-    if (props.rightButtonText === 'Добавить') {
-        addMembers()
-    } else if (props.rightButtonText === 'Создать') {
-        createChat()
-    }
-}
-
-onMounted(fetchUsers)
+onMounted(async () => {
+    await fetchUsers()
+})
 </script>
 
 <style scoped lang="scss">

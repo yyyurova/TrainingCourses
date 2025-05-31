@@ -52,7 +52,7 @@
 
 <script setup>
 import { ref, onMounted, inject } from 'vue';
-import { mockUser } from '@/mocks/user';
+import { getCurrentUser } from '@/utils/auth';
 
 import EditUser from '@/components/modals/EditUser.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
@@ -60,7 +60,7 @@ import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 const showUserActions = ref(false);
 const showConfirmExit = ref(false);
 const showEditModal = ref(false);
-const user = ref({ name: localStorage.getItem('user_name'), role: localStorage.getItem('user_role') });
+const user = ref(getCurrentUser());
 
 const course = inject('course')
 

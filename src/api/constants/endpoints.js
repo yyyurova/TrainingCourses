@@ -1,7 +1,15 @@
 export const ENDPOINTS = {
+    LOGIN: '/login',
+    REGISTER: '/register',
+
+    ADMIN_COURSE: '/admin/course',
+    ADMIN_USERS: '/admin/users',
+    ADMIN_CLASS: '/admin/class',
+
+    CHAT: '/chat',
     COURSES: '/courses',
-    CHATS: '/chats',
+    MODULES: '/modules',
     USERS: '/users',
-    CLASSROOMS: '/classrooms',
-    MATERIALS: '/materials'
+
+    CURATOR_STUDENTS: '/curator/students'
 }

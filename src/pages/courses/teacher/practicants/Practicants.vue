@@ -1,5 +1,5 @@
 <template>
-    <Layout :on-create-task="openCreateTaskModal">
+    <Layout v-if="course" :on-create-task="openCreateTaskModal">
         <h1>Практиканты</h1>
         <Navbar :elements="navbarItems" />
         <Card class="search no-hover">
@@ -21,9 +21,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { inject, onMounted, ref, computed } from 'vue';
 import axios from 'axios';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import { getPracticants } from '@/api/modules/curarorStudents.api';
+import { getCourse } from '@/api/modules/courses.api';
 import { mockUser } from '@/mocks/user';
 
 import Layout from '@/layouts/Layout.vue';
@@ -39,15 +41,20 @@ const course = ref(null)
 const nameInput = ref('')
 
 const router = useRouter()
+const route = useRoute()
 
 const isLoading = ref(false)
 const showCreateTaskModal = ref(false)
 
-const navbarItems = [
-    { name: 'Практиканты', linkTo: `/course/practicants` },
-    { name: 'Задания', linkTo: `/course/tasks` },
-    { name: 'Оценки', linkTo: `/course/marks` }
-]
+const navbarItems = computed(() => {
+    if (!course.value) return [];
+
+    return [
+        { name: 'Практиканты', linkTo: `/courses/${course.value.id}/practicants` },
+        { name: 'Задания', linkTo: `/courses/${course.value.id}/tasks` },
+        { name: 'Оценки', linkTo: `/courses/${course.value.id}/marks` }
+    ];
+});
 
 const closeModal = () => {
     if (showCreateTaskModal.value) { showCreateTaskModal.value = false }
@@ -60,15 +67,18 @@ const openCreateTaskModal = () => {
 const fetchPracticants = async () => {
     try {
         isLoading.value = true
-        const { data: courses } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses?teacher=${mockUser.id}`);
-        course.value = courses[0]
 
-        const membersParams = course.value.members.map(id => `id[]=${id}`).join('&');
-        const url = `https://c1a9f09250b13f61.mokky.dev/users?${membersParams}`;
+        course.value = await getCourse(route.params.courseId)
+        console.log(course.value)
+        // const membersParams = course.value.members.map(id => `id[]=${id}`).join('&');
+        // const url = `https://c1a9f09250b13f61.mokky.dev/users?${membersParams}`;
 
-        const { data } = await axios.get(url);
-        practicants.value = data
-        originalPracticants.value = data
+        // const { data } = await axios.get(url);
+        // practicants.value = await getPracticants()
+
+        // originalPracticants.value = data
+        practicants.value = [{ name: 'lalala', id: 4 }]
+        console.log(course)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false
@@ -76,9 +86,10 @@ const fetchPracticants = async () => {
 }
 
 const openTasks = (practicant) => {
-    localStorage.setItem('course', JSON.stringify(course.value))
+    // localStorage.setItem('course', JSON.stringify(course.value))
+    // console.log(practicant.id)
     router.push({
-        path: `/course/practicants/${practicant.id}`,
+        path: `/courses/${course.value.id}/practicants/${practicant.id}`,
         params: { practicantId: practicant.id }
     })
 }

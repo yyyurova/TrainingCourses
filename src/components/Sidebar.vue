@@ -21,7 +21,7 @@
                         <div v-if="item.list" class="courses-list" :class="{ 'active': isCoursesListOpen }">
                             <RouterLink v-for="course in courses" :key="course.id" :to="user.role === 'user'
                                 ? `/courses/${course.id}/my-study`
-                                : '/classrooms'" class="course-link">
+                                : `/courses/${course.id}/practicants`" class="course-link">
                                 <img class="avatar" :src="course.imageUrl || '/image.png'" alt="">
                                 <span class="name">{{ course.title }}</span>
                             </RouterLink>
@@ -64,13 +64,13 @@
 </template>
 
 <script setup>
-// import { mockUser } from '@/mocks/user';
-import axios from 'axios';
 import { ref, watch, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getCourses as studentCoursesApi } from '@/api/modules/courses.api';
 import { getCourses as adminCoursesApi } from '@/api/modules/adminCourses.api';
 import { resetRoleRoutes } from '@/router';
+import { getCurrentUser } from '@/utils/auth';
+import { logout } from '@/utils/auth';
 
 import ConfirmDelete from './modals/ConfirmDelete.vue';
 import EditUser from './modals/EditUser.vue';
@@ -92,7 +92,7 @@ const courses = ref([]);
 const showUserActions = ref(false);
 const showConfirmExit = ref(false);
 const showEditModal = ref(false);
-const user = ref({ role: localStorage.getItem('user_role'), name: localStorage.getItem('user_name') });
+const user = ref({ role: getCurrentUser().role, name: getCurrentUser().name })
 const loadedCourses = ref(false);
 
 const isCoursesRoute = computed(() => route.path.startsWith('/courses'));
@@ -124,10 +124,11 @@ const sidebarContent = {
             header: 'Преподавание',
             items: [
                 {
-                    title: 'Курс',
-                    name: 'course',
+                    title: 'Курсы',
+                    linkTo: '/courses',
+                    name: 'courses',
+                    list: true,
                     imageUrl: '/icons/graduation.svg',
-                    linkTo: '/course/practicants'
                 },
                 {
                     title: 'Создать задание',
@@ -185,7 +186,7 @@ const sidebarContent = {
 };
 
 const exitFromProfile = () => {
-    localStorage.clear()
+    logout()
     resetRoleRoutes()
     router.push('/');
 };
@@ -209,10 +210,10 @@ const saveUserChanges = (changes) => {
 };
 
 const fetchCourses = async () => {
-    if (user.value.role === 'user') {
-        courses.value = await studentCoursesApi()
-    } else {
+    if (user.value.role === 'admin') {
         courses.value = await adminCoursesApi()
+    } else {
+        courses.value = await studentCoursesApi()
     }
 }
 
@@ -231,6 +232,15 @@ const handleClickOutsideUser = (e) => {
         showUserActions.value = false;
     }
 };
+
+const getCourseLink = (course) => {
+    if (user.value.role === 'user') {
+        return `/courses/${course.id}/my-study`
+    } else if (user.value.role === 'curator') {
+        return `/courses/${course.id}/practicants`
+    }
+    return '#'
+}
 
 watch(() => route.path, async (newPath) => {
     if (newPath.startsWith('/courses')) {

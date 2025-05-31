@@ -24,21 +24,24 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import axios from 'axios';
 import { mockUser } from '@/mocks/user';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import { getCourse } from '@/api/modules/courses.api';
+import { getPracticants } from '@/api/modules/curarorStudents.api';
 
 import CreateTask from './components/modals/CreateTask.vue';
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
-import TaskCard from './components/TaskCard.vue';
-import Loading from '@/components/Loading.vue';
 import Popup from '@/components/Popup.vue';
-import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 import EditTask from './components/modals/EditTask.vue';
+import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
+import Loading from '@/components/Loading.vue';
+import TaskCard from './components/TaskCard.vue';
 
 const router = useRouter()
+const route = useRoute()
 
 const tasks = ref([])
 
@@ -56,11 +59,17 @@ const taskToEdit = ref(null)
 const showDeleteModal = ref(false)
 const taskToDelete = ref(null)
 
-const navbarItems = [
-    { name: 'Практиканты', linkTo: `/course/practicants` },
-    { name: 'Задания', linkTo: `/course/tasks` },
-    { name: 'Оценки', linkTo: `/course/marks` }
-]
+const course = ref(null)
+
+const navbarItems = computed(() => {
+    if (!course.value) return [];
+
+    return [
+        { name: 'Практиканты', linkTo: `/courses/${course.value.id}/practicants` },
+        { name: 'Задания', linkTo: `/courses/${course.value.id}/tasks` },
+        { name: 'Оценки', linkTo: `/courses/${course.value.id}/marks` }
+    ];
+});
 
 const goToWorks = (id) => {
     router.push(`/course/works/${id}`)
@@ -89,6 +98,12 @@ const openEditModal = (task) => {
 const openDeleteModal = (task) => {
     showDeleteModal.value = true
     taskToDelete.value = task
+}
+
+const fetchCourse = async () => {
+    // try {
+    course.value = await getCourse(route.params.courseId)
+
 }
 
 const fetchTasks = async () => {
@@ -215,9 +230,9 @@ const editTask = async (updatedTask) => {
 
 const fetchPracticants = async () => {
     try {
-
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users?role=student`);
-        practicants.value = data
+        isLoading.value = true
+        practicants.value = await getPracticants()
+        console.log(practicants.value)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false
@@ -225,6 +240,7 @@ const fetchPracticants = async () => {
 }
 
 onMounted(async () => {
+    await fetchCourse()
     await fetchTasks()
     await fetchPracticants()
 })

@@ -8,11 +8,11 @@
                 <div class="center">
                     <div class="top">
                         <img src="/image.png">
-                        <p class="grop-name">{{ selectedChat.name || selectedChat.userName }}</p>
+                        <p class="grop-name">{{ selectedChat.title }}</p>
                     </div>
-                    <p v-if="selectedChat.members" class="am-members">{{ pluralizeParticipants }}</p>
+                    <p v-if="selectedChat.is_group === 1" class="am-members">{{ pluralizeParticipants }}</p>
                 </div>
-                <button v-if="selectedChat.members" class="icon big">
+                <button v-if="selectedChat.is_group === 1" class="icon big">
                     <img src="/icons/settings.svg" alt="">
                 </button>
                 <button v-else class="icon big" @click="openConfirmDeleteModal">
@@ -63,7 +63,7 @@ const closeModal = () => {
 }
 
 const pluralizeParticipants = computed(() => {
-    const count = Number(selectedChat.value.members.length) || 0;
+    const count = Number(selectedChat.value.members_count) || 0;
     return count + ' ' + pluralize(count, 'нет участников', 'участник', 'участника', 'участников');
 });
 
@@ -97,7 +97,8 @@ const navbarItems = computed(() => {
 });
 
 const leaveSettings = () => {
-    router.push(`/chat/${selectedChat.value.id}`)
+    router.back()
+    // router.push(`/chat/${selectedChat.value.id}`)
     settingsIsOpen.value = false
 }
 

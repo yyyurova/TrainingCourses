@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { adminRoutes } from "./admin";
 import { studentRoutes } from "./student";
-import { teacherRoutes } from "./teacher";
+import { curatorRoutes } from "./curator";
+import { getUserRole } from "@/utils/auth";
 
 import Registration from "@/pages/auth/Registration.vue";
 import Login from "@/pages/auth/Login.vue";
@@ -12,30 +13,34 @@ import Attachments from "@/pages/chat/components/open/settings/components/attach
 import Docs from "@/pages/chat/components/open/settings/components/Docs.vue";
 import Members from "@/pages/chat/components/open/settings/components/members/Members.vue";
 
-const baseRoutes = [{
-    path: '/',
-    name: 'Authorization',
-    component: Login,
-    meta: {
-        title: 'Вход'
-    }
-},
-{
-    path: '/signup',
-    name: 'Registration',
-    component: Registration,
-    meta: {
-        title: 'Регистрация'
+const baseRoutes = [
+    {
+        path: '/',
+        name: 'Authorization',
+        component: Login,
+        meta: {
+            title: 'Вход',
+            requiresAuth: false // Явно помечаем публичные маршруты
+        }
     },
-},
-{
-    path: '/verification',
-    name: 'EmailVerification',
-    component: EmailVerification,
-    meta: {
-        title: 'Подтверждение электронной почты'
-    }
-},
+    {
+        path: '/signup',
+        name: 'Registration',
+        component: Registration,
+        meta: {
+            title: 'Регистрация',
+            requiresAuth: false
+        },
+    },
+    {
+        path: '/verification',
+        name: 'EmailVerification',
+        component: EmailVerification,
+        meta: {
+            title: 'Подтверждение электронной почты',
+            requiresAuth: false
+        }
+    },
 ];
 
 const chatRoute = {
@@ -43,7 +48,8 @@ const chatRoute = {
     name: 'Chat',
     component: Chat,
     meta: {
-        title: 'Чат'
+        title: 'Чат',
+        requiresAuth: true // Требует авторизации
     },
     children: [
         {
@@ -77,29 +83,22 @@ export const router = createRouter({
     routes: baseRoutes
 });
 
+// Соответствие ролей и маршрутов
+const roleRoutesMap = {
+    admin: [...adminRoutes],
+    user: [...studentRoutes, chatRoute],
+    curator: [...curatorRoutes, chatRoute]
+};
+
 export function addRoleRoutes(role) {
     resetRoleRoutes();
-    let routes = [];
-
-    switch (role) {
-        case 'admin':
-            routes = [...adminRoutes];
-            break;
-        case 'user':
-            routes = [...studentRoutes, chatRoute];
-            break;
-        case 'curator':
-            routes = [...teacherRoutes, chatRoute];
-            break;
-    }
-
-    routes.forEach(route => {
-        router.addRoute(route);
-    });
+    const routes = roleRoutesMap[role] || [];
+    routes.forEach(route => router.addRoute(route));
 }
-export async function initRouter() {
+
+export function initRouter() {
     const token = localStorage.getItem('token');
-    const role = localStorage.getItem('user_role');
+    const role = getUserRole()
 
     if (role && token) {
         addRoleRoutes(role);
@@ -108,26 +107,33 @@ export async function initRouter() {
     return false;
 }
 
-// Добавьте этот хук в самом конце файла
+// Главная навигационная охрана
 router.beforeEach(async (to, from, next) => {
     const token = localStorage.getItem('token');
-    const role = localStorage.getItem('user_role');
+    const role = getUserRole();
 
-    if (token && role) {
-        if (!router.hasRoute(to.name)) {
-            addRoleRoutes(role);
-            next(to.fullPath); // Повторим навигацию после добавления маршрутов
-            return;
-        }
+    // Установка заголовка страницы
+    document.title = to.meta?.title || 'Training Courses';
+
+    // Для публичных маршрутов всегда разрешаем доступ
+    if (to.meta.requiresAuth === false) {
+        return next();
+    }
+
+    // Если маршрут требует авторизации
+    if (!token) {
+        // Перенаправляем на логин если нет токена
+        return next('/');
+    }
+
+    // Если роль еще не добавлена в роутер
+    if (role && !router.hasRoute(to.name)) {
+        addRoleRoutes(role);
+        return next(to.fullPath); // Повторяем навигацию
     }
 
     next();
 });
-
-router.afterEach((to) => {
-    document.title = to.meta?.title || 'Training Courses';
-});
-
 
 export function resetRoleRoutes() {
     router.getRoutes().forEach(route => {
@@ -136,3 +142,10 @@ export function resetRoleRoutes() {
         }
     });
 }
+
+// В конец routes после добавления всех маршрутов
+router.addRoute({
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/pages/notFound/NotFound.vue')
+});

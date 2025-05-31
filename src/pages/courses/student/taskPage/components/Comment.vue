@@ -39,7 +39,7 @@
 <script setup>
 import axios from 'axios';
 import { inject, watch, ref } from 'vue';
-import { getUser } from '@/api/modules/users.api';
+import { getUser } from '@/api/modules/adminUsers.api';
 
 import Card from '@/components/Card.vue';
 import Message from '@/components/Message.vue';

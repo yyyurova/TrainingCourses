@@ -13,21 +13,28 @@
                 placeholder="Поиск участников">
         </Card>
 
-        <div class="members-in-group">
+        <div class="members-in-group" v-if="filteredMembers.length > 0">
             <MemberCard v-for="member in filteredMembers" :key="member.id" :member="member"
                 @delete="openDeleteMemberModal(member)" />
+        </div>
+
+        <div v-else-if="searchQuery.trim() !== ''" class="no-results">
+            <p>Нет результатов по запросу</p>
+        </div>
+        <div v-else class="no-members">
+            <p>В этом чате нет участников</p>
         </div>
     </div>
     <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить участника?" right-button-text="Удалить"
         @cancel="closeModal" @confirm="deleteMember(memberToDelete)" />
-    <AddUserModal v-if="showAddModal" :members="chat.members" @cancel="closeModal" @confirm="handleAddMembers"
+    <AddUserModal v-if="showAddModal" :members="chat.members" @cancel="closeModal" @add="addToExistingChat"
         rightButtonText="Добавить" />
 </template>
 
 <script setup>
 import { inject, ref, computed, onMounted, provide } from 'vue';
 import axios from 'axios';
-import { getUsers } from '@/api/modules/users.api';
+import { deleteMember as apiDeleteMember } from '@/api/modules/chat.api';
 
 import MemberCard from './MemberCard.vue';
 import Card from '@/components/Card.vue';
@@ -35,7 +42,9 @@ import AddUserModal from '../../../components/modals/AddUserModal.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 
 const chat = inject('selectedChat');
-const allMembers = ref([]);
+const addMembers = inject('addMembers');
+
+const allMembers = ref(chat.value.members);
 const searchQuery = ref('');
 const showAddModal = ref(false)
 const showConfirmDeleteModal = ref(false)
@@ -61,37 +70,18 @@ const filteredMembers = computed(() => {
     );
 });
 
-const fetchMembers = async () => {
-    if (!chat.value?.members?.length) {
-        allMembers.value = [];
-        return;
-    }
-
+const addToExistingChat = async (members) => {
     try {
-        const params = new URLSearchParams();
-        chat.value.members.forEach(id => params.append('id[]', id));
+        closeModal()
+        const memberIds = members.map(m => m.id);
 
-        // const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users?${params.toString()}`);
-        // allMembers.value = data;
-        allMembers.value = await getUsers(params)
-    } catch (err) {
-        console.error('Ошибка при загрузке участников:', err);
-        allMembers.value = [];
-    }
-};
+        await addMembers(memberIds);
 
-const handleAddMembers = async (newMembers) => {
-    try {
-        const updatedMembers = [...chat.value.members, ...newMembers.map(m => m.id)];
-
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/chats/${chat.value.id}`, {
-            members: updatedMembers
-        });
-
-        chat.value.members = updatedMembers;
-        await fetchMembers();
-    } catch (err) {
-        console.error('Ошибка при добавлении участников:', err);
+        const response = await getChat(chat.value.id);
+        chat.value = response;
+        await fetchMembers()
+    } catch (error) {
+        console.error("Ошибка добавления участников", error);
     }
 };
 
@@ -103,14 +93,11 @@ const openDeleteMemberModal = (member) => {
 const deleteMember = async (member) => {
     closeModal()
     try {
-        const updatedMembers = chat.value.members.filter(memberId => memberId !== member.id);
-
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/chats/${chat.value.id}`, {
-            members: updatedMembers
-        });
+        const updatedMembers = chat.value.members.filter(m => m.id !== member.id);
+        await apiDeleteMember(chat.value.id, member.id)
 
         chat.value.members = updatedMembers;
-        await fetchMembers();
+        chat.value.members_count--
     } catch (err) {
         console.error('Ошибка при добавлении участников:', err);
     }
@@ -124,8 +111,6 @@ const handleSearch = () => {
 };
 
 provide('members', chat.members)
-
-onMounted(fetchMembers);
 </script>
 
 <style scoped lang="scss">
@@ -160,7 +145,17 @@ onMounted(fetchMembers);
         flex-direction: column;
         gap: 7px;
         overflow-y: auto;
+    }
 
+    .no-results,
+    .no-members {
+        width: 100%;
+        text-align: center;
+
+        p {
+            font-size: 19px;
+            font-weight: 550;
+        }
 
     }
 }

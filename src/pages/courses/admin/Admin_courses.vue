@@ -28,7 +28,7 @@
 
         <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" />
 
-        <Loading v-if="isLoading" />
+        <!-- <Loading v-if="isLoading || !courses" /> -->
 
         <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить курс?"
             text="Студенты, записанные на этот курс, потеряют доступ к материалам, а куратор утратит все данные об их успеваемости"
@@ -39,7 +39,7 @@
 <script setup>
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { onMounted, provide, ref } from "vue";
+import { inject, onMounted, provide, ref } from "vue";
 import { getCourses, deleteCourse as apiDeleteCourse, editCourse as apiEditCourse, createCourse as apiCreateCourse } from "@/api/modules/adminCourses.api";
 
 import Layout from '@/layouts/Layout.vue'
@@ -51,7 +51,7 @@ import Popup from "@/components/Popup.vue";
 import ConfirmDelete from "@/components/modals/ConfirmDelete.vue";
 import EditCourse from "./modals/EditCourse.vue";
 
-const courses = ref([])
+const courses = inject('courses')
 
 const showCreateCourseModal = ref(false)
 const showConfirmDeleteModal = ref(false)
@@ -64,7 +64,7 @@ const popupText = ref('')
 
 const selectedCourse = ref(null)
 
-const isLoading = ref(false);
+// const isLoading = ref(false);
 
 const closeModal = () => {
     if (showCreateCourseModal.value) { showCreateCourseModal.value = false }
@@ -91,14 +91,14 @@ const openDeleteModal = (course) => {
     showConfirmDeleteModal.value = true
 }
 
-const fetchCourses = async () => {
-    try {
-        isLoading.value = true
-        courses.value = await getCourses()
-    } finally {
-        isLoading.value = false
-    }
-}
+// const fetchCourses = async () => {
+//     try {
+//         isLoading.value = true
+//         courses.value = await getCourses()
+//     } finally {
+//         isLoading.value = false
+//     }
+// }
 
 const deleteCourse = async () => {
     if (!selectedCourse.value) return
@@ -159,11 +159,11 @@ const editCourse = async (updatedCourse) => {
     }
 };
 
-onMounted(async () => {
-    await fetchCourses()
-})
+// onMounted(async () => {
+//     await fetchCourses()
+// })
 
-provide('courses', courses)
+// provide('courses', courses)
 </script>
 
 <style scoped lang="scss">

@@ -33,7 +33,7 @@ import axios from 'axios';
 import { useRoute } from 'vue-router';
 import { checkOverdueDeadline } from '@/utils/utils';
 import { mockUser } from '@/mocks/user';
-import { getUser } from '@/api/modules/users.api';
+import { getUser } from '@/api/modules/adminUsers.api';
 
 import Layout from '@/layouts/Layout.vue';
 import TaskCard from '../components/TaskCard.vue';

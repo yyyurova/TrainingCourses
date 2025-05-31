@@ -37,94 +37,85 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { login } from '@/api/modules/auth.api';
-import { initRouter } from '@/router';
 import { addRoleRoutes } from '@/router';
-
-import { mockUser } from '@/mocks/user';
-
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
-const name = ref('')
-const email = ref('')
-const password = ref('')
+const email = ref('');
+const password = ref('');
+const errors = ref({});
+const passwordInput = ref(null);
+const eye = ref(null);
+const router = useRouter();
 
-const errors = ref({
-    email: '',
-    password: ''
-})
-
-const eye = ref(null)
-const passwordInput = ref(null)
+// Убрана установка роли по умолчанию!
+// onMounted(() => { ... })
 
 const switchPasswordVisibility = () => {
-    if (passwordInput.value.type === "password") {
-        passwordInput.value.type = "text"
-        eye.value.src = '/icons/eye-open.svg'
-    } else {
-        passwordInput.value.type = "password"
-        eye.value.src = '/icons/eye-closed.svg'
-    }
-}
+    passwordInput.value.type = passwordInput.value.type === "password"
+        ? "text"
+        : "password";
+    eye.value.src = passwordInput.value.type === "password"
+        ? '/icons/eye-closed.svg'
+        : '/icons/eye-open.svg';
+};
 
 const validateForm = () => {
-    let isValid = true
-    errors.value = { email: '', password: '' }
+    let isValid = true;
+    errors.value = {};
 
     if (!email.value.trim()) {
-        errors.value.email = 'Пожалуйста, введите email'
-        isValid = false
+        errors.value.email = 'Пожалуйста, введите email';
+        isValid = false;
     } else if (!/^\S+@\S+\.\S+$/.test(email.value)) {
-        errors.value.email = 'Пожалуйста, введите корректный email'
-        isValid = false
+        errors.value.email = 'Пожалуйста, введите корректный email';
+        isValid = false;
     }
 
     if (!password.value.trim()) {
-        errors.value.password = 'Пожалуйста, введите пароль'
-        isValid = false
+        errors.value.password = 'Пожалуйста, введите пароль';
+        isValid = false;
     } else if (password.value.length < 6) {
-        errors.value.password = 'Пароль должен содержать минимум 6 символов'
-        isValid = false
+        errors.value.password = 'Пароль должен содержать минимум 6 символов';
+        isValid = false;
     }
 
-    return isValid
-}
+    return isValid;
+};
 
-const router = useRouter()
 const handleSubmit = async () => {
-    if (validateForm()) {
-        try {
-            const resp = await login(email.value, password.value)
-            localStorage.removeItem('user_role')
-            localStorage.setItem('token', resp.data.data.access_token)
-            localStorage.setItem('user_name', resp.data.data.name)
-            localStorage.setItem('user_role', resp.data.data.role)
-            // setTimeout(() => {
-            //     localStorage.removeItem('user_role')
-            // }, 20000000000000);
+    if (!validateForm()) return;
 
-            addRoleRoutes(resp.data.data.role);
-            if (resp.data.data.role === 'admin') {
-                router.push('/users')
-            } else if (resp.data.data.role === 'curator') {
-                router.push('/course/practicants')
-            } else {
-                router.push('/courses')
-            }
-        }
-        catch (err) {
-            console.log(err)
-            errors.all = 'Неправильные email или пароль'
-            // router.push('/')
-        }
+    try {
+        const resp = await login(email.value, password.value);
+        localStorage.setItem('token', resp.data.data.access_token);
+        localStorage.setItem('user_name', resp.data.data.name);
+        localStorage.setItem('user_role', resp.data.data.role);
+
+        localStorage.setItem('user', JSON.stringify({
+            id: resp.data.data.id,
+            name: resp.data.data.name,
+            role: resp.data.data.role,
+            // email: resp.data.data.email,
+        }));
+
+        addRoleRoutes(resp.data.data.role);
+
+        const redirectMap = {
+            admin: '/users',
+            curator: '/courses',
+            default: '/courses'
+        };
+
+        router.push(redirectMap[resp.data.data.role] || redirectMap.default);
+
+    } catch (err) {
+        console.error('Ошибка входа:', err);
+        errors.value.all = 'Неправильные email или пароль';
     }
-}
-
-onMounted(() => {
-    localStorage.setItem('user_role', 'student')
-})
+};
 </script>
 
 <style scoped lang="scss">
@@ -308,6 +299,10 @@ onMounted(() => {
         color: red;
         font-size: 12px;
         margin-top: 5px;
+
+        &:last-child {
+            margin: 0 !important;
+        }
     }
 }
 

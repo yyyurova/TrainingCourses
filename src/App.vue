@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { initRouter } from '@/router';
 import { useRouter } from 'vue-router';
+import { getUserRole } from './utils/auth';
 
 const router = useRouter();
 const isRouterReady = ref(false);
@@ -10,13 +11,12 @@ onMounted(async () => {
   await initRouter();
   isRouterReady.value = true;
 
-  // Если текущий маршрут не найден, перенаправляем на fallback
   if (!router.currentRoute.value.matched.length) {
-    const role = localStorage.getItem('user_role');
+    const role = getUserRole()
     if (role === 'admin') {
       router.push('/users');
     } else if (role === 'curator') {
-      router.push('/course/practicants');
+      router.push('/courses');
     } else {
       router.push('/courses');
     }

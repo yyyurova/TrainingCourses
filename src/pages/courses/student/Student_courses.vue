@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import { onMounted, provide, ref } from 'vue';
+import { inject, onMounted, provide, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { getCourses } from '@/api/modules/courses.api';
 
@@ -27,26 +27,26 @@ import Loading from '@/components/Loading.vue';
 import Layout from '@/layouts/Layout.vue';
 import Card from '@/components/Card.vue';
 
-const courses = ref([])
+const courses = inject('courses')
 const router = useRouter()
 const isLoading = ref(false)
 
-const fetchCourses = async () => {
-    try {
-        isLoading.value = true
-        courses.value = await getCourses()
-    } finally {
-        isLoading.value = false
-    }
-}
+// const fetchCourses = async () => {
+//     try {
+//         isLoading.value = true
+//         courses.value = await getCourses()
+//     } finally {
+//         isLoading.value = false
+//     }
+// }
 
 const continueStudy = (id) => {
     router.push(`/courseCompletion/${id}`)
 }
 
-onMounted(async () => {
-    await fetchCourses()
-})
+// onMounted(async () => {
+//     await fetchCourses()
+// })
 </script>
 
 <style scoped lang="scss">

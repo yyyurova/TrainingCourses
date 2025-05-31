@@ -32,7 +32,10 @@
 </template>
 <script setup>
 import { ref, onMounted, nextTick, watch, provide, onUnmounted } from 'vue'
-import { getUsers, deleteUser as apiDeleteUser, editUser, createUser } from '@/api/modules/users.api'
+
+import { getCurrentUser, getUserRole } from '@/utils/auth'
+
+import { getUsers, deleteUser as apiDeleteUser, editUser, createUser } from '@/api/modules/adminUsers.api'
 
 import Layout from '../../layouts/Layout.vue'
 
@@ -282,7 +285,8 @@ const closePopup = () => {
 
 onMounted(async () => {
     await fetchUsers()
-    console.log(localStorage.getItem('token'))
+    console.log(getCurrentUser().role)
+    console.log(getUserRole())
 })
 
 provide('filters', filters)

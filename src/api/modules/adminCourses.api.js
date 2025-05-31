@@ -1,16 +1,10 @@
-import axios from "axios"
-
-const apiClient = axios.create({
-    baseURL: "https://api-course.hellishworld.ru/api/admin",
-    headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-    }
-});
+// import axios from "axios"
+import client from "../http/client";
+import { ENDPOINTS } from "../constants/endpoints";
 
 export const getCourse = async (courseId) => {
     try {
-        const response = await apiClient.get(`course/${courseId}`)
+        const response = await client.get(`${ENDPOINTS.ADMIN_COURSE}/${courseId}`)
         return response.data.data
         // return await client.get(`${ENDPOINTS.COURSES}/${courseId}`);
     } catch (error) {
@@ -20,14 +14,14 @@ export const getCourse = async (courseId) => {
 
 export const getCourses = async () => {
     try {
-        const response = await apiClient.get(`/course`)
+        const response = await client.get(`${ENDPOINTS.ADMIN_COURSE}`)
         return response.data.data
     } catch (error) { return [] }
 }
 
 export const deleteCourse = async (courseId) => {
     try {
-        await apiClient.delete(`course/${courseId}`)
+        await client.delete(`${ENDPOINTS.ADMIN_COURSE}/${courseId}`)
     } catch (error) {
         return [];
     }
@@ -35,7 +29,7 @@ export const deleteCourse = async (courseId) => {
 
 export const editCourse = async (courseId, newUser) => {
     try {
-        await apiClient.patch(`/course/${courseId}`, newUser);
+        await client.patch(`${ENDPOINTS.ADMIN_COURSE}/${courseId}`, newUser);
     } catch (error) {
         console.error('Ошибка :', error);
         return null;
@@ -48,5 +42,17 @@ export const createCourse = async (newCourse) => {
     } catch (error) {
         console.error('Ошибка :', error);
         return null;
+    }
+};
+
+export const updateCourseContent = async (courseId, contentData) => {
+    try {
+        const response = await client.patch(`${ENDPOINTS.ADMIN_COURSE}/${courseId}/content`, {
+            content: contentData
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Ошибка обновления содержания курса:', error);
+        throw error;
     }
 };

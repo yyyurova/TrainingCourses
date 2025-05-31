@@ -46,7 +46,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { mockUser } from '@/mocks/user';
-import { getUser } from '@/api/modules/users.api';
+import { getUser } from '@/api/modules/adminUsers.api';
 import { getCourse } from '@/api/modules/courses.api';
 
 import Loading from '@/components/Loading.vue';

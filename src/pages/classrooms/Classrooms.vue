@@ -110,6 +110,9 @@ const openAddModal = async (classroomData) => {
     } catch (error) {
         popupText.value = 'Ошибка при создании класса';
         showPopup.value = true;
+        setTimeout(() => {
+            showPopup.value = false
+        }, 5000);
     } finally {
         isLoading.value = false;
     }
@@ -197,6 +200,9 @@ const fetchClassrooms = async () => {
     } catch (error) {
         popupText.value = 'Ошибка загрузки классов';
         showPopup.value = true;
+        setTimeout(() => {
+            showPopup.value = false
+        }, 5000);
     } finally {
         isLoading.value = false;
     }
@@ -220,11 +226,17 @@ const save = async () => {
 
         popupText.value = 'Класс успешно создан';
         showPopup.value = true;
+        setTimeout(() => {
+            showPopup.value = false
+        }, 5000);
         closeModal();
         await fetchClassrooms();
     } catch (error) {
         popupText.value = 'Ошибка при сохранении данных';
         showPopup.value = true;
+        setTimeout(() => {
+            showPopup.value = false
+        }, 5000);
     } finally {
         isLoading.value = false;
     }

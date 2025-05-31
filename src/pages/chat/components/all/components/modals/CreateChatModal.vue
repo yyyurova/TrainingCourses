@@ -71,33 +71,34 @@ const uploadImage = async (fileToUpload) => {
 };
 
 const next = async () => {
-    if (nameInput.value.value.trim() === '') {
-        nameInput.value.style = 'border: 1px solid red';
+    if (!nameInput.value.value.trim()) {
+        nameInput.value.style.border = '1px solid red';
         return;
     }
 
-    isLoading.value = true;
-
     try {
-        let imageUrl = null;
+        let avatarUrl = null;
 
         if (file.value?.file) {
-            const uploadedImage = await uploadImage(file.value.file);
-            imageUrl = uploadedImage.url;
+            const formData = new FormData();
+            formData.append('file', file.value.file);
 
-            URL.revokeObjectURL(file.value.preview);
+            const response = await axios.post('https://your-api/uploads', formData);
+            avatarUrl = response.data.url;
         }
 
-        localStorage.setItem('groupImage', imageUrl || '');
-        localStorage.setItem('groupName', nameInput.value.value);
+        // Передаем все данные чата
+        emit('next', {
+            title: nameInput.value.value,
+            isGroup: true,
+            avatar: avatarUrl
+        });
 
-        emit('next');
+    } catch (error) {
+        console.error("Ошибка загрузки аватара", error);
+    } finally {
         nameInput.value.value = '';
         file.value = null;
-    } catch (error) {
-        console.error('Ошибка:', error);
-    } finally {
-        isLoading.value = false;
     }
 };
 

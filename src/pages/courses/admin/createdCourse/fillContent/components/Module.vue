@@ -9,8 +9,9 @@
             </div>
 
             <div class="action-buttons">
-                <button v-if="mod.lessons.length > 0" class="icon" @click="isLessonsListOpen = !isLessonsListOpen">
-                    <img :class="isLessonsListOpen ? 'arrow-down' : 'arrow-up'" src="/icons/arrow.svg" alt="">
+                <button v-if="mod.pages && mod.pages.length > 0" class="icon"
+                    @click="isPagesListOpen = !isPagesListOpen">
+                    <img :class="isPagesListOpen ? 'arrow-down' : 'arrow-up'" src="/icons/arrow.svg" alt="">
                 </button>
                 <button class="icon" @click="$emit('delete-module')">
                     <img src="/icons/x.svg" alt="">
@@ -19,15 +20,14 @@
         </Card>
 
         <Transition>
-            <div class="lessons" v-if="mod.lessons.length && isLessonsListOpen">
-                <Lesson v-for="(lesson, lessonIndex) in mod.lessons" :key="lessonIndex" :lesson="lesson"
-                    :module-index="moduleIndex" :lesson-index="lessonIndex"
-                    @update:name="emit('update-lesson-name', moduleIndex, lessonIndex, $event)" />
+            <div class="pages" v-if="mod.pages && mod.pages.length && isPagesListOpen">
+                <Page v-for="(page, pageIndex) in mod.pages" :key="pageIndex" :page="page" :module-index="moduleIndex"
+                    :page-index="pageIndex" @update:name="emit('update-page-name', moduleIndex, pageIndex, $event)" />
             </div>
         </Transition>
 
-        <button class="blue new-lesson" @click="addLesson">
-            Новый урок
+        <button class="blue new-page" @click="addPage">
+            Новая страница
             <img src="/icons/plus.svg" alt="">
         </button>
     </div>
@@ -35,12 +35,11 @@
 
 <script setup>
 import { defineProps, defineEmits, ref } from 'vue';
-
 import Card from '@/components/Card.vue';
-import Lesson from './Lesson.vue';
+import Page from './Page.vue'; // Заменили Lesson на Page
 
-const isLessonsListOpen = ref(false)
-const warning = ref('')
+const isPagesListOpen = ref(false);
+const warning = ref('');
 
 const props = defineProps({
     num: Number,
@@ -51,24 +50,24 @@ const props = defineProps({
 const emit = defineEmits([
     'update:name',
     'delete-module',
-    'add-lesson',
-    'update-lesson-name'
+    'add-page', // Изменили на add-page
+    'update-page-name' // Изменили на update-page-name
 ]);
 
-const addLesson = () => {
-    emit('add-lesson')
-    isLessonsListOpen.value = true
-}
+const addPage = () => {
+    emit('add-page');
+    isPagesListOpen.value = true;
+};
 
 const checkEmptyness = (e) => {
     if (e.target.value.trim() === '') {
-        e.target.style.border = '1px solid red'
-        warning.value = 'Это поле нельзя оставлять пустым'
+        e.target.style.border = '1px solid red';
+        warning.value = 'Это поле нельзя оставлять пустым';
     } else {
-        e.target.style.border = '1px solid transparent'
-        warning.value = ''
+        e.target.style.border = '1px solid transparent';
+        warning.value = '';
     }
-}
+};
 </script>
 
 <style scoped lang="scss">
@@ -123,7 +122,7 @@ const checkEmptyness = (e) => {
         }
     }
 
-    .lessons {
+    .pages {
         margin-left: 50px;
         display: flex;
         flex-direction: column;

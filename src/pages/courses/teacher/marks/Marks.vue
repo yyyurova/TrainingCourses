@@ -20,10 +20,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import axios from 'axios';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { mockUser } from '@/mocks/user';
+import { getCourse } from '@/api/modules/courses.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
@@ -39,12 +40,17 @@ const isLoading = ref(false)
 const showCreateTaskModal = ref(false)
 
 const router = useRouter()
+const route = useRoute()
 
-const navbarItems = [
-    { name: 'Практиканты', linkTo: `/course/practicants` },
-    { name: 'Задания', linkTo: `/course/tasks` },
-    { name: 'Оценки', linkTo: `/course/marks` }
-]
+const navbarItems = computed(() => {
+    if (!course.value) return [];
+
+    return [
+        { name: 'Практиканты', linkTo: `/courses/${course.value.id}/practicants` },
+        { name: 'Задания', linkTo: `/courses/${course.value.id}/tasks` },
+        { name: 'Оценки', linkTo: `/courses/${course.value.id}/marks` }
+    ];
+});
 
 const closeModal = () => {
     if (showCreateTaskModal.value) { showCreateTaskModal.value = false }
@@ -61,32 +67,31 @@ const goToTasks = () => {
 const fetchStudents = async () => {
     try {
         isLoading.value = true
-        const { data: courses } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses?teacher=${mockUser.id}`);
-        course.value = courses[0];
+        course.value = getCourse(route.params.courseId);
 
-        const membersParams = course.value.members.map(id => `id[]=${id}`).join('&');
-        const url = `https://c1a9f09250b13f61.mokky.dev/users?${membersParams}`;
+        // const membersParams = course.value.members.map(id => `id[]=${id}`).join('&');
+        // const url = `https://c1a9f09250b13f61.mokky.dev/users?${membersParams}`;
 
-        const { data } = await axios.get(url);
+        // const { data } = await axios.get(url);
 
-        students.value = data
-            .map(student => {
-                const studentTasks = course.value.tasks
-                    .filter(task =>
-                        task.assignedTo.includes(student.id) &&
-                        task.marks?.[student.id.toString()] !== null
-                    )
-                    .map(task => ({
-                        ...task,
-                        mark: task.marks[student.id.toString()]
-                    }));
+        // students.value = data
+        //     .map(student => {
+        //         const studentTasks = course.value.tasks
+        //             .filter(task =>
+        //                 task.assignedTo.includes(student.id) &&
+        //                 task.marks?.[student.id.toString()] !== null
+        //             )
+        //             .map(task => ({
+        //                 ...task,
+        //                 mark: task.marks[student.id.toString()]
+        //             }));
 
-                return {
-                    ...student,
-                    tasks: studentTasks
-                };
-            })
-            .filter(student => student.tasks.length > 0);
+        //         return {
+        //             ...student,
+        //             tasks: studentTasks
+        //         };
+        //     })
+        //     .filter(student => student.tasks.length > 0);
     } catch (err) {
         console.error('Ошибка при загрузке студентов:', err);
     } finally {

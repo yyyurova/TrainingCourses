@@ -2,20 +2,20 @@
     <div class="dialog">
         <div class="dialog-card-header">
             <div class="header-left-part">
-                <img :src="chat.avatar ? chat.avatar : '/avatar.png'">
+                <img :src="chat.avatar || '/avatar.png'">
 
-                <p class="partner-name">{{ chat.userName }}</p>
+                <p class="partner-name">{{ chat.title }}</p>
             </div>
             <button class="icon" @click="$emit('delete', chat.id)">
                 <img src="/icons/delete.svg" alt="">
             </button>
         </div>
         <div class="dialog-content">
-            <div class="text">
-                <p v-if="chat.content" class="message-preview">{{ chat.content }}</p>
-                <p class="date">{{ format(chat.date, 'short') }}</p>
+            <div class="text" v-if="chat.latest_message">
+                <p class="message-preview">{{ chat.latest_message.message }}</p>
+                <p class="date">{{ format(chat.latest_message.created_at, 'short') }}</p>
             </div>
-            <span v-if="chat.unread" class="circle">{{ chat.unread }}</span>
+            <!-- <span v-if="chat.unread" class="circle">{{ chat.latest_message.created_at }}</span> -->
         </div>
     </div>
 </template>
@@ -24,10 +24,9 @@
 import { format } from '@formkit/tempo';
 
 const emit = defineEmits(['delete'])
-defineProps({
+const props = defineProps({
     chat: Object,
 })
-
 </script>
 
 <style scoped lang="scss">

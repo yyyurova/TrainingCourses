@@ -15,21 +15,23 @@
         </div>
         <Loading v-if="isLoading" />
         <div class="dialogs">
+            <!-- <DialogCard v-for="chat in chats" :key="chat.id" :chat="chat" /> -->
             <component :class="chat.choosen ? 'choosen' : ''" @click="() => emit('openDialog', chat)"
                 v-for="chat in chats" @delete="openConfirmDeleteModal(chat)" :key="chat.id"
-                :is="chat.members ? GroupDialogCard : DialogCard" :chat="chat" />
+                :is="chat.is_group === 1 ? GroupDialogCard : DialogCard" :chat="chat" />
         </div>
         <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить чат?"
             text="Удалённую переписку нельзя будет восстановить" right-button-text="Удалить" @confirm="deleteChat"
             @cancel="closeModal" />
         <CreateChatModalVue v-if="showCreateGroupModal" @cancel="closeModal" @next="openChooseMembersModal" />
-        <AddUserModal v-if="showChooseMembersModal" @cancel="closeModal" @confirm="createChat"
+        <AddUserModal v-if="showChooseMembersModal" @cancel="closeModal" @add="addMembersToNewChat"
             right-button-text="Создать" />
     </div>
 </template>
 
 <script setup>
 import { inject, ref } from 'vue';
+import { addMembersToChat } from '@/api/modules/chat.api';
 
 import Card from '@/components/Card.vue';
 import DialogCard from './components/DialogCard.vue';
@@ -42,6 +44,7 @@ import AddUserModal from '../open/components/modals/AddUserModal.vue';
 const emit = defineEmits(['openDialog'])
 
 const chats = inject('chats')
+// console.log(chats.value)
 const nameInput = ref('')
 
 const showConfirmDeleteModal = ref(false)
@@ -50,7 +53,9 @@ const showChooseMembersModal = ref(false)
 
 const isLoading = inject('isLoading')
 const originalChats = inject('originalChats')
+
 const selectedToDeleteChat = ref(null)
+const createdChat = ref(null);
 
 const createChat = inject('createChat')
 
@@ -66,10 +71,37 @@ const openCreateGroupModal = () => {
     showCreateGroupModal.value = true
 }
 
-const openChooseMembersModal = () => {
-    showCreateGroupModal.value = false
-    showChooseMembersModal.value = true
-}
+const openChooseMembersModal = async (newChat) => {
+    try {
+        // Создаем чат и сохраняем результат
+        createdChat.value = await createChat(newChat);
+        showCreateGroupModal.value = false;
+        showChooseMembersModal.value = true;
+    } catch (error) {
+        console.error("Ошибка при создании чата", error);
+    }
+};
+
+const addMembersToNewChat = async (members) => {
+    if (!createdChat.value) return;
+
+    try {
+        // Преобразуем в массив ID пользователей
+        const memberIds = members.map(m => m.id);
+
+        // Добавляем участников в созданный чат
+        await addMembersToChat(createdChat.value.id, memberIds);
+
+        // Обновляем данные чата
+        await fetchChats();
+        openDialog(createdChat.value);
+    } catch (error) {
+        console.error("Ошибка добавления участников", error);
+    } finally {
+        closeModal();
+        createdChat.value = null;
+    }
+};
 
 const deleteChat = () => {
     deleteChatInjection(selectedToDeleteChat.value.id)
@@ -90,10 +122,9 @@ const searchChat = () => {
 
     const searchTerm = nameInput.value.trim().toLowerCase();
     chats.value = originalChats.value.filter(chat =>
-        chat.userName && chat.userName.toLowerCase().includes(searchTerm)
+        chat.title && chat.title.toLowerCase().includes(searchTerm)
     )
 }
-
 </script>
 
 <style scoped lang="scss">

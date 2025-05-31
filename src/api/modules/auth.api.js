@@ -1,24 +1,18 @@
-// import client from '../http/client';
-// import { ENDPOINTS } from '../constants/endpoints';
-
-import axios from "axios";
+import client from '../http/client';
+import { ENDPOINTS } from '../constants/endpoints';
 
 export const login = async (email, password) => {
     try {
-        return await axios.post(`https://api-course.hellishworld.ru/api/login`, {
-            email: email,
-            password: password
-        });
+        return await client.post(`${ENDPOINTS.LOGIN}`, { email, password });
     } catch (error) {
-        console.error('Ошибка:', error);
-        return [];
+        return { error }; // Возвращаем объект ошибки вместо throw
     }
 };
 
 
 export const register = async (name, email, password) => {
     try {
-        return await axios.post(`https://api-course.hellishworld.ru/api/register`, {
+        return await client.post(`${ENDPOINTS.REGISTER}`, {
             name: name,
             email: email,
             password: password,

@@ -15,12 +15,19 @@
 
                 <div class="form-group">
                     <p>Участники</p>
-                    <div class="users-list">
-                        <div v-for="user in students" :key="user.id" class="user-item">
+
+                    <div class="dropdown">
+                        <div v-for="user in students" :key="user.id" class="item">
                             <input type="checkbox" :id="'user-' + user.id" :value="user" v-model="classroomMembers">
                             <label :for="'user-' + user.id">{{ user.name }}</label>
                         </div>
                     </div>
+                    <!-- <div class="users-list">
+                        <div v-for="user in students" :key="user.id" class="user-item">
+                            <input type="checkbox" :id="'user-' + user.id" :value="user" v-model="classroomMembers">
+                            <label :for="'user-' + user.id">{{ user.name }}</label>
+                        </div>
+                    </div> -->
                 </div>
 
                 <div class="modal-buttons">
@@ -34,7 +41,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getUsers } from '@/api/modules/users.api';
+import { getUsers } from '@/api/modules/adminUsers.api';
 
 const emit = defineEmits(['cancel', 'save']);
 
@@ -47,13 +54,9 @@ const selectedCurator = ref(null);
 
 const fetchUsers = async () => {
     try {
-        users.value = await getUsers();
-        // Помечаем кураторов
-        // users.value.forEach(user => {
-        //     if (user.role === 'curator') {
-        //         user.isCurator = true;
-        //     }
-        // });
+        users.value = (await getUsers()).data;
+        students.value = users.value.filter(u => u.role === 'user')
+        curators.value = users.value.filter(u => u.role === 'curator')
     } catch (error) {
         console.error('Ошибка загрузки пользователей:', error);
     }
@@ -64,6 +67,7 @@ const save = () => {
     if (selectedCurator.value) {
         classroomMembers.value.push(selectedCurator.value);
     }
+    console.log(classroomMembers.value)
     emit('save', {
         members: classroomMembers.value,
         curator_id: selectedCurator.value.id
@@ -72,8 +76,7 @@ const save = () => {
 
 onMounted(async () => {
     await fetchUsers();
-    students.value = users.value.filter(u => u.role === 'user')
-    curators.value = users.value.filter(u => u.role === 'curator')
+
     console.log(users.value)
     console.log(students.value)
     console.log(curators.value)
@@ -102,5 +105,9 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     gap: 7px;
+
+    .dropdown {
+        max-height: 100px;
+    }
 }
 </style>

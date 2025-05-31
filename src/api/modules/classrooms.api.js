@@ -1,16 +1,9 @@
-import axios from "axios";
-
-const apiClient = axios.create({
-    baseURL: "https://api-course.hellishworld.ru/api/admin",
-    headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-    }
-});
+import { ENDPOINTS } from "../constants/endpoints";
+import client from "../http/client";
 
 export const getClassrooms = async () => {
     try {
-        const response = await apiClient.get("/class");
+        const response = await client.get(`${ENDPOINTS.ADMIN_CLASS}`);
         const classrooms = response.data.data;
 
         // Загружаем участников для каждого класса параллельно
@@ -33,7 +26,7 @@ export const getClassrooms = async () => {
 
 export const createClassroom = async (classroomData) => {
     try {
-        const response = await apiClient.post("/class", {
+        const response = await client.post(`${ENDPOINTS.ADMIN_CLASS}`, {
             title: classroomData.title,
             course_id: classroomData.course_id
         });
@@ -46,7 +39,7 @@ export const createClassroom = async (classroomData) => {
 
 export const deleteClass = async (classroomId) => {
     try {
-        await apiClient.delete(`/class/${classroomId}`);
+        await client.delete(`${ENDPOINTS.ADMIN_CLASS}/${classroomId}`);
     } catch (error) {
         console.error('Ошибка удаления класса:', error);
         throw error;
@@ -55,7 +48,7 @@ export const deleteClass = async (classroomId) => {
 
 export const addCuratorToClass = async (classroomId, curatorId) => {
     try {
-        await apiClient.post(`/class/${classroomId}/curator`, {
+        await client.post(`${ENDPOINTS.ADMIN_CLASS}/${classroomId}/curator`, {
             user_id: curatorId
         });
     } catch (error) {
@@ -66,7 +59,7 @@ export const addCuratorToClass = async (classroomId, curatorId) => {
 
 export const addUsersToClass = async (classroomId, users) => {
     try {
-        await apiClient.post(`/class/${classroomId}/users`, {
+        await client.post(`${ENDPOINTS.ADMIN_CLASS}/${classroomId}/users`, {
             user_ids: users.map(user => user.id)
         });
     } catch (error) {
@@ -77,7 +70,7 @@ export const addUsersToClass = async (classroomId, users) => {
 
 export const getClassroomMembers = async (classroomId) => {
     try {
-        const response = await apiClient.get(`/class/${classroomId}/users`);
+        const response = await client.get(`${ENDPOINTS.ADMIN_CLASS}/${classroomId}/users`);
         return response.data.data;
     } catch (error) {
         console.error('Ошибка загрузки участников класса:', error);
@@ -87,7 +80,7 @@ export const getClassroomMembers = async (classroomId) => {
 
 export const editClass = async (classId, newClass) => {
     try {
-        await apiClient.patch(`/class/${classId}`, newClass);
+        await client.patch(`${ENDPOINTS.ADMIN_CLASS}/${classId}`, newClass);
         // return response.data.data
     } catch (error) {
         console.error('Ошибка :', error);

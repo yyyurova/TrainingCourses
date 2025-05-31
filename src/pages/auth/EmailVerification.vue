@@ -1,6 +1,6 @@
 <template>
     <AuthLayout>
-        <div class="logo"><img src="../images/logo.svg" alt=""></div>
+        <div class="logo"><img src="/icons/logo.svg" alt=""></div>
         <div class="text">
             <h1>
                 Подтверждение электронной почты
@@ -14,6 +14,7 @@
 
 <script setup>
 import AuthLayout from '@/layouts/AuthLayout.vue';
+import { getCurrentUser } from '@/utils/auth';
 
-const email = localStorage.getItem('userEmail')
+const email = getCurrentUser().email
 </script>
