@@ -56,8 +56,8 @@
 import { computed, onMounted, ref, watch, provide } from 'vue';
 import { useRoute } from 'vue-router';
 import { getCourse } from '@/api/modules/courses.api';
-import { getModules } from '@/api/modules/materials.api';
-import { getModulePage } from '@/api/modules/materials.api';
+import { getModules } from '@/api/modules/studentMaterials.api';
+import { getModulePage } from '@/api/modules/studentMaterials.api';
 
 import CourseCompletionLayout from '@/layouts/CourseCompletionLayout.vue';
 import Card from '@/components/Card.vue';

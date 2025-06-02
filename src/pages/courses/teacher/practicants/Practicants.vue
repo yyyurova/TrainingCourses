@@ -69,7 +69,6 @@ const fetchPracticants = async () => {
         isLoading.value = true
 
         course.value = await getCourse(route.params.courseId)
-        console.log(course.value)
         // const membersParams = course.value.members.map(id => `id[]=${id}`).join('&');
         // const url = `https://c1a9f09250b13f61.mokky.dev/users?${membersParams}`;
 
@@ -78,7 +77,6 @@ const fetchPracticants = async () => {
 
         // originalPracticants.value = data
         practicants.value = [{ name: 'lalala', id: 4 }]
-        console.log(course)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false

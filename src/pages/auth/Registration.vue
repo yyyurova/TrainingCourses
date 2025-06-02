@@ -112,11 +112,6 @@ const validateForm = () => {
 const router = useRouter()
 
 const handleSubmit = async () => {
-    console.log({
-        name: name.value,
-        email: email.value,
-        password: password.value
-    })
     if (validateForm()) {
         try {
             const resp = await register(

@@ -17,8 +17,25 @@ export const getChat = async (chatId) => {
 
 export const createChat = async (newChat) => {
     try {
-        await client.post(`${ENDPOINTS.CHAT}`, newChat)
-    } catch (error) { return [] }
+        const formData = new FormData();
+        formData.append('title', newChat.title);
+        formData.append('is_group', newChat.isGroup ? 1 : 0);
+
+        if (newChat.avatar) {
+            formData.append('attachment', newChat.avatar);
+        }
+
+        const response = await client.post(`${ENDPOINTS.CHAT}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error creating chat:', error);
+        throw error;
+    }
 }
 
 export const getChatMessages = async (chatId) => {
@@ -31,7 +48,6 @@ export const getChatMessages = async (chatId) => {
 export const createMessage = async (chatId, message, attachments) => {
     const formData = new FormData();
     formData.append('message', message);
-    console.log(message)
     if (attachments) {
         attachments.forEach(file => {
             formData.append('attachments[]', file);
@@ -65,7 +81,6 @@ export const getChatMembers = async (chatId) => {
 
 export const addMembersToChat = async (chatId, userIds) => {
     try {
-        console.log(userIds)
         await client.post(`${ENDPOINTS.CHAT}/${chatId}/users`, {
             users: userIds
         });

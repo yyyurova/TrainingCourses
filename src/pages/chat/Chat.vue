@@ -41,7 +41,6 @@ const updateWindowWidth = () => {
     windowWidth.value = window.innerWidth;
 };
 
-
 const openDialog = (dialog) => {
     chats.value.map(chat => {
         chat.choosen = false
@@ -129,17 +128,11 @@ const deleteChat = async (id) => {
 
 const createChat = async (newChat) => {
     try {
-        // Создаем чат с названием и типом
-        const response = await apiCreateChat({
-            title: newChat.title,
-            is_group: newChat.isGroup,
-            avatar: newChat.avatar // Добавляем аватар
-        });
-
-        const createdChat = response.data;
+        // Создаем чат с названием, типом и аватаркой (если есть)
+        const createdChat = await apiCreateChat(newChat);
         await fetchChats(); // Обновляем список чатов
 
-        return createdChat; // Возвращаем созданный чат
+        return createdChat;
     } catch (err) {
         console.error('Ошибка создания чата:', err);
         throw err;
@@ -179,7 +172,6 @@ onMounted(async () => {
     selectedChat.value = null
     await fetchChats()
     window.addEventListener('resize', updateWindowWidth);
-    // console.log(chats.value)
 })
 </script>
 

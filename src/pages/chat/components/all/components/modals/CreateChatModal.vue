@@ -52,54 +52,21 @@ const deleteImage = () => {
     file.value = null;
 };
 
-const uploadImage = async (fileToUpload) => {
-    try {
-        const formData = new FormData();
-        formData.append('file', fileToUpload);
-
-        const response = await fetch('https://c1a9f09250b13f61.mokky.dev/uploads', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) throw new Error('Ошибка загрузки изображения');
-        return await response.json();
-    } catch (error) {
-        console.error('Ошибка при загрузке изображения:', error);
-        throw error;
-    }
-};
-
 const next = async () => {
     if (!nameInput.value.value.trim()) {
         nameInput.value.style.border = '1px solid red';
         return;
     }
 
-    try {
-        let avatarUrl = null;
+    // Передаем все данные чата, включая файл если он есть
+    emit('next', {
+        title: nameInput.value.value,
+        isGroup: true,
+        avatar: file.value?.file || null
+    });
 
-        if (file.value?.file) {
-            const formData = new FormData();
-            formData.append('file', file.value.file);
-
-            const response = await axios.post('https://your-api/uploads', formData);
-            avatarUrl = response.data.url;
-        }
-
-        // Передаем все данные чата
-        emit('next', {
-            title: nameInput.value.value,
-            isGroup: true,
-            avatar: avatarUrl
-        });
-
-    } catch (error) {
-        console.error("Ошибка загрузки аватара", error);
-    } finally {
-        nameInput.value.value = '';
-        file.value = null;
-    }
+    nameInput.value.value = '';
+    file.value = null;
 };
 
 const fileUpload = () => {

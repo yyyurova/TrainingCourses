@@ -36,7 +36,7 @@
 <script setup>
 import { defineProps, defineEmits, ref } from 'vue';
 import Card from '@/components/Card.vue';
-import Page from './Page.vue'; // Заменили Lesson на Page
+import Page from './Page.vue';
 
 const isPagesListOpen = ref(false);
 const warning = ref('');
@@ -50,13 +50,12 @@ const props = defineProps({
 const emit = defineEmits([
     'update:name',
     'delete-module',
-    'add-page', // Изменили на add-page
-    'update-page-name' // Изменили на update-page-name
+    'add-page',
+    'update-page-name'
 ]);
 
 const addPage = () => {
-    emit('add-page');
-    isPagesListOpen.value = true;
+    emit('add-page', props.mod.id);
 };
 
 const checkEmptyness = (e) => {

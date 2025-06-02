@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import Card from '@/components/Card.vue';
 
 const warning = ref('');
@@ -29,9 +29,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:name']);
 
-const deletePage = (moduleIdx, pageIdx) => {
-    emit('delete-page', moduleIdx, pageIdx);
-};
+const deletePage = inject('deletePage');
 
 const checkEmptyness = (e) => {
     if (e.target.value.trim() === '') {

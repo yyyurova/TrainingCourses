@@ -44,7 +44,6 @@ import AddUserModal from '../open/components/modals/AddUserModal.vue';
 const emit = defineEmits(['openDialog'])
 
 const chats = inject('chats')
-// console.log(chats.value)
 const nameInput = ref('')
 
 const showConfirmDeleteModal = ref(false)

@@ -2,22 +2,25 @@
     <FillCourseMaterialsLayout>
         <Card class="no-hover fill-material" v-if="material">
             <h1>Заполнение учебных материалов для курса</h1>
-            <Card v-if="openStep" class="no-hover name">
-                <p>{{ openStep.name }}</p>
+            <Card class="no-hover name">
+                <p>{{ currentModule.title }}</p>
             </Card>
+
             <h4>
-                Шаг {{ subStep.number + ': ' + translateType(subStep.type) }}
+                Страница {{ currentPage.number }}: {{ currentPage.name }}
                 <button class="icon"><img src="/icons/x.svg" alt=""></button>
             </h4>
-            <div v-if="openStep && openStep.subSteps" class="squares-score">
-                <span class="square" :class="{ 'filled': (index + 1) === subStep.number }"
-                    v-for="(substep, index) in openStep.subSteps" :key="index"></span>
+
+            <div class="squares-score">
+                <span class="square" :class="{ 'filled': index === currentPageIndex }"
+                    v-for="(page, index) in currentModule.steps" :key="index"></span>
+
                 <span class="square new" @click="openCreateStepModal">
                     <img src="/icons/plus-black.svg" alt="">
                 </span>
             </div>
 
-            <TextEditorCard class="text" v-if="subStep.type === 'text'" v-model="content" />
+            <TextEditorCard v-if="currentPage.type === 'text'" v-model="currentPage.content" />
             <div class="video" v-if="subStep.type === 'video'">
                 <div class="radio-inputs">
                     <label class="radio">
@@ -107,8 +110,14 @@
 <script setup>
 import { ref, provide, onMounted, watchEffect, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { getCourse } from '@/api/modules/courses.api';
-import { getModules } from '@/api/modules/materials.api';
+import { getCourse } from '@/api/modules/adminCourses.api';
+import {
+    getModules,
+    getPagesForModule,
+    createPage,
+    updatePage,
+    createQuestion,
+} from '@/api/modules/adminMaterials.api';
 
 import TextEditorCard from '@/components/TextEditorCard.vue';
 import FillCourseMaterialsLayout from '@/layouts/FillCourseMaterialsLayout.vue';
@@ -124,6 +133,9 @@ const openStep = ref(null);
 const subStep = ref({ number: 1, type: 'text' });
 const content = ref('')
 
+const currentModule = ref(null);
+const currentPage = ref(null);
+
 const uploadedFiles = ref([]);
 const fileInput = ref(null);
 
@@ -132,8 +144,6 @@ const selectedQuantity = ref('several')
 
 const isSaved = ref(false)
 const showSaveChangesModal = ref(false)
-
-// const answers = ref([])
 
 const route = useRoute();
 
@@ -178,37 +188,187 @@ const formatFileSize = (bytes) => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
-
-const saveCourse = async () => {
+const fetchMaterial = async () => {
     try {
+        if (!course.value?.id) return;
 
-        isSaved.value = true;
-        closeModal();
+        // Загружаем модули курса
+        const modules = await getModules(course.value.id);
+
+        // Для каждого модуля загружаем страницы
+        for (const module of modules) {
+            module.pages = await getPagesForModule(module.id);
+
+            // Преобразуем страницы в новый формат
+            module.steps = await Promise.all(module.pages.map(async (page) => {
+                // Для каждой страницы загружаем вопрос
+                const questions = await getQuestionsForPage(page.id);
+                const question = questions[0] || null;
+
+                return {
+                    id: page.id,
+                    questionId: question?.id || null,
+                    name: question?.title || 'Новая страница',
+                    type: determinePageType(question),
+                    content: question?.description || '',
+                    number: page.number
+                };
+            }));
+        }
+
+        material.value = {
+            id: course.value.id,
+            chapters: modules
+        };
     } catch (err) {
-        console.error('Ошибка сохранения:', err);
+        console.error("Ошибка загрузки материалов:", err);
     }
 };
 
-const createNewStep = (type) => {
-    const newSubStep = {
-        number: openStep.value.subSteps.length + 1,
-        type: type,
-        content: type === 'quiz' ? {
-            question: '',
-            options: [],
-            correct: []
-        } : ''
-    };
+// Определяем тип страницы по содержимому
+const determinePageType = (question) => {
+    if (!question) return 'text';
 
-    openStep.value.subSteps.push(newSubStep);
-    subStep.value = newSubStep;
-    closeModal()
-    popupText.value = 'Шаг создан'
-    showPopup.value = true
-    setTimeout(() => {
-        showPopup.value = false
-    }, 3000);
+    try {
+        const content = JSON.parse(question.description);
+        if (content.video) return 'video';
+        if (content.quiz) return 'quiz';
+    } catch {
+        return 'text';
+    }
+    return 'text';
 };
+
+const saveCourse = async () => {
+    try {
+        if (!currentPage.value) return;
+
+        let description = '';
+
+        // Форматируем контент в зависимости от типа
+        if (currentPage.value.type === 'text') {
+            description = content.value;
+        }
+        else if (currentPage.value.type === 'video') {
+            description = JSON.stringify({
+                video: {
+                    selectedWay: subStep.value.content.selectedWay,
+                    link: subStep.value.content.link,
+                    files: uploadedFiles.value
+                }
+            });
+        }
+        else if (currentPage.value.type === 'quiz') {
+            description = JSON.stringify({
+                quiz: subStep.value.content
+            });
+        }
+
+        if (currentPage.value.questionId) {
+            // Обновляем существующий вопрос
+            await updatePage(
+                currentPage.value.id,
+                currentPage.value.questionId,
+                {
+                    title: currentPage.value.name,
+                    description: description
+                }
+            );
+        } else {
+            // Создаем новый вопрос
+            const newQuestion = await createQuestion(
+                currentPage.value.id,
+                currentPage.value.name,
+                description
+            );
+            currentPage.value.questionId = newQuestion.id;
+        }
+
+        // ... обработка успешного сохранения ...
+    } catch (err) {
+        // ... обработка ошибки ...
+    }
+};
+
+const createNewStep = async (type) => {
+    try {
+        if (!currentModule.value) return;
+
+        // Создаем новую страницу
+        const newPage = await createPage(
+            currentModule.value.id,
+            `Страница ${currentModule.value.steps.length + 1}`
+        );
+
+        // Создаем вопрос для страницы
+        const questionData = {
+            title: `Страница ${currentModule.value.steps.length + 1}`,
+            description: type === 'text' ? '' : JSON.stringify({ [type]: {} })
+        };
+
+        const newQuestion = await createQuestion(newPage.id, questionData.title, questionData.description);
+
+        // Добавляем страницу локально
+        const newStep = {
+            id: newPage.id,
+            questionId: newQuestion.id,
+            name: newQuestion.title,
+            type: type,
+            content: '',
+            number: currentModule.value.steps.length + 1
+        };
+
+        currentModule.value.steps.push(newStep);
+        currentPage.value = newStep;
+        content.value = '';
+
+        // ... обработка успешного создания ...
+    } catch (error) {
+        console.error('Ошибка создания страницы:', error);
+    }
+};
+
+// Инициализация данных при загрузке страницы
+watchEffect(() => {
+    if (currentPage.value) {
+        content.value = currentPage.value.content;
+
+        if (currentPage.value.type === 'video') {
+            try {
+                const videoData = JSON.parse(currentPage.value.content).video;
+                subStep.value.content = videoData || {
+                    selectedWay: 'upload',
+                    link: '',
+                    files: []
+                };
+            } catch {
+                subStep.value.content = {
+                    selectedWay: 'upload',
+                    link: '',
+                    files: []
+                };
+            }
+        }
+        else if (currentPage.value.type === 'quiz') {
+            try {
+                const quizData = JSON.parse(currentPage.value.content).quiz;
+                subStep.value.content = quizData || {
+                    question: '',
+                    options: [],
+                    correct: [],
+                    quantity: 'several'
+                };
+            } catch {
+                subStep.value.content = {
+                    question: '',
+                    options: [],
+                    correct: [],
+                    quantity: 'several'
+                };
+            }
+        }
+    }
+});
 
 const addAnswer = () => {
     subStep.value.content.options.push('');
@@ -255,32 +415,12 @@ const popupText = ref('')
 const closePopup = () => {
     showPopup.value = false
 }
-const findMaterialByCourseId = (materials, targetCourseId) => {
-    return materials.find(materialObj => {
-        return Object.values(materialObj).some(content =>
-            content.courseId === targetCourseId
-        );
-    });
-};
 
 const fetchCourse = async () => {
     try {
         course.value = await getCourse(route.params.courseId);
     } catch (err) {
         console.error("Ошибка загрузки курса:", err);
-    }
-};
-
-const fetchMaterial = async () => {
-    try {
-        const materials = await getModules()
-        const foundMaterial = findMaterialByCourseId(materials, course.value.id);
-        if (foundMaterial) {
-            const contentKey = Object.keys(foundMaterial)[0];
-            material.value = foundMaterial[contentKey];
-        }
-    } catch (err) {
-        console.error("Ошибка загрузки материалов:", err);
     }
 };
 
@@ -304,6 +444,47 @@ watchEffect(() => {
                 ...material.value.chapters[chapterIndex].steps[stepIndex],
                 subSteps: material.value.chapters[chapterIndex].steps[stepIndex].subSteps || [{ number: 1, type: 'text  ' }]
             };
+        }
+    }
+});
+
+watchEffect(() => {
+    if (currentPage.value) {
+        content.value = currentPage.value.content;
+
+        if (currentPage.value.type === 'video') {
+            try {
+                const videoData = JSON.parse(currentPage.value.content).video;
+                subStep.value.content = videoData || {
+                    selectedWay: 'upload',
+                    link: '',
+                    files: []
+                };
+            } catch {
+                subStep.value.content = {
+                    selectedWay: 'upload',
+                    link: '',
+                    files: []
+                };
+            }
+        }
+        else if (currentPage.value.type === 'quiz') {
+            try {
+                const quizData = JSON.parse(currentPage.value.content).quiz;
+                subStep.value.content = quizData || {
+                    question: '',
+                    options: [],
+                    correct: [],
+                    quantity: 'several'
+                };
+            } catch {
+                subStep.value.content = {
+                    question: '',
+                    options: [],
+                    correct: [],
+                    quantity: 'several'
+                };
+            }
         }
     }
 });

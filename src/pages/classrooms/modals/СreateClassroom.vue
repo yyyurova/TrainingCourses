@@ -58,10 +58,6 @@ const next = () => {
         return;
     }
 
-    // console.log({
-    //     title: classroomName.value,
-    //     course_id: classroomCourse.value.id
-    // })
     emit('next', {
         title: classroomName.value,
         course_id: classroomCourse.value.id

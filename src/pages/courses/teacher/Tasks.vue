@@ -232,7 +232,6 @@ const fetchPracticants = async () => {
     try {
         isLoading.value = true
         practicants.value = await getPracticants()
-        console.log(practicants.value)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false

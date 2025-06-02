@@ -88,7 +88,6 @@ const fetchCourse = async (id) => {
     try {
         isLoading.value = true;
         course.value = await getCourse(id);
-        console.log(course.value)
 
         // if (data.teacher) {
         //     await fetchTeacherName(data.teacher);

@@ -44,15 +44,3 @@ export const createCourse = async (newCourse) => {
         return null;
     }
 };
-
-export const updateCourseContent = async (courseId, contentData) => {
-    try {
-        const response = await client.patch(`${ENDPOINTS.ADMIN_COURSE}/${courseId}/content`, {
-            content: contentData
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Ошибка обновления содержания курса:', error);
-        throw error;
-    }
-};

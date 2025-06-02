@@ -54,8 +54,8 @@ const props = defineProps({
             align-items: center;
 
             img {
-                width: auto;
-                height: 36px;
+                width: 36px;
+                height: auto;
                 border-radius: 4px;
             }
 

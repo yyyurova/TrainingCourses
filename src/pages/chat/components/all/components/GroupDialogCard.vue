@@ -5,7 +5,7 @@
                 <img src="/icons/users.svg" alt="">
 
                 <!-- <img :src="chat.avatar ? chat.avatar : '/avatar.png'"> -->
-                <img src="/avatar.png" alt="">
+                <img :src="getAvatarUrl(chat.avatar)" alt="" @error="handleImageError">
 
                 <p class="partner-name">{{ chat.title }}</p>
             </div>
@@ -31,11 +31,17 @@
 
 <script setup>
 import { format } from '@formkit/tempo';
-defineProps({
+const props = defineProps({
     chat: Object,
 })
 
 const emit = defineEmits(['delete'])
+
+const getAvatarUrl = (avatarPath) => {
+    if (!avatarPath) return '/avatar.png';
+
+    return `https://api-course.hellishworld.ru${avatarPath}`;
+}
 </script>
 
 <style scoped lang="scss">
@@ -45,7 +51,6 @@ const emit = defineEmits(['delete'])
     width: 100%;
     cursor: pointer;
     padding: 15px 10px;
-
 
     .dialog-card-header {
         display: flex;
@@ -64,8 +69,8 @@ const emit = defineEmits(['delete'])
                     width: 16px;
                 }
 
-                width: auto;
-                height: 36px;
+                width: 36px;
+                height: auto;
                 border-radius: 4px;
             }
 

@@ -19,9 +19,8 @@
                             <!-- <span v-if="item.counter" class="circle">{{ user[item.name] }}</span> -->
                         </div>
                         <div v-if="item.list" class="courses-list" :class="{ 'active': isCoursesListOpen }">
-                            <RouterLink v-for="course in courses" :key="course.id" :to="user.role === 'user'
-                                ? `/courses/${course.id}/my-study`
-                                : `/courses/${course.id}/practicants`" class="course-link">
+                            <RouterLink v-for="course in courses" :key="course.id" :to="getCourseLink(course)"
+                                class="course-link">
                                 <img class="avatar" :src="course.imageUrl || '/image.png'" alt="">
                                 <span class="name">{{ course.title }}</span>
                             </RouterLink>
@@ -208,7 +207,15 @@ const openEditModal = () => {
 const saveUserChanges = async (changes) => {
     if (changes.name) {
         user.value.name = changes.name;
-        await editProfile(changes.name)
+        const resp = await editProfile(changes.name)
+        localStorage.removeItem('user')
+        localStorage.setItem('user', JSON.stringify({
+            id: resp.data.id,
+            name: resp.data.name,
+            role: resp.data.role,
+            // email: resp.data.data.email,
+        }));
+
     }
     if (changes.avatar) user.value.avatar = changes.avatar;
 };
@@ -239,11 +246,13 @@ const handleClickOutsideUser = (e) => {
 
 const getCourseLink = (course) => {
     if (user.value.role === 'user') {
-        return `/courses/${course.id}/my-study`
+        return `/courses/${course.id}/my-study`;
     } else if (user.value.role === 'curator') {
-        return `/courses/${course.id}/practicants`
+        return `/courses/${course.id}/practicants`;
+    } else if (user.value.role === 'admin') {
+        return '/courses'; // Изменено для администратора
     }
-    return '#'
+    return '#';
 }
 
 watch(() => route.path, async (newPath) => {

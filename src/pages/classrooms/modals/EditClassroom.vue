@@ -28,10 +28,7 @@ const props = defineProps({
     }
 });
 
-console.log(props.classroom)
-
 const classroomName = ref(props.classroom.title);
-console.log(classroomName.value)
 
 const cancel = () => {
     emit('cancel');

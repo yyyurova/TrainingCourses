@@ -16,14 +16,14 @@
         </RouterLink>
 
         <div class="navigation" v-if="material">
-            <div v-for="(chapter, index) in material.chapters" :key="index" class="chapter">
+            <div v-for="(module, index) in material.modules" :key="index" class="chapter">
                 <div class="chapter-header" @click="toggleChapter(index)">
-                    <span>{{ index + 1 + '. ' + chapter.name }}</span>
+                    <span>{{ index + 1 + '. ' + module.name }}</span>
                     <img src="/icons/arrow.svg" class="arrow-up" :class="{ 'arrow-down': openChapters[index] }" alt="">
                 </div>
 
-                <div class="steps" v-if="chapter.steps" v-show="openChapters[index]">
-                    <RouterLink v-for="(step, stepIndex) in chapter.steps" :key="stepIndex"
+                <div class="steps" v-if="module.steps" v-show="openChapters[index]">
+                    <RouterLink v-for="(step, stepIndex) in module.steps" :key="stepIndex"
                         :to="`/course-fill-materials/${course.id}/${index}/${stepIndex}`" class="step-link"
                         active-class="active-step">
                         <div class="step-content">

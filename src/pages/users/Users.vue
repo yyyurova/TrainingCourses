@@ -256,7 +256,6 @@ const openEditModal = (user) => {
 
 const handleEditUser = async (user, newUser) => {
     try {
-        console.log(newUser)
         closeModal()
         await editUser(user.id, newUser)
         // await axios.patch(`https://c1a9f09250b13f61.mokky.dev/users/${user.id}`, newInfo);

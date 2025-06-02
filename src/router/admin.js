@@ -46,13 +46,13 @@ export const adminRoutes = [
         },
         children: [
             {
-                path: ':chapterId',
-                name: 'CourseChapter',
+                path: ':moduleId',
+                name: 'CourseModule',
                 component: FillMaterials,
                 children: [
                     {
-                        path: ':stepId',
-                        name: 'CourseStep',
+                        path: ':pageId',
+                        name: 'CoursePage',
                         component: FillMaterials,
                         meta: { title: 'Шаг обучения' }
                     }

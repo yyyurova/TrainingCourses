@@ -8,7 +8,7 @@
                         <button v-if="isMobile" class="icon" @click="() => emit('backToAllChats')">
                             <img class="arrow-left" src="/icons/arrow.svg" alt="">
                         </button>
-                        <img :src="selectedChat.avatar || '/icons/Avatar.svg'">
+                        <img class="avatar" :src="getAvatarUrl(selectedChat.avatar)">
                         <h1>{{ selectedChat.title }}</h1>
                     </div>
                     <p v-if="selectedChat.is_group === 1" class="am-members">{{ pluralizeParticipants }}</p>
@@ -37,8 +37,10 @@
             <button class="icon" @click="fileUpload">
                 <img src="/icons/paperclip.svg" alt="">
             </button>
-
-            <input ref="input" placeholder="Отправить сообщение..." type="text" class="inp-field">
+            <div class="center">
+                <p v-if="limitMessage.length > 0" class="limit-message">{{ limitMessage }}</p>
+                <input ref="input" placeholder="Отправить сообщение..." type="text" class="inp-field">
+            </div>
             <button class="icon">
                 <img src="/icons/emote-smile.svg" alt="">
             </button>
@@ -57,8 +59,6 @@
 <script setup>
 import pluralize from 'pluralize-ru';
 import { inject, watch, ref, computed, onMounted } from 'vue';
-import { format } from '@formkit/tempo';
-import { decodeUtf8 } from '@/utils/utils';
 import { getChatMessages, getChat, getChatMembers, createMessage } from '@/api/modules/chat.api';
 
 import NoMessages from './components/NoMessages.vue';
@@ -75,6 +75,7 @@ defineProps({ isMobile: Boolean })
 
 const selectedChat = inject('selectedChat')
 const input = ref(null)
+const limitMessage = ref('')
 const messages = ref([])
 const attachedFiles = ref([])
 
@@ -86,6 +87,12 @@ const fetchMessages = async () => {
     messages.value.sort((a, b) =>
         new Date(a.created_at) - new Date(b.created_at)
     );
+}
+
+const getAvatarUrl = (avatarPath) => {
+    if (!avatarPath) return '/avatar.png';
+
+    return `https://api-course.hellishworld.ru${avatarPath}`;
 }
 
 const fetchMembers = async () => {
@@ -113,22 +120,27 @@ const pluralizeParticipants = computed(() => {
 const fileUpload = () => {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
-    fileInput.accept = '*';
     fileInput.multiple = true;
+
+    // Указываем разрешённые MIME типы и расширения
+    fileInput.accept = '.jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt';
 
     fileInput.onchange = (e) => {
         const files = Array.from(e.target.files);
+        const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif|\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.txt)$/i;
 
         files.forEach(file => {
-            if (attachedFiles.value.length < 10) { // API допускает до 10 вложений
-                attachedFiles.value.push({
-                    name: file.name,
-                    size: formatFileSize(file.size),
-                    file: file
-                });
-            } else {
-                alert('Максимум 10 файлов');
+            if (!allowedExtensions.exec(file.name)) {
+                limitMessage.value = 'Недопустимое расширение файлов'
+                return;
             }
+
+            attachedFiles.value.push({
+                name: file.name,
+                size: formatFileSize(file.size),
+                file: file
+            });
+
         });
     };
 
@@ -155,14 +167,20 @@ const toBase64 = (file) => {
 const sendMessage = async () => {
     const text = input.value.value.trim();
 
-    // Если нет текста и нет файлов - не отправляем
     if (!text && attachedFiles.value.length === 0) return;
+    if (text.split('').length > 2048) {
+        limitMessage.value = 'Длина сообщения не должна превышать 2048 символов'
+        return
+    }
+    if (attachedFiles.value.length > 10) {
+        limitMessage.value = 'Вы можете прикрепить не более 10 файлов'
+        return
+    }
 
     try {
-        // Всегда отправляем текст (даже если он пустой)
         await createMessage(
             selectedChat.value.id,
-            text || null, // Отправляем пробел если нет текста
+            text || null,
             attachedFiles.value.map(f => f.file)
         );
 
@@ -179,10 +197,16 @@ const sendMessage = async () => {
     } catch (error) {
         console.error('Ошибка отправки сообщения', error);
     }
+    finally {
+        limitMessage.value = ''
+    }
 };
 
 const deleteFile = (file) => {
     attachedFiles.value = attachedFiles.value.filter(item => item.name !== file.name)
+    if (attachedFiles.value.length <= 10) {
+        limitMessage.value = ''
+    }
 }
 
 const addToExistingChat = async (members) => {
@@ -244,6 +268,11 @@ onMounted(async () => {
                     margin: 0;
                     padding: 0;
                 }
+
+                .avatar {
+                    width: 40px;
+                    height: auto;
+                }
             }
 
             .right-part {
@@ -296,6 +325,20 @@ onMounted(async () => {
         align-items: center;
         gap: 10px;
         border: 1px solid #D9D9D9;
+
+        .center {
+            flex: 1;
+
+            .limit-message {
+                padding-left: 5px;
+                color: red;
+                font-size: 12px;
+            }
+
+            input {
+                width: 100%;
+            }
+        }
 
         img {
             width: 24px;

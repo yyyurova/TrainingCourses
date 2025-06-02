@@ -67,7 +67,6 @@ const save = () => {
     if (selectedCurator.value) {
         classroomMembers.value.push(selectedCurator.value);
     }
-    console.log(classroomMembers.value)
     emit('save', {
         members: classroomMembers.value,
         curator_id: selectedCurator.value.id
@@ -76,11 +75,6 @@ const save = () => {
 
 onMounted(async () => {
     await fetchUsers();
-
-    console.log(users.value)
-    console.log(students.value)
-    console.log(curators.value)
-
 });
 </script>
 
