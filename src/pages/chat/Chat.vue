@@ -16,7 +16,7 @@ import axios from 'axios';
 import { provide, ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { getChats, createChat as apiCreateChat, deleteChat as apiDeleteChat, addMembersToChat } from '@/api/modules/chat.api';
+import { getChats, createChat as apiCreateChat, deleteChat as apiDeleteChat, addMembersToChat, editChat as apiEditChat } from '@/api/modules/chat.api';
 import { getUser } from '@/api/modules/adminUsers.api';
 
 import ChatLayout from '@/layouts/ChatLayout.vue';
@@ -138,6 +138,17 @@ const createChat = async (newChat) => {
         throw err;
     }
 };
+const editChat = async (chatData) => {
+    try {
+        await apiEditChat(
+            selectedChat.value.id, chatData
+        );
+        await fetchChats();
+    } catch (err) {
+        console.error('Ошибка редактирования чата:', err);
+        throw err;
+    }
+};
 
 const addMembers = async (newMembers) => {
     try {
@@ -166,6 +177,7 @@ provide('originalChats', originalChats)
 provide('settingsIsOpen', settingsIsOpen)
 provide('createChat', createChat)
 provide('deleteChat', deleteChat)
+provide('editChat', editChat)
 provide('addMembers', addMembers)
 
 onMounted(async () => {

@@ -72,6 +72,27 @@ export const deleteChat = async (chatId) => {
     } catch (error) { return [] }
 }
 
+export const editChat = async (chatId, newChat) => {
+    try {
+        const formData = new FormData();
+        formData.append('title', newChat.title || '');
+        formData.append('is_group', newChat.isGroup ? 1 : 0);
+
+        if (newChat.avatar) {
+            formData.append('attachment', newChat.avatar);
+        }
+        console.log(formData.title)
+        await client.put(`${ENDPOINTS.CHAT}/${chatId}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+    } catch (error) {
+        console.error('Error editing chat:', error);
+        throw error;
+    }
+};
+
 export const getChatMembers = async (chatId) => {
     try {
         const response = await client.get(`${ENDPOINTS.CHAT}/${chatId}/users`)

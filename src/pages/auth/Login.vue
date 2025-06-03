@@ -91,8 +91,6 @@ const handleSubmit = async () => {
     try {
         const resp = await login(email.value, password.value);
         localStorage.setItem('token', resp.data.data.access_token);
-        // localStorage.setItem('user_name', resp.data.data.name);
-        // localStorage.setItem('user_role', resp.data.data.role);
 
         localStorage.setItem('user', JSON.stringify({
             id: resp.data.data.id,

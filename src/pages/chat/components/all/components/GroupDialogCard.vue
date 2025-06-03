@@ -71,7 +71,9 @@ const getAvatarUrl = (avatarPath) => {
 
                 width: 36px;
                 height: auto;
+                max-height: 45px;
                 border-radius: 4px;
+                object-fit: cover;
             }
 
             .partner-name {

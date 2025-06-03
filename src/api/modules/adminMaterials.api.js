@@ -46,9 +46,9 @@ export const getPagesForModule = async (moduleId) => {
     }
 };
 
-export const createPage = async (moduleId, title) => {
+export const createPage = async (moduleId, title, type) => {
     try {
-        const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/${moduleId}`, { title: title });
+        const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/${moduleId}`, { title: title, type: type });
         return response.data;
     } catch (error) {
         console.error('Полная ошибка:', error);
@@ -95,6 +95,24 @@ export const getQuestion = async (pageId, questionId) => {
 export const createQuestion = async (pageId, title, description) => {
     try {
         const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}`, { title: title, description: description });
+        return response.data;
+    } catch (error) {
+        console.error('Полная ошибка:', error);
+    }
+};
+
+export const createVariant = async (questionId, title, is_right) => {
+    try {
+        const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/question/variant/${questionId}`, { title: title, is_right: is_right });
+        return response.data;
+    } catch (error) {
+        console.error('Полная ошибка:', error);
+    }
+};
+
+export const updateVariant = async (questionId, variantId, title, is_right) => {
+    try {
+        const response = await client.patch(`${ENDPOINTS.ADMIN_MODULE}/page/question/variant/${questionId}/${variantId}`, { title: title, is_right: is_right });
         return response.data;
     } catch (error) {
         console.error('Полная ошибка:', error);

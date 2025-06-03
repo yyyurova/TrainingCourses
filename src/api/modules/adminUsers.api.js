@@ -1,17 +1,12 @@
 import client from '../http/client';
 import { ENDPOINTS } from '../constants/endpoints';
 
-export const getUsers = async (params = {}) => {
+export const getUsers = async () => {
     try {
-        const response = await client.get(`${ENDPOINTS.ADMIN_USERS}`, { params });
+        const response = await client.get(`${ENDPOINTS.ADMIN_USERS}`);
         return response.data;
     } catch (error) {
         console.error('Полная ошибка:', error);
-        if (error.response) {
-            console.error('Данные ошибки:', error.response.data);
-            console.error('Статус:', error.response.status);
-            console.error('Заголовки:', error.response.headers);
-        }
         return { data: [], meta: {} };
     }
 };

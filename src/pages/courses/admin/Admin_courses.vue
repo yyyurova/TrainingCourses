@@ -6,7 +6,7 @@
             <img src="/icons/plus.svg" alt="">
         </button>
         <div class="courses">
-            <Card v-for="course in courses" :key="course.id">
+            <Card v-for="course in courses" :key="course.id" @click="goToCourse(course)">
                 <div class="top">
                     <img class="avatar" width :src="course.photo || '/image.png'" alt="avatar">
                     <span class="name-of-course">{{ course.title }}</span>
@@ -28,7 +28,7 @@
 
         <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" />
 
-        <!-- <Loading v-if="isLoading || !courses" /> -->
+        <Loading v-if="isLoading" />
 
         <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить курс?"
             text="Студенты, записанные на этот курс, потеряют доступ к материалам, а куратор утратит все данные об их успеваемости"
@@ -64,7 +64,12 @@ const popupText = ref('')
 
 const selectedCourse = ref(null)
 
-// const isLoading = ref(false);
+const isLoading = inject('isLoading');
+
+const goToCourse = (course) => {
+    selectedCourse.value = course
+    router.push(`/course-fill-content/${course.id}`)
+}
 
 const closeModal = () => {
     if (showCreateCourseModal.value) { showCreateCourseModal.value = false }
@@ -91,21 +96,12 @@ const openDeleteModal = (course) => {
     showConfirmDeleteModal.value = true
 }
 
-// const fetchCourses = async () => {
-//     try {
-//         isLoading.value = true
-//         courses.value = await getCourses()
-//     } finally {
-//         isLoading.value = false
-//     }
-// }
-
 const deleteCourse = async () => {
     if (!selectedCourse.value) return
     try {
+
         await apiDeleteCourse(selectedCourse.value.id)
         courses.value = courses.value.filter(c => c.id !== selectedCourse.value.id)
-        // await fetchCourses()
         showConfirmDeleteModal.value = false
         popupText.value = 'Курс удален'
         showPopup.value = true

@@ -14,10 +14,6 @@
             <div class="squares-score">
                 <span class="square" :class="{ 'filled': index === currentPageIndex }"
                     v-for="(page, index) in currentModule.steps" :key="index"></span>
-
-                <span class="square new" @click="openCreateStepModal">
-                    <img src="/icons/plus-black.svg" alt="">
-                </span>
             </div>
 
             <TextEditorCard v-if="currentPage.type === 'text'" v-model="currentPage.content" />
@@ -101,7 +97,6 @@
             <button class="blue" @click="saveCourse">Сохранить изменения</button>
             <button class="transparent">Вернуться к просмотру</button>
         </div>
-        <CreateStep v-if="showCreateStepModal" @cancel="closeModal" @create="createNewStep" />
         <SaveChanges v-if="showSaveChangesModal" @cancel="closeModal" @confirm="saveCourse" />
         <Popup v-if="showPopup" :text="popupText" @close="closePopup" />
     </FillCourseMaterialsLayout>
@@ -114,15 +109,14 @@ import { getCourse } from '@/api/modules/adminCourses.api';
 import {
     getModules,
     getPagesForModule,
-    createPage,
     updatePage,
     createQuestion,
+    getQuestionsForPage
 } from '@/api/modules/adminMaterials.api';
 
 import TextEditorCard from '@/components/TextEditorCard.vue';
 import FillCourseMaterialsLayout from '@/layouts/FillCourseMaterialsLayout.vue';
 import Card from '@/components/Card.vue';
-import CreateStep from './components/modals/CreateStep.vue';
 import Answer from './components/Answer.vue';
 import SaveChanges from './components/modals/SaveChanges.vue';
 import Popup from '@/components/Popup.vue';
@@ -147,19 +141,12 @@ const showSaveChangesModal = ref(false)
 
 const route = useRoute();
 
-const showCreateStepModal = ref(false)
-
 const openSaveChangesModal = () => {
     showSaveChangesModal.value = true
 }
 
 const closeModal = () => {
-    if (showCreateStepModal.value) { showCreateStepModal.value = false }
     if (showSaveChangesModal.value) { showSaveChangesModal.value = false }
-}
-
-const openCreateStepModal = () => {
-    showCreateStepModal.value = true
 }
 
 const handleFileUpload = (e) => {
@@ -188,6 +175,7 @@ const formatFileSize = (bytes) => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
+
 const fetchMaterial = async () => {
     try {
         if (!course.value?.id) return;
@@ -225,14 +213,13 @@ const fetchMaterial = async () => {
     }
 };
 
-// Определяем тип страницы по содержимому
 const determinePageType = (question) => {
-    if (!question) return 'text';
+    if (!question) return 1;
 
     try {
         const content = JSON.parse(question.description);
-        if (content.video) return 'video';
-        if (content.quiz) return 'quiz';
+        if (content.video) return 2;
+        if (content.quiz) return 3;
     } catch {
         return 'text';
     }
@@ -245,11 +232,10 @@ const saveCourse = async () => {
 
         let description = '';
 
-        // Форматируем контент в зависимости от типа
-        if (currentPage.value.type === 'text') {
+        if (currentPage.value.type === 1) {
             description = content.value;
         }
-        else if (currentPage.value.type === 'video') {
+        else if (currentPage.value.type === 2) {
             description = JSON.stringify({
                 video: {
                     selectedWay: subStep.value.content.selectedWay,
@@ -258,7 +244,7 @@ const saveCourse = async () => {
                 }
             });
         }
-        else if (currentPage.value.type === 'quiz') {
+        else if (currentPage.value.type === 3) {
             description = JSON.stringify({
                 quiz: subStep.value.content
             });
@@ -290,45 +276,6 @@ const saveCourse = async () => {
     }
 };
 
-const createNewStep = async (type) => {
-    try {
-        if (!currentModule.value) return;
-
-        // Создаем новую страницу
-        const newPage = await createPage(
-            currentModule.value.id,
-            `Страница ${currentModule.value.steps.length + 1}`
-        );
-
-        // Создаем вопрос для страницы
-        const questionData = {
-            title: `Страница ${currentModule.value.steps.length + 1}`,
-            description: type === 'text' ? '' : JSON.stringify({ [type]: {} })
-        };
-
-        const newQuestion = await createQuestion(newPage.id, questionData.title, questionData.description);
-
-        // Добавляем страницу локально
-        const newStep = {
-            id: newPage.id,
-            questionId: newQuestion.id,
-            name: newQuestion.title,
-            type: type,
-            content: '',
-            number: currentModule.value.steps.length + 1
-        };
-
-        currentModule.value.steps.push(newStep);
-        currentPage.value = newStep;
-        content.value = '';
-
-        // ... обработка успешного создания ...
-    } catch (error) {
-        console.error('Ошибка создания страницы:', error);
-    }
-};
-
-// Инициализация данных при загрузке страницы
 watchEffect(() => {
     if (currentPage.value) {
         content.value = currentPage.value.content;
@@ -401,10 +348,9 @@ const updateCorrectAnswers = ({ index, isChecked }) => {
 
 const translateType = (type) => {
     switch (type) {
-        case 'text': return 'Текст';
-        case 'quiz': return 'Тест';
-        case 'code': return 'Код';
-        case 'video': return 'Видео';
+        case 1: return 'Текст';
+        case 3: return 'Тест';
+        case 2: return 'Видео';
         default: return 'Неизвестный тип';
     }
 }
@@ -581,14 +527,6 @@ provide('material', material);
 
             &.filled {
                 background-color: #513DEB;
-            }
-
-            &.new {
-                // background-color: transparent;
-                // border: 1px solid #513DEB;
-                display: flex;
-                justify-content: center;
-                align-items: center;
             }
         }
     }

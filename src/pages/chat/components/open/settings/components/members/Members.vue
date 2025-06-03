@@ -42,6 +42,7 @@ import AddUserModal from '../../../components/modals/AddUserModal.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 
 const chat = inject('selectedChat');
+console.log(chat.value)
 const addMembers = inject('addMembers');
 
 const allMembers = ref(chat.value.members);

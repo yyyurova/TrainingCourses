@@ -39,8 +39,24 @@ import { ref } from 'vue';
 const selectedType = ref('text');
 const emit = defineEmits(['cancel', 'create']);
 
+const getTypeNumber = (type) => {
+    let num
+    switch (type) {
+        case 'text':
+            num = 1
+            break
+        case 'video':
+            num = 2
+            break
+        case 'quiz':
+            num = 3
+            break
+    }
+    return num
+}
+
 const handleCreate = () => {
-    emit('create', selectedType.value);
+    emit('create', getTypeNumber(selectedType.value));
     selectedType.value = 'text';
 };
 </script>

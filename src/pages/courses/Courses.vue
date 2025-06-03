@@ -14,6 +14,7 @@ import Teacher_courses from './teacher/Teacher_courses.vue';
 
 let component;
 const courses = ref([])
+const isLoading = ref(false)
 
 const user_role = getUserRole()
 
@@ -31,14 +32,26 @@ switch (user_role) {
 
 const getCoursesByRole = async () => {
     if (user_role === 'admin') {
-        courses.value = await getAdminCourses()
+        try {
+            isLoading.value = true
+            courses.value = await getAdminCourses()
+        } finally {
+            isLoading.value = false
+        }
     }
     else {
-        courses.value = await getCourses()
+        try {
+            isLoading.value = true
+            courses.value = await getCourses()
+        }
+        finally {
+            isLoading.value = false
+        }
     }
 }
 
 provide('courses', courses)
+provide('isLoading', isLoading)
 
 onMounted(getCoursesByRole)
 </script>

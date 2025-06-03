@@ -171,7 +171,7 @@ const sendMessage = async () => {
     if (text.split('').length > 2048) {
         limitMessage.value = 'Длина сообщения не должна превышать 2048 символов'
         return
-    }
+    } else { limitMessage.value = '' }
     if (attachedFiles.value.length > 10) {
         limitMessage.value = 'Вы можете прикрепить не более 10 файлов'
         return
@@ -233,11 +233,10 @@ onMounted(async () => {
     await fetchMessages()
 })
 </script>
+
 <style scoped lang="scss">
 .open {
-    // width: 55%;
     flex: 1;
-    // max-width: 55%;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -272,6 +271,9 @@ onMounted(async () => {
                 .avatar {
                     width: 40px;
                     height: auto;
+                    max-height: 50px;
+                    border-radius: 4px;
+                    object-fit: cover;
                 }
             }
 

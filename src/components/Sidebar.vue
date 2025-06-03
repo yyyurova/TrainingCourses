@@ -250,7 +250,7 @@ const getCourseLink = (course) => {
     } else if (user.value.role === 'curator') {
         return `/courses/${course.id}/practicants`;
     } else if (user.value.role === 'admin') {
-        return '/courses'; // Изменено для администратора
+        return `/course-fill-content/${course.id}`;
     }
     return '#';
 }

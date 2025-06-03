@@ -7,12 +7,12 @@
                 </button>
                 <div class="center">
                     <div class="top">
-                        <img src="/image.png">
+                        <img :src="getAvatarUrl(selectedChat.avatar)">
                         <p class="grop-name">{{ selectedChat.title }}</p>
                     </div>
                     <p v-if="selectedChat.is_group === 1" class="am-members">{{ pluralizeParticipants }}</p>
                 </div>
-                <button v-if="selectedChat.is_group === 1" class="icon big">
+                <button v-if="selectedChat.is_group === 1" class="icon big" @click="openShowEditChatModal">
                     <img src="/icons/settings.svg" alt="">
                 </button>
                 <button v-else class="icon big" @click="openConfirmDeleteModal">
@@ -28,6 +28,7 @@
     <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить чат?"
         text="Удалённую переписку нельзя будет восстановить" right-button-text="Удалить"
         @confirm="deleteChat(selectedChat.id)" @cancel="closeModal" />
+    <EditChat v-if="showEditChatModal" @cancel="closeModal" />
 </template>
 
 <script setup>
@@ -39,7 +40,9 @@ import Navbar from '@/components/Navbar.vue';
 import Members from './components/members/Members.vue';
 import Docs from './components/Docs.vue';
 import Attachments from './components/attachments/Attachments.vue';
+
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
+import EditChat from './components/modals/EditChat.vue';
 
 const selectedChat = inject('selectedChat')
 const route = useRoute()
@@ -50,6 +53,8 @@ const contentHeight = ref(0);
 
 const header = ref(null)
 const navbar = ref(null)
+
+const showEditChatModal = ref(false)
 const showConfirmDeleteModal = ref(false)
 
 const deleteChat = inject('deleteChat')
@@ -60,6 +65,11 @@ const openConfirmDeleteModal = () => {
 
 const closeModal = () => {
     if (showConfirmDeleteModal.value) { showConfirmDeleteModal.value = false }
+    if (showEditChatModal.value) { showEditChatModal.value = false }
+}
+
+const openShowEditChatModal = () => {
+    showEditChatModal.value = true
 }
 
 const pluralizeParticipants = computed(() => {
@@ -76,6 +86,12 @@ const calculateContentHeight = () => {
 
     contentHeight.value = windowHeight - headerHeight - navbarHeight;
 };
+
+const getAvatarUrl = (avatarPath) => {
+    if (!avatarPath) return '/avatar.png';
+
+    return `https://api-course.hellishworld.ru${avatarPath}`;
+}
 
 const navbarItems = computed(() => {
     if (!selectedChat.value) return [];

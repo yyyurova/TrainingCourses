@@ -55,6 +55,7 @@ const emit = defineEmits([
 ]);
 
 const addPage = () => {
+    if (props.mod.pages.length > 0) { isPagesListOpen.value = true }
     emit('add-page', props.mod.id);
 };
 

@@ -29,16 +29,7 @@ import Card from '@/components/Card.vue';
 
 const courses = inject('courses')
 const router = useRouter()
-const isLoading = ref(false)
-
-// const fetchCourses = async () => {
-//     try {
-//         isLoading.value = true
-//         courses.value = await getCourses()
-//     } finally {
-//         isLoading.value = false
-//     }
-// }
+const isLoading = inject('isLoading')
 
 const continueStudy = (id) => {
     router.push(`/courseCompletion/${id}`)

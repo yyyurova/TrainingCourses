@@ -18,6 +18,7 @@
         <div v-if="content.modules.length > 0" class="save-block">
             <button @click="saveCourse" class="blue">Сохранить изменения</button>
         </div>
+        <CreateLesson v-if="showCreateLessonModal" @cancel="closeModal" @create="createPageWithType" />
     </FillCourseContentLayout>
 </template>
 
@@ -35,6 +36,8 @@ import {
     deleteModule,
     deletePage
 } from '@/api/modules/adminMaterials.api';
+
+import CreateLesson from '../fillMaterials/components/modals/CreateLesson.vue';
 import FillCourseContentLayout from '@/layouts/FillCourseContentLayout.vue';
 import Module from './components/Module.vue';
 
@@ -56,6 +59,13 @@ const changes = reactive({
 const route = useRoute();
 const router = useRouter()
 
+const showCreateLessonModal = ref(false)
+const currentModuleIndex = ref(null);
+
+const closeModal = () => {
+    if (showCreateLessonModal.value) { showCreateLessonModal.value = false }
+}
+
 const fetchCourse = async () => {
     try {
         course.value = await getCourse(route.params.courseId);
@@ -64,6 +74,7 @@ const fetchCourse = async () => {
 
         for (const module of modules) {
             const pages = await getPagesForModule(module.id);
+            console.log(pages)
             module.pages = pages;
         }
 
@@ -74,6 +85,7 @@ const fetchCourse = async () => {
                 pages: module.pages.map(page => ({
                     id: page.id,
                     name: page.title,
+                    type: page.type,
                     content: page.content
                 }))
             }))
@@ -118,23 +130,53 @@ const updateModuleName = (index, newName) => {
     }
 };
 
+// const addPage = (chapterIndex) => {
+//     const chapter = content.value.modules[chapterIndex];
+//     const newId = tempId--;
+
+//     const newPage = {
+//         id: newId,
+//         name: 'Новая страница',
+//         content: ''
+//     };
+
+//     chapter.pages.push(newPage);
+
+//     changes.pages.added.push({
+//         id: newId,
+//         module_id: chapter.id,
+//         title: 'Новая страница'
+//     });
+// };
 const addPage = (chapterIndex) => {
-    const chapter = content.value.modules[chapterIndex];
+    currentModuleIndex.value = chapterIndex; // Запоминаем модуль
+    showCreateLessonModal.value = true;     // Открываем модалку
+};
+
+const createPageWithType = (type) => {
+    if (currentModuleIndex.value === null) return;
+
+    const module = content.value.modules[currentModuleIndex.value];
     const newId = tempId--;
+    const typeNames = { 1: 'Текст', 2: 'Видео', 3: 'Тест' };
 
     const newPage = {
         id: newId,
-        name: 'Новая страница',
+        name: `Новая страница (${typeNames[type]})`,
+        type: type,
         content: ''
     };
 
-    chapter.pages.push(newPage);
+    module.pages.push(newPage);
 
     changes.pages.added.push({
         id: newId,
-        module_id: chapter.id,
-        title: 'Новая страница'
+        module_id: module.id,
+        title: newPage.name,
+        type: type
     });
+
+    closeModal();
 };
 
 const updatePageName = (chapterIndex, pageIndex, newName) => {
@@ -190,9 +232,13 @@ provide('deletePage', (chapterIndex, pageIndex) => {
 const saveCourse = async () => {
     try {
         for (const pageId of changes.pages.deleted) {
-            await deletePage(module.id, pageId);
+            const module = content.value.modules.find(m =>
+                m.pages.some(p => p.id === pageId)
+            );
+            if (module) {
+                await deletePage(module.id, pageId);
+            }
         }
-
         for (const moduleId of changes.modules.deleted) {
             await deleteModule(course.value.id, moduleId);
         }
@@ -217,7 +263,12 @@ const saveCourse = async () => {
 
             if (!realModuleId) continue;
 
-            const response = await createPage(realModuleId, page.title);
+            // Передаем тип страницы в API
+            const response = await createPage(
+                realModuleId,
+                page.title,
+                page.type // Добавляем тип страницы
+            );
 
             for (const chapter of content.value.modules) {
                 const localPage = chapter.pages.find(p => p.id === page.id);
@@ -239,15 +290,22 @@ const saveCourse = async () => {
             changes[key].updated = [];
             changes[key].deleted = [];
         });
+        console.log(content.value)
+        let firstModule = content.value.modules[0];
 
-        router.push({
-            name: 'CoursePage',
-            params: {
-                courseId: course.value.id,
-                moduleId: content.value.modules[0].id,
-                pageId: content.value.modules[0].pages[0].id
-            }
-        });
+        // Проверяем, сохранился ли модуль на сервере и получил ли он реальный ID
+        if (firstModule && firstModule.id > 0 && firstModule.pages.length > 0) {
+            router.push({
+                name: 'CoursePage',
+                params: {
+                    courseId: course.value.id,
+                    moduleId: firstModule.id,
+                    pageId: firstModule.pages[0].id
+                }
+            });
+        } else {
+            console.log('Переход невозможен: модуль еще не сохранён или нет страниц');
+        }
     } catch (error) {
         console.error('Ошибка сохранения:', error);
     }
@@ -277,6 +335,9 @@ provide('course', course);
 
 .content-of-course {
     margin: 10px 0;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
 }
 
 .save-block {

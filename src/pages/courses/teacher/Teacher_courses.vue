@@ -39,24 +39,13 @@ const popupText = ref('')
 
 const selectedCourse = ref(null)
 
-const isLoading = ref(courses.value === null);
+const isLoading = inject('isLoading');
 
 const goToCourse = (course) => {
     selectedCourse.value = course
     router.push(`/courses/${selectedCourse.value.id}/practicants`)
 }
-// const fetchCourses = async () => {
-//     try {
-//         isLoading.value = true
-//         courses.value = await getCourses()
-//     } finally {
-//         isLoading.value = false
-//     }
-// }
 
-// onMounted(async () => {
-//     // await fetchCourses()
-// })
 provide('selectedCourse', selectedCourse)
 </script>
 
