@@ -96,13 +96,8 @@ const fetchCourse = async () => {
 
 const newModule = async () => {
     try {
-        const response = await createModule(course.value.id, 'Новый модуль');
+        await createModule(course.value.id, 'Новый модуль');
         await fetchCourse()
-        // content.value.modules.push({
-        //     id: response.id,
-        //     name: response.title || 'Новый модуль',
-        //     pages: []
-        // });
     } catch (error) {
         console.error('Ошибка создания модуля:', error);
     }

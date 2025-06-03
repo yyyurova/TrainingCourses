@@ -1,4 +1,3 @@
-// import axios from "axios"
 import client from "../http/client";
 import { ENDPOINTS } from "../constants/endpoints";
 

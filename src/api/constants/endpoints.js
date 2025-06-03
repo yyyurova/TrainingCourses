@@ -19,4 +19,6 @@ export const ENDPOINTS = {
     CURATOR_STUDENTS: '/curator/students',
 
     TASK: '/task',
+
+    ANSWERS: '/question-answers'
 }

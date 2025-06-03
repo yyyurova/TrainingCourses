@@ -60,6 +60,7 @@ import { useRoute } from 'vue-router';
 import { getCourse } from '@/api/modules/courses.api';
 import { getModules } from '@/api/modules/studentMaterials.api';
 import { getModulePage } from '@/api/modules/studentMaterials.api';
+import { sendAnswer } from '@/api/modules/studentAnswers.api';
 
 import CourseCompletionLayout from '@/layouts/CourseCompletionLayout.vue';
 import Card from '@/components/Card.vue';
@@ -95,7 +96,6 @@ const fetchMaterial = async () => {
             module.value = material.value[0];
             await loadPageContent();
         }
-        console.log(currentPageData.value)
     } catch (err) {
         console.error('Ошибка загрузки данных:', err);
     }
@@ -110,7 +110,6 @@ const loadPageContent = async () => {
 
     try {
         currentPageData.value = await getModulePage(module.value.id, pageId);
-
 
         if (currentPageData.value.questions) {
             currentPageData.value.questions.forEach((_, index) => {
@@ -154,11 +153,20 @@ const formatTextContent = (text) => {
         .replace(/\n/g, '<br>');
 };
 
-const checkQuiz = () => {
+const checkQuiz = async () => {
     if (!currentPageData.value?.questions) return;
+
+    const answersToSend = [];
 
     currentPageData.value.questions.forEach((question, qIndex) => {
         if (question.variants?.length > 0) {
+            selectedAnswers.value[qIndex]?.forEach(variantId => {
+                answersToSend.push({
+                    question_id: question.id,
+                    variant_id: variantId
+                });
+            });
+
             const correctAnswers = question.variants
                 .filter(v => v.is_right)
                 .map(v => v.id);
@@ -173,6 +181,17 @@ const checkQuiz = () => {
             quizChecked.value[qIndex] = true;
         }
     });
+
+    try {
+        if (answersToSend.length > 0) {
+            await sendAnswer({
+                answers: answersToSend
+            });
+            console.log('Ответы успешно отправлены');
+        }
+    } catch (error) {
+        console.error('Ошибка при отправке ответов:', error);
+    }
 };
 
 const nextPage = () => {
