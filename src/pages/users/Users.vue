@@ -283,8 +283,22 @@ const closePopup = () => {
 }
 
 onMounted(async () => {
-    await fetchUsers()
-})
+    await waitForRole();
+
+    if (getUserRole() === 'admin') {
+        await fetchUsers();
+    }
+});
+
+const waitForRole = () => {
+    return new Promise(resolve => {
+        const check = () => {
+            if (getUserRole() !== null) resolve();
+            else setTimeout(check, 50);
+        };
+        check();
+    });
+};
 
 provide('filters', filters)
 provide('users', users)

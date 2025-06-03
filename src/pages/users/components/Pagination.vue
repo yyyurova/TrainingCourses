@@ -70,6 +70,7 @@ const visiblePages = computed(() => {
     width: 100%;
     display: flex;
     justify-content: center;
+    align-items: center;
     margin: 10px 0;
 
     button {

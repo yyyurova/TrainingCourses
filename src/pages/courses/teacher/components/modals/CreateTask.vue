@@ -66,10 +66,10 @@ const create = () => {
     const assignedTo = selectedUsers.value.map(u => Number(u.id))
 
     const task = {
-        title: taskName.value.value,
-        description: description.value,
-        deadline: (new Date(deadline.value).toISOString()),
-        assignedTo: assignedTo
+        name: taskName.value.value,
+        text: description.value,
+        until: (new Date(deadline.value).toISOString()),
+        users: assignedTo
     }
     emit('create', task)
 }

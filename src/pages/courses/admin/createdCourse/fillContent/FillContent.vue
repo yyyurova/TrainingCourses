@@ -170,15 +170,15 @@ const createPageWithType = async (type) => {
 
         closeModal();
 
-        if (content.value.modules[0].id === module.id &&
-            content.value.modules[0].pages.length === 1) {
-            router.push({
-                name: 'FillContent',
-                params: {
-                    courseId: course.value.id,
-                }
-            });
-        }
+        // if (content.value.modules[0].id === module.id &&
+        //     content.value.modules[0].pages.length === 1) {
+        //     router.push({
+        //         name: 'FillContent',
+        //         params: {
+        //             courseId: course.value.id,
+        //         }
+        //     });
+        // }
     } catch (error) {
         console.error('Ошибка создания страницы:', error);
     }
@@ -222,17 +222,8 @@ const saveCourse = async () => {
         changes.pages.updated = [];
 
         console.log('Изменения успешно сохранены');
-        let firstModule = content.value.modules[0];
-
-        if (firstModule && firstModule.id > 0 && firstModule.pages.length > 0) {
-            router.push({
-                name: 'FillMaterials',
-                params: {
-                    courseId: course.value.id,
-                    moduleId: firstModule.id,
-                    pageId: firstModule.pages[0].id
-                }
-            });
+        if (content.value.modules.length > 0 && content.value.modules[0].pages.length > 0) {
+            router.push(`/course-fill-materials/${course.value.id}/module/${content.value.modules[0].id}/page/${content.value.modules[0].pages[0].id}`);
         } else {
             console.log('Переход невозможен: модуль еще не сохранён или нет страниц');
         }

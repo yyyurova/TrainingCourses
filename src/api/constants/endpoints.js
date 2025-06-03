@@ -16,5 +16,7 @@ export const ENDPOINTS = {
 
     PROFILE: '/user',
 
-    CURATOR_STUDENTS: '/curator/students'
+    CURATOR_STUDENTS: '/curator/students',
+
+    TASK: '/task',
 }

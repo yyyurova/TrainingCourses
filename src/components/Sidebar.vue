@@ -130,11 +130,11 @@ const sidebarContent = {
                     list: true,
                     imageUrl: '/icons/graduation.svg',
                 },
-                {
-                    title: 'Создать задание',
-                    name: 'createTask',
-                    imageUrl: '/icons/plus-black.svg',
-                }
+                // {
+                //     title: 'Создать задание',
+                //     name: 'createTask',
+                //     imageUrl: '/icons/plus-black.svg',
+                // }
             ]
         },
         {

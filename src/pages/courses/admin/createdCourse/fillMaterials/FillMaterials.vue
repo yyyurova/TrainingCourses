@@ -8,7 +8,7 @@
             </Card>
 
             <h4>
-                Шаг {{ currentPageIndex + 1 }} : {{ translateType(currentPage.type) }}
+                Шаг {{ currentPageIndex + 1 }} : {{ translateType(currentPage?.type) }}
                 <button class="icon"><img src="/icons/x.svg" alt=""></button>
             </h4>
 
@@ -61,7 +61,7 @@
 
                 <div class="fill-question">
                     <p>Условие<span class="required">*</span></p>
-                    <TextEditorCard v-model="quizData.question" />
+                    <TextEditorCard v-model="quizData.question" :content="currentPage.question" />
 
                     <h4>Настройка</h4>
                     <p>Количество правильных ответов:</p>
@@ -84,7 +84,7 @@
 
                     <div class="answers">
                         <Answer v-for="(option, index) in quizData.options" :key="index" :input-type="quizData.quantity"
-                            :option="option.text" :index="index" :is-correct="quizData.correct.includes(index)"
+                            :option="option.text" :index="index" :is-correct="option.is_right === 1"
                             @remove="removeAnswer" @update:option="updateOption(index, $event)"
                             @update:correct="updateCorrectAnswers" />
                     </div>
@@ -100,7 +100,7 @@
             <button class="blue" @click="saveCourse">Сохранить изменения</button>
         </div>
         <SaveChanges v-if="showSaveChangesModal" @cancel="closeModal" @confirm="saveCourse" />
-        <Popup v-if="showPopup" :text="popupText" @close="closePopup" />
+        <Popup v-if="showPopup" :text="popupText" @close="closePopup" :is-success="isSuccess" />
     </FillCourseMaterialsLayout>
 </template>
 
@@ -114,7 +114,10 @@ import {
     updatePage,
     updateQuestion,
     createQuestion,
-    getQuestionsForPage
+    getQuestionsForPage,
+    getVariants,
+    createVariant,
+    updateVariant
 } from '@/api/modules/adminMaterials.api';
 
 import TextEditorCard from '@/components/TextEditorCard.vue';
@@ -149,6 +152,8 @@ const quizData = ref({
 
 const isSaved = ref(false);
 const showSaveChangesModal = ref(false);
+
+const isSuccess = ref(true)
 const showPopup = ref(false);
 const popupText = ref('');
 
@@ -243,8 +248,6 @@ const loadPageContent = async () => {
     await loadPageQuestion(currentPage.value.id);
 
     if (currentPage.value.type === 1) {
-        console.log(currentQuestion.value?.description)
-
         currentPageContent.value = currentQuestion.value?.description || '';
     }
     else if (currentPage.value.type === 2) {
@@ -261,14 +264,39 @@ const loadPageContent = async () => {
     }
     else if (currentPage.value.type === 3) {
         try {
-            const quizContent = currentQuestion.value?.description ? JSON.parse(currentQuestion.value.description) : {};
-            quizData.value = {
-                question: quizContent.question || '',
-                options: quizContent.options?.map(text => ({ text })) || [],
-                correct: quizContent.correct || [],
-                quantity: quizContent.quantity || 'several'
-            };
-        } catch {
+            if (currentQuestion.value) {
+                const variants = await getVariants(currentQuestion.value.id);
+                console.log(variants)
+                const uniqueVariants = variants.reduce((acc, variant) => {
+                    if (!acc.some(v => v.id === variant.id)) {
+                        acc.push(variant);
+                    }
+                    return acc;
+                }, []);
+
+                quizData.value = {
+                    question: currentQuestion.value.title || '',
+                    options: uniqueVariants.map(v => ({
+                        id: v.id,
+                        text: v.title,
+                        is_right: v.is_right
+                    })),
+                    correct: uniqueVariants
+                        .map((v, index) => v.is_right ? index : -1)
+                        .filter(index => index !== -1),
+                    quantity: JSON.parse(currentQuestion.value.description)?.quantity || 'several'
+                };
+                console.log(quizData.value.options)
+            } else {
+                quizData.value = {
+                    question: '',
+                    options: [],
+                    correct: [],
+                    quantity: 'several'
+                };
+            }
+        } catch (err) {
+            console.error("Ошибка загрузки вариантов ответов:", err);
             quizData.value = {
                 question: '',
                 options: [],
@@ -283,7 +311,6 @@ const saveCourse = async () => {
     try {
         closeModal();
         if (!currentPage.value) return;
-        console.log(currentPageContent.value)
 
         let description = '';
         const title = currentPage.value.title;
@@ -294,7 +321,7 @@ const saveCourse = async () => {
                 break;
             case 2:
                 description = JSON.stringify({
-                    selectedWay: selectedWay.value,
+                    // selectedWay: selectedWay.value,
                     link: selectedWay.value === 'other' ? videoLink.value : '',
                     files: uploadedFiles.value
                 });
@@ -302,27 +329,60 @@ const saveCourse = async () => {
             case 3:
                 description = JSON.stringify({
                     question: quizData.value.question,
-                    options: quizData.value.options.map(opt => opt.text),
-                    correct: quizData.value.correct,
                     quantity: quizData.value.quantity
                 });
                 break;
         }
 
+        // Сохраняем или обновляем вопрос
+        let question;
         if (currentQuestion.value) {
-            await updateQuestion(
+            question = await updateQuestion(
                 currentPage.value.id,
                 currentQuestion.value.id,
-                title,
+                quizData.value.question || title,
                 description
             );
         } else {
-            const newQuestion = await createQuestion(
+            question = await createQuestion(
                 currentPage.value.id,
-                title,
+                quizData.value.question || title,
                 description
             );
-            currentQuestion.value = newQuestion;
+            currentQuestion.value = question;
+        }
+
+        // Для тестов сохраняем варианты ответов
+        if (currentPage.value.type === 3 && currentQuestion.value) {
+            // Сначала получаем текущие варианты, чтобы знать какие удалить
+            const currentVariants = await getVariants(currentQuestion.value.id);
+
+            // Сохраняем все новые варианты
+            for (const option of quizData.value.options) {
+                if (option.id) {
+                    // Обновляем существующий вариант
+                    await updateVariant(
+                        currentQuestion.value.id,
+                        option.id,
+                        option.text,
+                        quizData.value.correct.includes(quizData.value.options.indexOf(option)))
+                } else {
+                    // Создаем новый вариант
+                    const newVariant = await createVariant(
+                        currentQuestion.value.id,
+                        option.text,
+                        quizData.value.correct.includes(quizData.value.options.indexOf(option)))
+                    option.id = newVariant.id;
+                }
+            }
+
+            // Удаляем варианты, которые были удалены в интерфейсе
+            const currentVariantIds = currentVariants.map(v => v.id);
+            const newVariantIds = quizData.value.options.map(o => o.id).filter(id => id !== null);
+            const variantsToDelete = currentVariantIds.filter(id => !newVariantIds.includes(id));
+
+            // Здесь нужно добавить метод deleteVariant в API и вызывать его для каждого variantsToDelete
+            // await Promise.all(variantsToDelete.map(id => deleteVariant(currentQuestion.value.id, id)));
         }
 
         popupText.value = 'Изменения успешно сохранены';
@@ -335,20 +395,32 @@ const saveCourse = async () => {
 
     } catch (err) {
         console.error('Ошибка сохранения:', err);
+        isSuccess.value = false
         popupText.value = 'Ошибка при сохранении: ' + (err.message || err);
         showPopup.value = true;
+        setTimeout(() => {
+            showPopup.value = false
+        }, 5000);
     }
 }
 
-const addAnswer = () => {
-    quizData.value.options.push({ text: '' });
+const addAnswer = async () => {
+    quizData.value.options.push({
+        id: null,
+        text: '',
+        is_right: false
+    });
 };
 
 const updateOption = (index, value) => {
     quizData.value.options[index].text = value;
 };
 
-const removeAnswer = (index) => {
+const removeAnswer = async (index) => {
+    const option = quizData.value.options[index];
+    // Если вариант уже сохранен в БД, можно добавить его удаление
+    // await deleteVariant(option.id); // Нужно добавить соответствующий API метод
+
     quizData.value.options.splice(index, 1);
     quizData.value.correct = quizData.value.correct
         .filter(correctIndex => correctIndex !== index)
@@ -418,6 +490,7 @@ onMounted(async () => {
         await fetchMaterial();
         await loadCurrentPage();
     }
+    console.log(material.value)
 });
 
 provide('course', course);

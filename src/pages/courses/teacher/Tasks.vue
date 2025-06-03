@@ -30,6 +30,7 @@ import { mockUser } from '@/mocks/user';
 import { useRouter, useRoute } from 'vue-router';
 import { getCourse } from '@/api/modules/courses.api';
 import { getPracticants } from '@/api/modules/curarorStudents.api';
+import { getTasks, createTask as apiCreateTask, deleteTask as apiDeleteTask, updateTask } from '@/api/modules/tasks.api';
 
 import CreateTask from './components/modals/CreateTask.vue';
 import Layout from '@/layouts/Layout.vue';
@@ -101,18 +102,14 @@ const openDeleteModal = (task) => {
 }
 
 const fetchCourse = async () => {
-    // try {
     course.value = await getCourse(route.params.courseId)
-
 }
 
 const fetchTasks = async () => {
     try {
         isLoading.value = true
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses?teacher=${mockUser.id}`);
-        const course = data[0]
-        tasks.value = course.tasks
-
+        tasks.value = await getTasks()
+        console.log(tasks.value)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false
@@ -123,13 +120,8 @@ const deleteTask = async (id) => {
     try {
         isLoading.value = true
         closeModal()
-        tasks.value = tasks.value.filter(task => task.id !== id)
-        const { data: courses } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses?teacher=${mockUser.id}`);
-        const currentCourse = courses[0];
-
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${currentCourse.id}`, {
-            tasks: tasks.value
-        });
+        await apiDeleteTask(id)
+        await fetchTasks()
         popupText.value = 'Задание удалено'
         showPopup.value = true
         setTimeout(() => {
@@ -154,23 +146,10 @@ const createTask = async (task) => {
         isLoading.value = true
         closeModal()
 
-        const { data: courses } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses?teacher=${mockUser.id}`);
-        const course = courses[0]
+        await apiCreateTask(task)
 
-        const newId = Math.max(...course.tasks.map(t => t.id), 0) + 1
-
-        const newTask = {
-            id: newId,
-            ...task
-        }
-
-        const updatedTasks = [...course.tasks, newTask]
-
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${course.id}`, {
-            tasks: updatedTasks
-        })
-
-        tasks.value = updatedTasks
+        await fetchTasks()
+        // tasks.value = updatedTasks
 
         popupText.value = 'Задание успешно создано'
         showPopup.value = true
@@ -195,19 +174,8 @@ const editTask = async (updatedTask) => {
     try {
         isLoading.value = true;
         closeModal();
-
-        const { data: courses } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses?teacher=${mockUser.id}`);
-        const course = courses[0];
-
-        const updatedTasks = course.tasks.map(task =>
-            task.id === updatedTask.id ? updatedTask : task
-        );
-
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${course.id}`, {
-            tasks: updatedTasks
-        });
-
-        tasks.value = updatedTasks;
+        await updateTask(updatedTask.id, updatedTask)
+        await fetchTasks()
 
         popupText.value = 'Задание успешно изменено';
         showPopup.value = true;

@@ -6,12 +6,12 @@
 
                 <div class="group">
                     <p>Название<span class="required">*</span></p>
-                    <input v-model="task.title" type="text" autocomplete="off">
+                    <input v-model="task.name" type="text" autocomplete="off">
                 </div>
 
                 <div class="group">
                     <p>Описание</p>
-                    <textarea v-model="task.description" autocomplete="off"></textarea>
+                    <textarea v-model="task.text" autocomplete="off"></textarea>
                 </div>
 
                 <div class="group">
@@ -38,9 +38,9 @@ const props = defineProps({
 const emit = defineEmits(['cancel', 'save']);
 
 const deadlineFormatted = computed({
-    get: () => props.task.deadline ? new Date(props.task.deadline).toISOString().split('T')[0] : '',
+    get: () => props.task.until ? new Date(props.task.until).toISOString().split('T')[0] : '',
     set: (value) => {
-        props.task.deadline = value ? `${value}T00:00:00.000Z` : null;
+        props.task.until = value ? `${value}T00:00:00.000Z` : null;
     }
 });
 

@@ -1,22 +1,23 @@
 <template>
-    <Layout v-if="course" :on-create-task="openCreateTaskModal">
+    <!-- <Layout :on-create-task="openCreateTaskModal"> -->
+    <Layout>
         <h1>Практиканты</h1>
         <Navbar :elements="navbarItems" />
         <Card class="search no-hover">
             <img src="/icons/search.svg" alt="">
             <input v-model="nameInput" @input="searchPracticant" type="text" placeholder="Начните вводить имя">
         </Card>
-        <div v-if="practicants.length > 0 && !isLoading" class="practicants">
+        <div v-if="practicants && practicants.length > 0 && !isLoading" class="practicants">
             <Card v-for="practicant in practicants" :key="practicant.id" @click="openTasks(practicant)">
                 <img :src="practicant.avatar || '/avatar.png'" alt="">
                 {{ practicant.name }}
             </Card>
         </div>
         <Loading v-if="isLoading" />
-        <div v-else-if="practicants.length === 0 && !isLoading" class="no-pracricants">
+        <div v-else-if="practicants && practicants.length === 0 && !isLoading" class="no-pracricants">
             <h2>В данном курсе нет практикантов.</h2>
         </div>
-        <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" :users="practicants" />
+        <!-- <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" :users="practicants" /> -->
     </Layout>
 </template>
 
@@ -32,7 +33,7 @@ import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
 import Card from '@/components/Card.vue';
 import Loading from '@/components/Loading.vue';
-import CreateTask from '../components/modals/CreateTask.vue';
+// import CreateTask from '../components/modals/CreateTask.vue';
 
 const practicants = ref([])
 const originalPracticants = ref([])
@@ -44,7 +45,7 @@ const router = useRouter()
 const route = useRoute()
 
 const isLoading = ref(false)
-const showCreateTaskModal = ref(false)
+// const showCreateTaskModal = ref(false)
 
 const navbarItems = computed(() => {
     if (!course.value) return [];
@@ -56,13 +57,13 @@ const navbarItems = computed(() => {
     ];
 });
 
-const closeModal = () => {
-    if (showCreateTaskModal.value) { showCreateTaskModal.value = false }
-}
+// const closeModal = () => {
+//     if (showCreateTaskModal.value) { showCreateTaskModal.value = false }
+// }
 
-const openCreateTaskModal = () => {
-    showCreateTaskModal.value = true
-}
+// const openCreateTaskModal = () => {
+//     showCreateTaskModal.value = true
+// }
 
 const fetchPracticants = async () => {
     try {
@@ -76,7 +77,9 @@ const fetchPracticants = async () => {
         // practicants.value = await getPracticants()
 
         // originalPracticants.value = data
-        practicants.value = [{ name: 'lalala', id: 4 }]
+        // practicants.value = [{ name: 'lalala', id: 4 }]
+        practicants.value = await getPracticants(route.params.courseId)
+        console.log(practicants.value)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false

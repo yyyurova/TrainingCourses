@@ -1,6 +1,6 @@
 <template>
     <Card class="no-hover answer">
-        <input :type="inputType === 'several' ? 'checkbox' : 'radio'" @click="handleCorrect">
+        <input :type="inputType === 'several' ? 'checkbox' : 'radio'" @click="handleCorrect" :checked="isCorrect">
         <div class="input-container">
             <input v-model="optionText" @blur="checkEmptyness" type="text" class="name">
             <p v-if="warning !== ''">{{ warning }}</p>
@@ -22,7 +22,8 @@ import Card from '@/components/Card.vue';
 const props = defineProps({
     inputType: String,
     option: String,
-    index: Number
+    index: Number,
+    isCorrect: Boolean
 });
 
 const emit = defineEmits(['remove', 'update:option']);

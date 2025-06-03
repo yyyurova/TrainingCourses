@@ -107,7 +107,10 @@ const handleSubmit = async () => {
             default: '/courses'
         };
 
-        router.push(redirectMap[resp.data.data.role] || redirectMap.default);
+        setTimeout(() => {
+            router.push(redirectMap[resp.data.data.role] || redirectMap.default);
+        }, 1000);
+        // location.reload()
 
     } catch (err) {
         console.error('Ошибка входа:', err);

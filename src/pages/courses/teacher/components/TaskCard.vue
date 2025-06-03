@@ -2,9 +2,9 @@
     <Card class="task">
         <img src="/icons/list-right.svg" alt="">
         <div class="text">
-            <p class="name">{{ task.title }}</p>
-            <p class="deadline" :class="{ 'overdue': checkOverdueDeadline(task.deadline) }">{{
-                format(task.deadline, 'short') }}</p>
+            <p class="name">{{ task.name }}</p>
+            <p class="deadline" :class="{ 'overdue': checkOverdueDeadline(task.until) }">{{
+                format(task.until, 'short') }}</p>
         </div>
         <div class="action-buttons">
             <button class="icon" @click.stop="editTask">

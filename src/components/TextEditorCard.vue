@@ -151,6 +151,8 @@ const handleInput = (e) => {
 .card.text {
     width: 100%;
     padding: 0;
+    height: 100%;
+    max-height: 500px;
 
     .editor-content {
         width: 100%;
@@ -158,6 +160,8 @@ const handleInput = (e) => {
         padding: 15px;
         border-radius: 4px;
         outline: none;
+        max-height: 500px;
+        overflow-y: auto;
 
         &:focus {
             border-color: #513DEB;

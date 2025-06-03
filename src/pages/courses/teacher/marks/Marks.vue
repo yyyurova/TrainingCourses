@@ -1,5 +1,6 @@
 <template>
-    <Layout :on-create-task="openCreateTaskModal">
+    <!-- <Layout :on-create-task="openCreateTaskModal"> -->
+    <Layout>
         <h1>Оценки</h1>
         <Navbar :elements="navbarItems" />
         <div v-if="students.length > 0 && !isLoading">
@@ -15,7 +16,7 @@
             <p>Посмотрите присланные работы практикантов и выставьте оценки за них</p>
             <button class="blue" @click="goToTasks">К заданиям</button>
         </div>
-        <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" :users="students" />
+        <!-- <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" :users="students" /> -->
     </Layout>
 </template>
 
@@ -30,14 +31,14 @@ import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
 import Student from './components/Student.vue';
 import Loading from '@/components/Loading.vue';
-import CreateTask from '../components/modals/CreateTask.vue';
+// import CreateTask from '../components/modals/CreateTask.vue';
 
 const students = ref([])
 
 const course = ref(null)
 
 const isLoading = ref(false)
-const showCreateTaskModal = ref(false)
+// const showCreateTaskModal = ref(false)
 
 const router = useRouter()
 const route = useRoute()
@@ -52,13 +53,13 @@ const navbarItems = computed(() => {
     ];
 });
 
-const closeModal = () => {
-    if (showCreateTaskModal.value) { showCreateTaskModal.value = false }
-}
+// const closeModal = () => {
+//     if (showCreateTaskModal.value) { showCreateTaskModal.value = false }
+// }
 
-const openCreateTaskModal = () => {
-    showCreateTaskModal.value = true
-}
+// const openCreateTaskModal = () => {
+//     showCreateTaskModal.value = true
+// }
 
 const goToTasks = () => {
     router.push('/course/tasks')
@@ -69,29 +70,6 @@ const fetchStudents = async () => {
         isLoading.value = true
         course.value = getCourse(route.params.courseId);
 
-        // const membersParams = course.value.members.map(id => `id[]=${id}`).join('&');
-        // const url = `https://c1a9f09250b13f61.mokky.dev/users?${membersParams}`;
-
-        // const { data } = await axios.get(url);
-
-        // students.value = data
-        //     .map(student => {
-        //         const studentTasks = course.value.tasks
-        //             .filter(task =>
-        //                 task.assignedTo.includes(student.id) &&
-        //                 task.marks?.[student.id.toString()] !== null
-        //             )
-        //             .map(task => ({
-        //                 ...task,
-        //                 mark: task.marks[student.id.toString()]
-        //             }));
-
-        //         return {
-        //             ...student,
-        //             tasks: studentTasks
-        //         };
-        //     })
-        //     .filter(student => student.tasks.length > 0);
     } catch (err) {
         console.error('Ошибка при загрузке студентов:', err);
     } finally {

@@ -1,5 +1,6 @@
 <template>
-    <Layout :on-create-task="openCreateTaskModal">
+    <!-- <Layout :on-create-task="openCreateTaskModal"> -->
+    <Layout>
         <div v-if="practicant" class="header">
             <img :src="practicant.avatar || '/avatar.png'" alt="">
             <h1>{{ practicant.name }}</h1>
@@ -18,7 +19,7 @@
         <div v-if="nothingFoundMessage && tasks.length === 0 && !isLoading" class="no-found-message">
             <h2> {{ nothingFoundMessage }}</h2>
         </div>
-        <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" @create="createTask" :users="allPraricants" />
+        <!-- <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" @create="createTask" :users="allPraricants" /> -->
         <Popup v-if="showPopup" :text="popupText" :is-success="isSuccess" @close-popup="closePopup" />
         <ConfirmDelete v-if="showDeleteModal" @confirm="deleteTask(taskToDelete.id)" @cancel="closeModal"
             question="Удалить задание?" right-button-text="Удалить"
@@ -38,7 +39,7 @@ import { getUser } from '@/api/modules/adminUsers.api';
 import Layout from '@/layouts/Layout.vue';
 import TaskCard from '../components/TaskCard.vue';
 import Loading from '@/components/Loading.vue';
-import CreateTask from '../components/modals/CreateTask.vue';
+// import CreateTask from '../components/modals/CreateTask.vue';
 import Popup from '@/components/Popup.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 import EditTask from '../components/modals/EditTask.vue';
@@ -63,12 +64,12 @@ const showDeleteModal = ref(false)
 const taskToDelete = ref(null)
 
 const isLoading = ref(false)
-const showCreateTaskModal = ref(false)
+// const showCreateTaskModal = ref(false)
 
 const route = useRoute()
 
 const closeModal = () => {
-    if (showCreateTaskModal.value) { showCreateTaskModal.value = false }
+    // if (showCreateTaskModal.value) { showCreateTaskModal.value = false }
     if (showDeleteModal.value) { showDeleteModal.value = false }
     if (showEditModal.value) { showEditModal.value = false }
 }
@@ -83,9 +84,9 @@ const closePopup = () => {
     popupText.value = ''
 }
 
-const openCreateTaskModal = () => {
-    showCreateTaskModal.value = true
-}
+// const openCreateTaskModal = () => {
+//     showCreateTaskModal.value = true
+// }
 
 const openDeleteModal = (task) => {
     showDeleteModal.value = true
@@ -216,47 +217,47 @@ const editTask = async (updatedTask) => {
     }
 };
 
-const createTask = async (task) => {
-    try {
-        isLoading.value = true
-        closeModal()
+// const createTask = async (task) => {
+//     try {
+//         isLoading.value = true
+//         closeModal()
 
-        const { data: courses } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses?teacher=${mockUser.id}`);
-        const course = courses[0]
+//         const { data: courses } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses?teacher=${mockUser.id}`);
+//         const course = courses[0]
 
-        const newId = Math.max(...course.tasks.map(t => t.id), 0) + 1
+//         const newId = Math.max(...course.tasks.map(t => t.id), 0) + 1
 
-        const newTask = {
-            id: newId,
-            ...task
-        }
+//         const newTask = {
+//             id: newId,
+//             ...task
+//         }
 
-        const updatedTasks = [...course.tasks, newTask]
+//         const updatedTasks = [...course.tasks, newTask]
 
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${course.id}`, {
-            tasks: updatedTasks
-        })
+//         await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${course.id}`, {
+//             tasks: updatedTasks
+//         })
 
-        tasks.value = updatedTasks
+//         tasks.value = updatedTasks
 
-        popupText.value = 'Задание успешно создано'
-        showPopup.value = true
-        isSuccess.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
-    } catch (err) {
-        console.log(err)
-        popupText.value = 'Не удалось создать задание'
-        showPopup.value = true
-        isSuccess.value = false
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
-    } finally {
-        isLoading.value = false
-    }
-}
+//         popupText.value = 'Задание успешно создано'
+//         showPopup.value = true
+//         isSuccess.value = true
+//         setTimeout(() => {
+//             showPopup.value = false
+//         }, 5000)
+//     } catch (err) {
+//         console.log(err)
+//         popupText.value = 'Не удалось создать задание'
+//         showPopup.value = true
+//         isSuccess.value = false
+//         setTimeout(() => {
+//             showPopup.value = false
+//         }, 5000)
+//     } finally {
+//         isLoading.value = false
+//     }
+// }
 
 const filterTasks = () => {
     switch (taskFilter.value.value) {

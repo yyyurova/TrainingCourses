@@ -1,10 +1,10 @@
 import client from '../http/client';
 import { ENDPOINTS } from '../constants/endpoints';
 
-export const getPracticants = async () => {
+export const getPracticants = async (courseId) => {
     try {
-        const response = await client.get(`${ENDPOINTS.CURATOR_STUDENTS}`);
-        return response.data;
+        const response = await client.get(`${ENDPOINTS.CURATOR_STUDENTS}/${courseId}`);
+        return response.data.data;
     } catch (error) {
         console.error('Полная ошибка:', error);
     }
