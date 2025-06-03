@@ -3,7 +3,7 @@
         <div class="logo">
             <img src="/icons/logo.svg" alt="Logo">
         </div>
-        <h3>{{ course?.name || 'Название курса' }}</h3>
+        <h3>{{ course?.title || 'Название курса' }}</h3>
         <button class="transparent" @click="goBack">
             <img src="/icons/arrow.svg" class="arrow-left" alt="">
             Вернуться к курсу

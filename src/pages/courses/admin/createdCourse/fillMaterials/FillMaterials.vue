@@ -240,17 +240,14 @@ const loadPageQuestion = async (pageId) => {
 const loadPageContent = async () => {
     if (!currentPage.value) return;
 
-    // Загружаем вопрос для текущей страницы
     await loadPageQuestion(currentPage.value.id);
 
     if (currentPage.value.type === 1) {
-        // Текстовая страница
         console.log(currentQuestion.value?.description)
 
         currentPageContent.value = currentQuestion.value?.description || '';
     }
     else if (currentPage.value.type === 2) {
-        // Видео страница
         try {
             const videoData = currentQuestion.value?.description ? JSON.parse(currentQuestion.value.description) : {};
             selectedWay.value = videoData.selectedWay || 'upload';
@@ -263,7 +260,6 @@ const loadPageContent = async () => {
         }
     }
     else if (currentPage.value.type === 3) {
-        // Тест
         try {
             const quizContent = currentQuestion.value?.description ? JSON.parse(currentQuestion.value.description) : {};
             quizData.value = {

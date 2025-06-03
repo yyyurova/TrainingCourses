@@ -410,14 +410,12 @@ provide('user', user)
         position: relative;
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 9px;
         margin-left: 20px;
         margin-top: 20px;
         cursor: pointer;
 
         button.icon {
-            margin-left: 3px;
-            padding: 3px;
             background: none;
             border: none;
             cursor: pointer;

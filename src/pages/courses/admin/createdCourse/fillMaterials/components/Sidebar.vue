@@ -181,7 +181,6 @@ onBeforeUnmount(() => {
                     font-size: 16px;
                     line-height: 20px;
                     letter-spacing: 0px;
-                    text-align: center;
                 }
             }
 

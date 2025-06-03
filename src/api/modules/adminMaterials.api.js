@@ -110,6 +110,16 @@ export const updateQuestion = async (pageId, questionId, title, description) => 
     }
 };
 
+export const getVariants = async (questionId) => {
+    try {
+        const response = await client.get(`${ENDPOINTS.ADMIN_MODULE}/page/question/variant/${questionId}`);
+        return response.data.data;
+    } catch (error) {
+        console.error('Ошибка загрузки:', error);
+        return [];
+    }
+};
+
 export const createVariant = async (questionId, title, is_right) => {
     try {
         const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/question/variant/${questionId}`, { title: title, is_right: is_right });

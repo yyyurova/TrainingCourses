@@ -17,10 +17,10 @@
             <div v-if="currentPageData && !loading" class="content">
                 <div v-if="currentPageData.questions && currentPageData.questions.length">
                     <div v-for="(question, qIndex) in currentPageData.questions" :key="qIndex">
-                        <div v-if="question.description" v-html="formatTextContent(question.description)"></div>
 
                         <div v-if="question.variants && question.variants.length" class="quiz-section">
                             <h2>{{ question.title || 'Тест' }}</h2>
+                            <div v-if="question.description" v-html="formatTextContent(question.description)"></div>
                             <div class="options">
                                 <div v-for="(variant, vIndex) in question.variants" :key="vIndex">
                                     <input type="checkbox" v-model="selectedAnswers[qIndex]" :value="variant.id"

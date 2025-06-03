@@ -14,11 +14,14 @@
             </Card>
         </div>
         <Loading v-if="isLoading" />
-        <div class="dialogs">
+        <div class="dialogs" v-if="chats.length > 0">
             <!-- <DialogCard v-for="chat in chats" :key="chat.id" :chat="chat" /> -->
             <component :class="chat.choosen ? 'choosen' : ''" @click="() => emit('openDialog', chat)"
                 v-for="chat in chats" @delete="openConfirmDeleteModal(chat)" :key="chat.id"
                 :is="chat.is_group === 1 ? GroupDialogCard : DialogCard" :chat="chat" />
+        </div>
+        <div class="no-chats" v-else>
+            <p>У вас пока нет ни одного чата.</p>
         </div>
         <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить чат?"
             text="Удалённую переписку нельзя будет восстановить" right-button-text="Удалить" @confirm="deleteChat"
@@ -163,6 +166,16 @@ const searchChat = () => {
 
         .choosen {
             background-color: #E9F2FF;
+        }
+    }
+
+    .no-chats {
+        width: 100%;
+
+        p {
+            text-align: center;
+            font-weight: 600;
+            font-size: 17px;
         }
     }
 }

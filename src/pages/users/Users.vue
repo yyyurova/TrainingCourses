@@ -11,7 +11,7 @@
 
         <NoUsers v-if="users.length === 0 && !isLoading" />
 
-        <Loading v-if="isLoading" />
+        <Loading v-if="isLoading || getUserRole() === null" />
 
         <Pagination v-else :totalItems="totalItems" :currentPage="currentPage"
             @update:currentPage="updateCurrentPage" />
