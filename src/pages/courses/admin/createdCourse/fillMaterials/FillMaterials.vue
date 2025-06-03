@@ -1,23 +1,25 @@
 <template>
-    <FillCourseMaterialsLayout>
-        <Card class="no-hover fill-material" v-if="material">
+    <Loading v-if="isLoading || !course" />
+    <FillCourseMaterialsLayout v-else>
+        <Card class="no-hover fill-material" v-if="material && currentModule">
             <h1>Заполнение учебных материалов для курса</h1>
             <Card class="no-hover name">
-                <p>{{ currentModule.title }}</p>
+                <p>{{ currentPage.title }}</p>
             </Card>
 
             <h4>
-                Страница {{ currentPage.number }}: {{ currentPage.name }}
+                Шаг {{ currentPageIndex + 1 }} : {{ translateType(currentPage.type) }}
                 <button class="icon"><img src="/icons/x.svg" alt=""></button>
             </h4>
 
             <div class="squares-score">
-                <span class="square" :class="{ 'filled': index === currentPageIndex }"
-                    v-for="(page, index) in currentModule.steps" :key="index"></span>
+                <span class="square" :class="{ 'filled': index === currentPageIndex }" @click="goToPage(index)"
+                    v-for="(page, index) in currentModule.pages" :key="index">
+                </span>
             </div>
 
-            <TextEditorCard v-if="currentPage.type === 'text'" v-model="currentPage.content" />
-            <div class="video" v-if="subStep.type === 'video'">
+            <TextEditorCard v-if="currentPage.type === 1" :content="currentPageContent" v-model="currentPageContent" />
+            <div class="video" v-else-if="currentPage.type === 2">
                 <div class="radio-inputs">
                     <label class="radio">
                         <input type="radio" name="radio" v-model="selectedWay" value="upload">
@@ -34,7 +36,7 @@
                 </div>
                 <div v-if="selectedWay === 'other'" class="link">
                     <p>Ссылка <span class="required">*</span></p>
-                    <input type="url" placeholder="Введите ссылку">
+                    <input type="url" placeholder="Введите ссылку" v-model="videoLink">
                 </div>
                 <input type="file" ref="fileInput" style="display: none" @change="handleFileUpload" accept="video/*">
 
@@ -51,7 +53,7 @@
                 <button class="blue" @click="fileInput.click()" :disabled="selectedWay === 'other'">Загрузить</button>
             </div>
 
-            <div class="quiz" v-if="subStep.type === 'quiz'">
+            <div class="quiz" v-if="currentPage.type === 3">
                 <button class="blue" @click="addAnswer">
                     Добавить вопрос
                     <img src="/icons/plus.svg" alt="">
@@ -59,20 +61,20 @@
 
                 <div class="fill-question">
                     <p>Условие<span class="required">*</span></p>
-                    <TextEditorCard v-model="subStep.content.question" />
+                    <TextEditorCard v-model="quizData.question" />
 
                     <h4>Настройка</h4>
                     <p>Количество правильных ответов:</p>
                     <div class="radio-inputs">
                         <label class="radio">
-                            <input type="radio" name="radio" v-model="selectedQuantity" value="several">
+                            <input type="radio" name="radio" v-model="quizData.quantity" value="several">
                             <span class="name">
                                 Несколько
                                 <img src="/icons/checkbox.svg" alt="">
                             </span>
                         </label>
                         <label class="radio">
-                            <input type="radio" name="radio" v-model="selectedQuantity" value="one">
+                            <input type="radio" name="radio" v-model="quizData.quantity" value="one">
                             <span class="name">
                                 Один
                                 <img src="/icons/radio.svg" alt="">
@@ -81,9 +83,10 @@
                     </div>
 
                     <div class="answers">
-                        <Answer v-for="(option, index) in subStep.content.options" :key="index"
-                            :input-type="selectedQuantity" :option="option" :index="index" @remove="removeAnswer"
-                            @update:option="updateOption(index, $event)" @update:correct="updateCorrectAnswers" />
+                        <Answer v-for="(option, index) in quizData.options" :key="index" :input-type="quizData.quantity"
+                            :option="option.text" :index="index" :is-correct="quizData.correct.includes(index)"
+                            @remove="removeAnswer" @update:option="updateOption(index, $event)"
+                            @update:correct="updateCorrectAnswers" />
                     </div>
 
                     <button class="transparent" @click="addAnswer">
@@ -95,7 +98,6 @@
         </Card>
         <div class="save-block">
             <button class="blue" @click="saveCourse">Сохранить изменения</button>
-            <button class="transparent">Вернуться к просмотру</button>
         </div>
         <SaveChanges v-if="showSaveChangesModal" @cancel="closeModal" @confirm="saveCourse" />
         <Popup v-if="showPopup" :text="popupText" @close="closePopup" />
@@ -103,13 +105,14 @@
 </template>
 
 <script setup>
-import { ref, provide, onMounted, watchEffect, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, provide, onMounted, watchEffect, watch, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { getCourse } from '@/api/modules/adminCourses.api';
 import {
     getModules,
     getPagesForModule,
     updatePage,
+    updateQuestion,
     createQuestion,
     getQuestionsForPage
 } from '@/api/modules/adminMaterials.api';
@@ -120,34 +123,59 @@ import Card from '@/components/Card.vue';
 import Answer from './components/Answer.vue';
 import SaveChanges from './components/modals/SaveChanges.vue';
 import Popup from '@/components/Popup.vue';
+import Loading from '@/components/Loading.vue';
 
 const course = ref(null);
 const material = ref(null);
-const openStep = ref(null);
-const subStep = ref({ number: 1, type: 'text' });
-const content = ref('')
+const isLoading = ref(false);
 
 const currentModule = ref(null);
 const currentPage = ref(null);
+const currentPageIndex = ref(0);
+const currentQuestion = ref(null);
 
+const currentPageContent = ref('');
+const videoLink = ref('');
 const uploadedFiles = ref([]);
 const fileInput = ref(null);
+const selectedWay = ref('upload');
 
-const selectedWay = ref('upload')
-const selectedQuantity = ref('several')
+const quizData = ref({
+    question: '',
+    options: [],
+    correct: [],
+    quantity: 'several'
+});
 
-const isSaved = ref(false)
-const showSaveChangesModal = ref(false)
+const isSaved = ref(false);
+const showSaveChangesModal = ref(false);
+const showPopup = ref(false);
+const popupText = ref('');
 
 const route = useRoute();
+const router = useRouter();
 
 const openSaveChangesModal = () => {
     showSaveChangesModal.value = true
 }
 
-const closeModal = () => {
-    if (showSaveChangesModal.value) { showSaveChangesModal.value = false }
-}
+const translateType = (type) => {
+    switch (type) {
+        case 1: return 'Текст';
+        case 2: return 'Видео';
+        case 3: return 'Тест';
+        default: return '';
+    }
+};
+
+const goToPage = async (index) => {
+    if (!currentModule.value) return;
+
+    const page = currentModule.value.pages[index];
+    if (page) {
+        router.push(`/course-fill-materials/${course.value.id}/module/${currentModule.value.id}/page/${page.id}`);
+    }
+};
 
 const handleFileUpload = (e) => {
     const files = e.target.files;
@@ -178,189 +206,179 @@ const formatFileSize = (bytes) => {
 
 const fetchMaterial = async () => {
     try {
+        isLoading.value = true;
         if (!course.value?.id) return;
 
-        // Загружаем модули курса
         const modules = await getModules(course.value.id);
 
-        // Для каждого модуля загружаем страницы
         for (const module of modules) {
             module.pages = await getPagesForModule(module.id);
-
-            // Преобразуем страницы в новый формат
-            module.steps = await Promise.all(module.pages.map(async (page) => {
-                // Для каждой страницы загружаем вопрос
-                const questions = await getQuestionsForPage(page.id);
-                const question = questions[0] || null;
-
-                return {
-                    id: page.id,
-                    questionId: question?.id || null,
-                    name: question?.title || 'Новая страница',
-                    type: determinePageType(question),
-                    content: question?.description || '',
-                    number: page.number
-                };
-            }));
         }
 
         material.value = {
             id: course.value.id,
-            chapters: modules
+            modules: modules
         };
     } catch (err) {
         console.error("Ошибка загрузки материалов:", err);
+    } finally {
+        isLoading.value = false;
     }
 };
 
-const determinePageType = (question) => {
-    if (!question) return 1;
-
+const loadPageQuestion = async (pageId) => {
     try {
-        const content = JSON.parse(question.description);
-        if (content.video) return 2;
-        if (content.quiz) return 3;
-    } catch {
-        return 'text';
+        const questions = await getQuestionsForPage(pageId);
+        currentQuestion.value = questions[0] || null;
+        return currentQuestion.value;
+    } catch (err) {
+        console.error("Ошибка загрузки вопроса:", err);
+        return null;
     }
-    return 'text';
+};
+
+const loadPageContent = async () => {
+    if (!currentPage.value) return;
+
+    // Загружаем вопрос для текущей страницы
+    await loadPageQuestion(currentPage.value.id);
+
+    if (currentPage.value.type === 1) {
+        // Текстовая страница
+        console.log(currentQuestion.value?.description)
+
+        currentPageContent.value = currentQuestion.value?.description || '';
+    }
+    else if (currentPage.value.type === 2) {
+        // Видео страница
+        try {
+            const videoData = currentQuestion.value?.description ? JSON.parse(currentQuestion.value.description) : {};
+            selectedWay.value = videoData.selectedWay || 'upload';
+            videoLink.value = videoData.link || '';
+            uploadedFiles.value = videoData.files || [];
+        } catch {
+            selectedWay.value = 'upload';
+            videoLink.value = '';
+            uploadedFiles.value = [];
+        }
+    }
+    else if (currentPage.value.type === 3) {
+        // Тест
+        try {
+            const quizContent = currentQuestion.value?.description ? JSON.parse(currentQuestion.value.description) : {};
+            quizData.value = {
+                question: quizContent.question || '',
+                options: quizContent.options?.map(text => ({ text })) || [],
+                correct: quizContent.correct || [],
+                quantity: quizContent.quantity || 'several'
+            };
+        } catch {
+            quizData.value = {
+                question: '',
+                options: [],
+                correct: [],
+                quantity: 'several'
+            };
+        }
+    }
 };
 
 const saveCourse = async () => {
     try {
+        closeModal();
         if (!currentPage.value) return;
+        console.log(currentPageContent.value)
 
         let description = '';
+        const title = currentPage.value.title;
 
-        if (currentPage.value.type === 1) {
-            description = content.value;
-        }
-        else if (currentPage.value.type === 2) {
-            description = JSON.stringify({
-                video: {
-                    selectedWay: subStep.value.content.selectedWay,
-                    link: subStep.value.content.link,
+        switch (currentPage.value.type) {
+            case 1:
+                description = currentPageContent.value;
+                break;
+            case 2:
+                description = JSON.stringify({
+                    selectedWay: selectedWay.value,
+                    link: selectedWay.value === 'other' ? videoLink.value : '',
                     files: uploadedFiles.value
-                }
-            });
-        }
-        else if (currentPage.value.type === 3) {
-            description = JSON.stringify({
-                quiz: subStep.value.content
-            });
+                });
+                break;
+            case 3:
+                description = JSON.stringify({
+                    question: quizData.value.question,
+                    options: quizData.value.options.map(opt => opt.text),
+                    correct: quizData.value.correct,
+                    quantity: quizData.value.quantity
+                });
+                break;
         }
 
-        if (currentPage.value.questionId) {
-            // Обновляем существующий вопрос
-            await updatePage(
+        if (currentQuestion.value) {
+            await updateQuestion(
                 currentPage.value.id,
-                currentPage.value.questionId,
-                {
-                    title: currentPage.value.name,
-                    description: description
-                }
-            );
-        } else {
-            // Создаем новый вопрос
-            const newQuestion = await createQuestion(
-                currentPage.value.id,
-                currentPage.value.name,
+                currentQuestion.value.id,
+                title,
                 description
             );
-            currentPage.value.questionId = newQuestion.id;
+        } else {
+            const newQuestion = await createQuestion(
+                currentPage.value.id,
+                title,
+                description
+            );
+            currentQuestion.value = newQuestion;
         }
 
-        // ... обработка успешного сохранения ...
+        popupText.value = 'Изменения успешно сохранены';
+        showPopup.value = true;
+        isSaved.value = true;
+
+        setTimeout(() => {
+            showPopup.value = false;
+        }, 5000);
+
     } catch (err) {
-        // ... обработка ошибки ...
+        console.error('Ошибка сохранения:', err);
+        popupText.value = 'Ошибка при сохранении: ' + (err.message || err);
+        showPopup.value = true;
     }
-};
-
-watchEffect(() => {
-    if (currentPage.value) {
-        content.value = currentPage.value.content;
-
-        if (currentPage.value.type === 'video') {
-            try {
-                const videoData = JSON.parse(currentPage.value.content).video;
-                subStep.value.content = videoData || {
-                    selectedWay: 'upload',
-                    link: '',
-                    files: []
-                };
-            } catch {
-                subStep.value.content = {
-                    selectedWay: 'upload',
-                    link: '',
-                    files: []
-                };
-            }
-        }
-        else if (currentPage.value.type === 'quiz') {
-            try {
-                const quizData = JSON.parse(currentPage.value.content).quiz;
-                subStep.value.content = quizData || {
-                    question: '',
-                    options: [],
-                    correct: [],
-                    quantity: 'several'
-                };
-            } catch {
-                subStep.value.content = {
-                    question: '',
-                    options: [],
-                    correct: [],
-                    quantity: 'several'
-                };
-            }
-        }
-    }
-});
+}
 
 const addAnswer = () => {
-    subStep.value.content.options.push('');
+    quizData.value.options.push({ text: '' });
 };
 
 const updateOption = (index, value) => {
-    subStep.value.content.options[index] = value;
+    quizData.value.options[index].text = value;
 };
 
 const removeAnswer = (index) => {
-    subStep.value.content.options.splice(index, 1);
-
-    subStep.value.content.correct = subStep.value.content.correct
+    quizData.value.options.splice(index, 1);
+    quizData.value.correct = quizData.value.correct
         .filter(correctIndex => correctIndex !== index)
         .map(correctIndex => correctIndex > index ? correctIndex - 1 : correctIndex);
 };
 
 const updateCorrectAnswers = ({ index, isChecked }) => {
-    if (selectedQuantity.value === 'several') {
-        const pos = subStep.value.content.correct.indexOf(index);
+    if (quizData.value.quantity === 'several') {
+        const pos = quizData.value.correct.indexOf(index);
         if (isChecked && pos === -1) {
-            subStep.value.content.correct.push(index);
+            quizData.value.correct.push(index);
         } else if (!isChecked && pos !== -1) {
-            subStep.value.content.correct.splice(pos, 1);
+            quizData.value.correct.splice(pos, 1);
         }
     } else {
-        subStep.value.content.correct = isChecked ? [index] : [];
+        quizData.value.correct = isChecked ? [index] : [];
     }
 };
 
-const translateType = (type) => {
-    switch (type) {
-        case 1: return 'Текст';
-        case 3: return 'Тест';
-        case 2: return 'Видео';
-        default: return 'Неизвестный тип';
-    }
-}
-
-const showPopup = ref(false)
-const popupText = ref('')
+const closeModal = () => {
+    showSaveChangesModal.value = false;
+};
 
 const closePopup = () => {
-    showPopup.value = false
-}
+    showPopup.value = false;
+};
 
 const fetchCourse = async () => {
     try {
@@ -370,74 +388,40 @@ const fetchCourse = async () => {
     }
 };
 
-watch(route, newPath => {
-    if (isSaved.value === false) {
-        openSaveChangesModal()
-    }
-})
-
-watchEffect(() => {
-    if (material.value?.chapters && route.params.chapterId && route.params.stepId) {
-        const chapterIndex = parseInt(route.params.chapterId, 10);
-        const stepIndex = parseInt(route.params.stepId, 10);
-
-        if (
-            !isNaN(chapterIndex) &&
-            !isNaN(stepIndex) &&
-            material.value.chapters[chapterIndex]?.steps?.[stepIndex]
-        ) {
-            openStep.value = {
-                ...material.value.chapters[chapterIndex].steps[stepIndex],
-                subSteps: material.value.chapters[chapterIndex].steps[stepIndex].subSteps || [{ number: 1, type: 'text  ' }]
-            };
-        }
+watch(route, async (newRoute) => {
+    if (!isSaved.value && currentPage.value) {
+        openSaveChangesModal();
+    } else {
+        await loadCurrentPage();
     }
 });
 
-watchEffect(() => {
-    if (currentPage.value) {
-        content.value = currentPage.value.content;
+const loadCurrentPage = async () => {
+    if (material.value?.modules) {
+        const moduleId = parseInt(route.params.moduleId, 10);
+        const pageId = parseInt(route.params.pageId, 10);
 
-        if (currentPage.value.type === 'video') {
-            try {
-                const videoData = JSON.parse(currentPage.value.content).video;
-                subStep.value.content = videoData || {
-                    selectedWay: 'upload',
-                    link: '',
-                    files: []
-                };
-            } catch {
-                subStep.value.content = {
-                    selectedWay: 'upload',
-                    link: '',
-                    files: []
-                };
-            }
-        }
-        else if (currentPage.value.type === 'quiz') {
-            try {
-                const quizData = JSON.parse(currentPage.value.content).quiz;
-                subStep.value.content = quizData || {
-                    question: '',
-                    options: [],
-                    correct: [],
-                    quantity: 'several'
-                };
-            } catch {
-                subStep.value.content = {
-                    question: '',
-                    options: [],
-                    correct: [],
-                    quantity: 'several'
-                };
+        const module = material.value.modules.find(m => m.id === moduleId);
+        if (module) {
+            currentModule.value = module;
+
+            const page = module.pages.find(p => p.id === pageId);
+            if (page) {
+                currentPage.value = page;
+                console.log(currentPage.value)
+                currentPageIndex.value = module.pages.indexOf(page);
+                await loadPageContent();
             }
         }
     }
-});
+};
 
 onMounted(async () => {
     await fetchCourse();
-    if (course.value) await fetchMaterial();
+    if (course.value) {
+        await fetchMaterial();
+        await loadCurrentPage();
+    }
 });
 
 provide('course', course);

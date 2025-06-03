@@ -56,6 +56,7 @@ const continueStudy = (id) => {
             align-items: center;
 
             .name-of-course {
+                word-break: break-all;
                 flex: 1;
                 font-weight: 600;
                 font-size: 24px;

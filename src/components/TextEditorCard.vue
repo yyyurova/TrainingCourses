@@ -1,7 +1,7 @@
 <template>
     <Card class="no-hover text">
-        <div class="editor-content" contenteditable="true" @input="handleInput" @mouseup="updateSelection"
-            @keyup="updateSelection"></div>
+        <div class="editor-content" v-html="content" contenteditable="true" @input="handleInput"
+            @mouseup="updateSelection" @keyup="updateSelection"></div>
         <div class="text-settings">
             <div class="format-toolbar">
                 <input type="file" ref="fileInput" hidden @change="handleFileUpload">
@@ -52,6 +52,13 @@
 import { ref, nextTick } from 'vue';
 import Card from '@/components/Card.vue';
 
+const props = defineProps({
+    content: {
+        type: String,
+        reqiured: false
+    }
+})
+console.log(props.content)
 const emit = defineEmits(['update:modelValue']);
 const fileInput = ref(null);
 

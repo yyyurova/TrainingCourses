@@ -18,16 +18,16 @@
         <div class="navigation" v-if="material">
             <div v-for="(module, index) in material.modules" :key="index" class="chapter">
                 <div class="chapter-header" @click="toggleChapter(index)">
-                    <span>{{ index + 1 + '. ' + module.name }}</span>
+                    <span>{{ index + 1 + '. ' + module.title }}</span>
                     <img src="/icons/arrow.svg" class="arrow-up" :class="{ 'arrow-down': openChapters[index] }" alt="">
                 </div>
 
-                <div class="steps" v-if="module.steps" v-show="openChapters[index]">
-                    <RouterLink v-for="(step, stepIndex) in module.steps" :key="stepIndex"
-                        :to="`/course-fill-materials/${course.id}/${index}/${stepIndex}`" class="step-link"
-                        active-class="active-step">
-                        <div class="step-content">
-                            {{ index + 1 + '.' + (stepIndex + 1) + ' ' + step.name }}
+                <div class="pages" v-if="module.pages" v-show="openChapters[index]">
+                    <RouterLink v-for="(page, pageIndex) in module.pages" :key="pageIndex"
+                        :to="`/course-fill-materials/${course.id}/module/${module.id}/page/${page.id}`"
+                        class="page-link" active-class="active-page">
+                        <div class="page-content">
+                            {{ index + 1 + '.' + (pageIndex + 1) + ' ' + page.title }}
                         </div>
                     </RouterLink>
                 </div>
@@ -37,7 +37,6 @@
 </template>
 
 <script setup>
-import { useRoute, useRouter } from 'vue-router';
 import { inject, ref, onMounted, onBeforeUnmount, watch } from 'vue';
 
 const props = defineProps({
@@ -45,48 +44,43 @@ const props = defineProps({
     isActive: Boolean,
 });
 
-const route = useRoute()
-const router = useRouter()
-
-const material = inject('material')
-const course = inject('course')
-
 const emit = defineEmits(['close']);
 
-const isSmallScreen = ref(false)
+const material = inject('material');
+const course = inject('course');
 
-const openChapters = ref({})
+const isSmallScreen = ref(false);
+const openChapters = ref({});
 
 const toggleChapter = (index) => {
     openChapters.value = {
         ...openChapters.value,
         [index]: !openChapters.value[index]
-    }
-}
+    };
+};
 
 watch(
     () => material.value,
     (newMaterial) => {
-        if (newMaterial?.chapters?.length) {
-            openChapters.value = { 0: true }
+        if (newMaterial?.modules?.length) {
+            openChapters.value = { 0: true };
         }
     },
     { immediate: true }
-)
+);
 
 const checkScreenSize = () => {
-    isSmallScreen.value = window.innerWidth <= 1280
-}
+    isSmallScreen.value = window.innerWidth <= 1280;
+};
 
 onMounted(() => {
-    checkScreenSize()
-    window.addEventListener('resize', checkScreenSize)
-})
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+});
 
 onBeforeUnmount(() => {
-    window.removeEventListener('resize', checkScreenSize)
-})
-
+    window.removeEventListener('resize', checkScreenSize);
+});
 </script>
 
 <style scoped lang="scss">
@@ -191,7 +185,7 @@ onBeforeUnmount(() => {
                 }
             }
 
-            .steps {
+            .pages {
                 display: flex;
                 flex-direction: column;
                 gap: 2px;
@@ -199,11 +193,11 @@ onBeforeUnmount(() => {
                 padding-left: 8px;
                 margin-left: 16px;
 
-                .step-link {
+                .page-link {
                     text-decoration: none;
                     color: inherit;
 
-                    .step-content {
+                    .page-content {
                         padding: 10px 16px 10px 16px;
                         border-radius: 6px;
                         transition: all 0.2s ease;
@@ -217,7 +211,7 @@ onBeforeUnmount(() => {
                         }
                     }
 
-                    &.active-step .step-content {
+                    &.active-page .page-content {
                         background: #E9F2FF;
                         font-weight: 500;
                         // color: #513DEB;

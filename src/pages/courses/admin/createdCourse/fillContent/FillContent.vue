@@ -74,7 +74,6 @@ const fetchCourse = async () => {
 
         for (const module of modules) {
             const pages = await getPagesForModule(module.id);
-            console.log(pages)
             module.pages = pages;
         }
 
@@ -84,7 +83,7 @@ const fetchCourse = async () => {
                 name: module.title,
                 pages: module.pages.map(page => ({
                     id: page.id,
-                    name: page.title,
+                    title: page.title,
                     type: page.type,
                     content: page.content
                 }))
@@ -94,209 +93,140 @@ const fetchCourse = async () => {
         console.error('Ошибка загрузки курса:', err);
     }
 };
-let tempId = -1;
 
-const newModule = () => {
-    const newId = tempId--;
-    content.value.modules.push({
-        id: newId,
-        name: 'Новый модуль',
-        pages: []
-    });
-    changes.modules.added.push({
-        id: newId,
-        title: 'Новый модуль'
-    });
+const newModule = async () => {
+    try {
+        const response = await createModule(course.value.id, 'Новый модуль');
+        content.value.modules.push({
+            id: response.id,
+            name: response.title || 'Новый модуль',
+            pages: []
+        });
+    } catch (error) {
+        console.error('Ошибка создания модуля:', error);
+    }
 };
 
 const updateModuleName = (index, newName) => {
     const module = content.value.modules[index];
-    const oldName = module.name;
     module.name = newName;
 
-    if (module.id < 0) {
-        const addedModule = changes.modules.added.find(m => m.id === module.id);
-        if (addedModule) addedModule.title = newName;
+    // Добавляем в изменения для сохранения (если еще нет)
+    const existingUpdate = changes.modules.updated.find(m => m.id === module.id);
+    if (!existingUpdate) {
+        changes.modules.updated.push({
+            id: module.id,
+            title: newName
+        });
     } else {
-        const existingUpdate = changes.modules.updated.find(m => m.id === module.id);
-        if (existingUpdate) {
-            existingUpdate.title = newName;
-        } else {
-            changes.modules.updated.push({
-                id: module.id,
-                title: newName
-            });
-        }
+        existingUpdate.title = newName;
     }
-};
-
-// const addPage = (chapterIndex) => {
-//     const chapter = content.value.modules[chapterIndex];
-//     const newId = tempId--;
-
-//     const newPage = {
-//         id: newId,
-//         name: 'Новая страница',
-//         content: ''
-//     };
-
-//     chapter.pages.push(newPage);
-
-//     changes.pages.added.push({
-//         id: newId,
-//         module_id: chapter.id,
-//         title: 'Новая страница'
-//     });
-// };
-const addPage = (chapterIndex) => {
-    currentModuleIndex.value = chapterIndex; // Запоминаем модуль
-    showCreateLessonModal.value = true;     // Открываем модалку
-};
-
-const createPageWithType = (type) => {
-    if (currentModuleIndex.value === null) return;
-
-    const module = content.value.modules[currentModuleIndex.value];
-    const newId = tempId--;
-    const typeNames = { 1: 'Текст', 2: 'Видео', 3: 'Тест' };
-
-    const newPage = {
-        id: newId,
-        name: `Новая страница (${typeNames[type]})`,
-        type: type,
-        content: ''
-    };
-
-    module.pages.push(newPage);
-
-    changes.pages.added.push({
-        id: newId,
-        module_id: module.id,
-        title: newPage.name,
-        type: type
-    });
-
-    closeModal();
 };
 
 const updatePageName = (chapterIndex, pageIndex, newName) => {
     const page = content.value.modules[chapterIndex].pages[pageIndex];
-    const oldName = page.name;
+    const module = content.value.modules[chapterIndex];
     page.name = newName;
 
-    if (page.id < 0) {
-        const addedPage = changes.pages.added.find(p => p.id === page.id);
-        if (addedPage) addedPage.title = newName;
+    // Добавляем в изменения для сохранения
+    const existingUpdate = changes.pages.updated.find(p => p.id === page.id);
+    if (!existingUpdate) {
+        changes.pages.updated.push({
+            moduleId: module.id,
+            id: page.id,
+            title: newName,
+            type: page.type
+        });
     } else {
-        const existingUpdate = changes.pages.updated.find(p => p.id === page.id);
-        if (existingUpdate) {
-            existingUpdate.title = newName;
-        } else {
-            changes.pages.updated.push({
-                id: page.id,
-                title: newName
+        existingUpdate.title = newName;
+    }
+};
+
+const addPage = (chapterIndex) => {
+    currentModuleIndex.value = chapterIndex;
+    showCreateLessonModal.value = true;
+};
+
+const createPageWithType = async (type) => {
+    if (currentModuleIndex.value === null) return;
+
+    const module = content.value.modules[currentModuleIndex.value];
+    const typeNames = { 1: 'Текст', 2: 'Видео', 3: 'Тест' };
+    const pageTitle = `Новая страница (${typeNames[type]})`;
+
+    try {
+        const response = await createPage(
+            module.id,
+            pageTitle,
+            type,
+        );
+
+        module.pages.push({
+            id: response.id,
+            title: response.title || `Новая страница (${typeNames[type]})`,
+            type: type,
+            content: ''
+        });
+
+        closeModal();
+
+        if (content.value.modules[0].id === module.id &&
+            content.value.modules[0].pages.length === 1) {
+            router.push({
+                name: 'FillContent',
+                params: {
+                    courseId: course.value.id,
+                }
             });
         }
+    } catch (error) {
+        console.error('Ошибка создания страницы:', error);
     }
 };
 
-const deleteChapter = (index) => {
-    const deletedModule = content.value.modules.splice(index, 1)[0];
+const deleteChapter = async (index) => {
+    const deletedModule = content.value.modules[index];
 
-    if (deletedModule.id < 0) {
-        changes.modules.added = changes.modules.added.filter(m => m.id !== deletedModule.id);
-    } else {
-        changes.modules.deleted.push(deletedModule.id);
-
-        deletedModule.pages.forEach(page => {
-            if (page.id < 0) {
-                changes.pages.added = changes.pages.added.filter(p => p.id !== page.id);
-            } else {
-                changes.pages.deleted.push(page.id);
-            }
-        });
+    try {
+        await deleteModule(course.value.id, deletedModule.id);
+        content.value.modules.splice(index, 1);
+    } catch (error) {
+        console.error('Ошибка удаления модуля:', error);
     }
 };
 
-provide('deletePage', (chapterIndex, pageIndex) => {
+provide('deletePage', async (chapterIndex, pageIndex) => {
     const chapter = content.value.modules[chapterIndex];
-    const deletedPage = chapter.pages.splice(pageIndex, 1)[0];
+    const deletedPage = chapter.pages[pageIndex];
 
-    if (deletedPage.id < 0) {
-        changes.pages.added = changes.pages.added.filter(p => p.id !== deletedPage.id);
-    } else {
-        changes.pages.deleted.push(deletedPage.id);
+    try {
+        await deletePage(chapter.id, deletedPage.id);
+        chapter.pages.splice(pageIndex, 1);
+    } catch (error) {
+        console.error('Ошибка удаления страницы:', error);
     }
 });
 
 const saveCourse = async () => {
     try {
-        for (const pageId of changes.pages.deleted) {
-            const module = content.value.modules.find(m =>
-                m.pages.some(p => p.id === pageId)
-            );
-            if (module) {
-                await deletePage(module.id, pageId);
-            }
-        }
-        for (const moduleId of changes.modules.deleted) {
-            await deleteModule(course.value.id, moduleId);
-        }
-
-        const tempIdMap = new Map();
-        for (const module of changes.modules.added) {
-            const response = await createModule(course.value.id, module.title);
-            tempIdMap.set(module.id, response.id);
-
-            const localModule = content.value.modules.find(m => m.id === module.id);
-            if (localModule) localModule.id = response.id;
-        }
-
         for (const module of changes.modules.updated) {
             await updateModule(course.value.id, module.id, module.title);
         }
 
-        for (const page of changes.pages.added) {
-            const realModuleId = page.module_id < 0
-                ? tempIdMap.get(page.module_id)
-                : page.module_id;
-
-            if (!realModuleId) continue;
-
-            // Передаем тип страницы в API
-            const response = await createPage(
-                realModuleId,
-                page.title,
-                page.type // Добавляем тип страницы
-            );
-
-            for (const chapter of content.value.modules) {
-                const localPage = chapter.pages.find(p => p.id === page.id);
-                if (localPage) localPage.id = response.id;
-            }
-        }
-
         for (const page of changes.pages.updated) {
-            const chapter = content.value.modules.find(ch =>
-                ch.pages.some(p => p.id === page.id)
-            );
-            if (chapter) {
-                await updatePage(chapter.id, page.id, page.title);
-            }
+            console.log(page.moduleId, page.id, page.title, page.type, page)
+            await updatePage(page.moduleId, page.id, page.title, page.type);
         }
 
-        Object.keys(changes).forEach(key => {
-            changes[key].added = [];
-            changes[key].updated = [];
-            changes[key].deleted = [];
-        });
-        console.log(content.value)
+        changes.modules.updated = [];
+        changes.pages.updated = [];
+
+        console.log('Изменения успешно сохранены');
         let firstModule = content.value.modules[0];
 
-        // Проверяем, сохранился ли модуль на сервере и получил ли он реальный ID
         if (firstModule && firstModule.id > 0 && firstModule.pages.length > 0) {
             router.push({
-                name: 'CoursePage',
+                name: 'FillMaterials',
                 params: {
                     courseId: course.value.id,
                     moduleId: firstModule.id,

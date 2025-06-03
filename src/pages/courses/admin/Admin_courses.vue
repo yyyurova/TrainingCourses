@@ -12,10 +12,10 @@
                     <span class="name-of-course">{{ course.title }}</span>
 
                     <div class="action-buttons">
-                        <button class="icon edit" @click="openEditCourseModal(course)">
+                        <button class="icon edit" @click.stop="openEditCourseModal(course)">
                             <img src="/icons/pen.svg" alt="">
                         </button>
-                        <button class="icon delete" @click="openDeleteModal(course)">
+                        <button class="icon delete" @click.stop="openDeleteModal(course)">
                             <img src="/icons/delete.svg" alt="">
                         </button>
                     </div>
@@ -192,6 +192,7 @@ button.blue {
             align-items: flex-start;
 
             .name-of-course {
+                word-break: break-all;
                 flex: 1;
                 font-weight: 600;
                 font-size: 24px;

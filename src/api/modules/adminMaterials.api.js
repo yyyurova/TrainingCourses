@@ -55,9 +55,9 @@ export const createPage = async (moduleId, title, type) => {
     }
 };
 
-export const updatePage = async (moduleId, pageId, title) => {
+export const updatePage = async (moduleId, pageId, title, type) => {
     try {
-        const response = await client.patch(`${ENDPOINTS.ADMIN_MODULE}/${moduleId}/${pageId}`, { title: title });
+        const response = await client.patch(`${ENDPOINTS.ADMIN_MODULE}/page/${moduleId}/${pageId}`, { title: title, type: type });
         return response.data;
     } catch (error) {
         console.error('Полная ошибка:', error);
@@ -95,6 +95,15 @@ export const getQuestion = async (pageId, questionId) => {
 export const createQuestion = async (pageId, title, description) => {
     try {
         const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}`, { title: title, description: description });
+        return response.data;
+    } catch (error) {
+        console.error('Полная ошибка:', error);
+    }
+};
+
+export const updateQuestion = async (pageId, questionId, title, description) => {
+    try {
+        const response = await client.patch(`${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}/${questionId}`, { title: title, description: description });
         return response.data;
     } catch (error) {
         console.error('Полная ошибка:', error);

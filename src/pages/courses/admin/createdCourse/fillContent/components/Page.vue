@@ -2,7 +2,7 @@
     <Card v-if="page" class="no-hover">
         <h3 class="number">{{ (moduleIndex + 1) + '.' + (pageIndex + 1) }}</h3>
         <div class="input-container">
-            <input type="text" class="name" :value="page.name" @input="$emit('update:name', $event.target.value)"
+            <input type="text" class="name" :value="page.title" @input="$emit('update:name', $event.target.value)"
                 @blur="checkEmptyness">
             <p v-if="warning !== ''">{{ warning }}</p>
         </div>
