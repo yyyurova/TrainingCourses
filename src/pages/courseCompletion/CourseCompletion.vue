@@ -35,6 +35,8 @@
                                 <p v-else>❌ Неверно. Попробуйте еще раз.</p>
                             </div>
                         </div>
+                        <div class="" v-else v-html="question.description"></div>
+
                     </div>
                 </div>
             </div>
@@ -93,6 +95,7 @@ const fetchMaterial = async () => {
             module.value = material.value[0];
             await loadPageContent();
         }
+        console.log(currentPageData.value)
     } catch (err) {
         console.error('Ошибка загрузки данных:', err);
     }
@@ -157,7 +160,7 @@ const checkQuiz = () => {
     currentPageData.value.questions.forEach((question, qIndex) => {
         if (question.variants?.length > 0) {
             const correctAnswers = question.variants
-                .filter(v => v.is_correct)
+                .filter(v => v.is_right)
                 .map(v => v.id);
 
             const userAnswers = [...selectedAnswers.value[qIndex]].sort();
