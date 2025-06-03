@@ -58,7 +58,6 @@ const props = defineProps({
         reqiured: false
     }
 })
-console.log(props.content)
 const emit = defineEmits(['update:modelValue']);
 const fileInput = ref(null);
 
@@ -152,15 +151,15 @@ const handleInput = (e) => {
     width: 100%;
     padding: 0;
     height: 100%;
-    max-height: 500px;
+    max-height: 400px;
 
     .editor-content {
         width: 100%;
+        max-width: 100%;
         min-height: 200px;
         padding: 15px;
         border-radius: 4px;
         outline: none;
-        max-height: 500px;
         overflow-y: auto;
 
         &:focus {
@@ -171,6 +170,10 @@ const handleInput = (e) => {
         ol {
             padding-left: 20px;
             margin: 0 !important;
+        }
+
+        :deep(img) {
+            max-width: 100%;
         }
     }
 

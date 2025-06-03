@@ -64,7 +64,6 @@ const deleteImage = () => {
 const save = async () => {
     if (limitMessage.value !== '') { return }
     const titleValue = title.value.trim();
-    console.log(titleValue)
     if (!titleValue) {
         nameInput.value.style.border = '1px solid red';
         return;

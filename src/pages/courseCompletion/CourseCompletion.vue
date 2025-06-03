@@ -15,7 +15,7 @@
             </div>
 
             <div v-if="currentPageData && !loading" class="content">
-                <div v-if="currentPageData.questions && currentPageData.questions.length">
+                <div v-if="currentPageData.questions && currentPageData.questions.length" class="qiuz">
                     <div v-for="(question, qIndex) in currentPageData.questions" :key="qIndex">
 
                         <div v-if="question.variants && question.variants.length" class="quiz-section">
@@ -32,11 +32,10 @@
                             <div v-if="quizChecked[qIndex]" class="quiz-result"
                                 :class="quizPassed[qIndex] ? 'success' : 'error'">
                                 <p v-if="quizPassed[qIndex]">✅ Верно!</p>
-                                <p v-else>❌ Неверно. Попробуйте еще раз.</p>
+                                <p v-else>❌ Неверно.</p>
                             </div>
                         </div>
                         <div class="" v-else v-html="question.description"></div>
-
                     </div>
                 </div>
             </div>
@@ -46,7 +45,7 @@
                     Проверить тест
                 </button>
 
-                <button class="blue" @click="nextPage" :disabled="(hasQuizzes && !allQuizzesPassed) || loading">
+                <button class="blue" @click="nextPage" :disabled="(hasQuizzes && !quizWasChecked) || loading">
                     {{ isLastPage ? 'Завершить модуль' : 'Следующий шаг' }}
                 </button>
             </div>
@@ -72,13 +71,18 @@ const courseId = route.params.courseId;
 const end = ref(false);
 const loading = ref(false);
 
-// const module = ref(null);
-// const currentPageIndex = ref(0);
 const currentPageData = ref(null);
 const selectedAnswers = ref({});
 const quizChecked = ref({});
 const quizPassed = ref({});
+const quizWasChecked = ref(false);
 
+const resetQuizState = () => {
+    selectedAnswers.value = {};
+    quizChecked.value = {};
+    quizPassed.value = {};
+    quizWasChecked.value = false;
+};
 const moduleIndex = computed(() => parseInt(route.params.moduleIndex) || 0)
 const pageIndex = computed(() => parseInt(route.params.pageIndex) || 0)
 
@@ -133,12 +137,20 @@ const isLastPage = computed(() => {
     return currentPageIndex.value === module.value?.pages.length - 1;
 });
 
+const quizzesCompleted = ref({});
+
 const hasQuizzes = computed(() => {
     return currentPageData.value?.questions?.some(q => q.variants?.length > 0);
 });
 
 const allQuizzesPassed = computed(() => {
-    return Object.values(quizPassed.value).every(passed => passed);
+    if (!currentPageData.value?.questions) return true;
+
+    return currentPageData.value.questions.every((question, index) => {
+        if (!question.variants || question.variants.length === 0) return true;
+
+        return quizzesCompleted.value[index] === true;
+    });
 });
 
 const hasSelectedAnswers = computed(() => {
@@ -154,43 +166,67 @@ const formatTextContent = (text) => {
 };
 
 const checkQuiz = async () => {
-    if (!currentPageData.value?.questions) return;
+    try {
+        if (!currentPageData.value?.questions?.length) {
+            console.warn('Нет вопросов для проверки');
+            return;
+        }
 
-    const answersToSend = [];
+        const answersToSend = [];
+        let allQuizzesPassed = true;
+        quizWasChecked.value = true
+        currentPageData.value.questions.forEach((question, qIndex) => {
+            quizChecked.value[qIndex] = true;
+            quizPassed.value[qIndex] = false;
 
-    currentPageData.value.questions.forEach((question, qIndex) => {
-        if (question.variants?.length > 0) {
-            selectedAnswers.value[qIndex]?.forEach(variantId => {
-                answersToSend.push({
-                    question_id: question.id,
-                    variant_id: variantId
-                });
-            });
+            if (!question.variants?.length) {
+                quizPassed.value[qIndex] = true; // Отмечаем как пройденный
+                return;
+            }
+
+            const userAnswers = [...(selectedAnswers.value[qIndex] || [])].sort();
 
             const correctAnswers = question.variants
                 .filter(v => v.is_right)
-                .map(v => v.id);
+                .map(v => v.id)
+                .sort();
 
-            const userAnswers = [...selectedAnswers.value[qIndex]].sort();
-            const correctAnswersSorted = [...correctAnswers].sort();
-
-            quizPassed.value[qIndex] =
+            const isCorrect =
                 userAnswers.length === correctAnswers.length &&
-                userAnswers.every((val, idx) => val === correctAnswersSorted[idx]);
+                userAnswers.every((val, idx) => val === correctAnswers[idx]);
 
-            quizChecked.value[qIndex] = true;
-        }
-    });
+            quizPassed.value[qIndex] = isCorrect;
+            quizzesCompleted.value[qIndex] = isCorrect;
 
-    try {
+            if (!isCorrect) {
+                allQuizzesPassed = false;
+            }
+
+            userAnswers.forEach(variantId => {
+                answersToSend.push({
+                    question_id: question.id,
+                    variant_id: variantId,
+                    is_correct: correctAnswers.includes(variantId)
+                });
+            });
+        });
+
         if (answersToSend.length > 0) {
             await sendAnswer({
-                answers: answersToSend
+                answers: answersToSend,
+                is_completed: allQuizzesPassed
             });
-            console.log('Ответы успешно отправлены');
         }
+
+        if (allQuizzesPassed) {
+            module.value.pages[currentPageIndex.value].completed = true;
+        }
+
+        return allQuizzesPassed;
+
     } catch (error) {
-        console.error('Ошибка при отправке ответов:', error);
+        console.error('Ошибка при проверке теста:', error);
+        throw error;
     }
 };
 
@@ -204,12 +240,6 @@ const nextPage = () => {
     } else {
         completeModule();
     }
-};
-
-const resetQuizState = () => {
-    selectedAnswers.value = {};
-    quizChecked.value = {};
-    quizPassed.value = {};
 };
 
 const goToPage = (index) => {
@@ -313,6 +343,12 @@ provide('course', course);
                 align-items: center;
                 gap: 8px;
             }
+        }
+
+        .qiuz {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .quiz-result {

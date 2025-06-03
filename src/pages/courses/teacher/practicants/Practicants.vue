@@ -70,16 +70,8 @@ const fetchPracticants = async () => {
         isLoading.value = true
 
         course.value = await getCourse(route.params.courseId)
-        // const membersParams = course.value.members.map(id => `id[]=${id}`).join('&');
-        // const url = `https://c1a9f09250b13f61.mokky.dev/users?${membersParams}`;
 
-        // const { data } = await axios.get(url);
-        // practicants.value = await getPracticants()
-
-        // originalPracticants.value = data
-        // practicants.value = [{ name: 'lalala', id: 4 }]
         practicants.value = await getPracticants(route.params.courseId)
-        console.log(practicants.value)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false
@@ -87,8 +79,6 @@ const fetchPracticants = async () => {
 }
 
 const openTasks = (practicant) => {
-    // localStorage.setItem('course', JSON.stringify(course.value))
-    // console.log(practicant.id)
     router.push({
         path: `/courses/${course.value.id}/practicants/${practicant.id}`,
         params: { practicantId: practicant.id }

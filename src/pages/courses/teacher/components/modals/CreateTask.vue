@@ -11,17 +11,17 @@
                 </div>
 
                 <div class="group">
-                    <p>Описание</p>
-                    <TextEditorCard />
+                    <p>Описание<span class="required">*</span></p>
+                    <TextEditorCard v-model="description" />
                 </div>
 
                 <div class="group">
                     <p>Для кого<span class="required">*</span></p>
                     <input type="text" :value="selectedUsers.map(u => u.name).join(', ')">
                     <div class="dropdown">
-                        <div v-for="user in users" :key="user.id" class="item">
-                            <input type="checkbox" :checked="isSelected(user)" @click="toggleMember(user)">
-                            <img src="/icons/Avatar.svg" :alt="user.name">
+                        <div v-for="user in users" :key="user.id" class="item" @click="toggleMember(user)">
+                            <input type="checkbox" :checked="isSelected(user)" @click.stop="toggleMember(user)">
+                            <img :src="user.avatar || '/icons/Avatar.svg'" :alt="user.name">
                             <span>{{ user.name }}</span>
                         </div>
                     </div>
@@ -71,6 +71,7 @@ const create = () => {
         until: (new Date(deadline.value).toISOString()),
         users: assignedTo
     }
+    console.log(task)
     emit('create', task)
 }
 

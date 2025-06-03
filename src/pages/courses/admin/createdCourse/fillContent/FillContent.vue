@@ -210,14 +210,12 @@ const saveCourse = async () => {
         }
 
         for (const page of changes.pages.updated) {
-            console.log(page.moduleId, page.id, page.title, page.type, page)
             await updatePage(page.moduleId, page.id, page.title, page.type);
         }
 
         changes.modules.updated = [];
         changes.pages.updated = [];
 
-        console.log('Изменения успешно сохранены');
         if (content.value.modules.length > 0 && content.value.modules[0].pages.length > 0) {
             router.push(`/course-fill-materials/${course.value.id}/module/${content.value.modules[0].id}/page/${content.value.modules[0].pages[0].id}`);
         } else {

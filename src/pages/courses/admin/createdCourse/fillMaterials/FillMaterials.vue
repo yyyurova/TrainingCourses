@@ -266,7 +266,6 @@ const loadPageContent = async () => {
         try {
             if (currentQuestion.value) {
                 const variants = await getVariants(currentQuestion.value.id);
-                console.log(variants)
                 const uniqueVariants = variants.reduce((acc, variant) => {
                     if (!acc.some(v => v.id === variant.id)) {
                         acc.push(variant);
@@ -286,7 +285,6 @@ const loadPageContent = async () => {
                         .filter(index => index !== -1),
                     quantity: JSON.parse(currentQuestion.value.description)?.quantity || 'several'
                 };
-                console.log(quizData.value.options)
             } else {
                 quizData.value = {
                     question: '',
@@ -476,7 +474,6 @@ const loadCurrentPage = async () => {
             const page = module.pages.find(p => p.id === pageId);
             if (page) {
                 currentPage.value = page;
-                console.log(currentPage.value)
                 currentPageIndex.value = module.pages.indexOf(page);
                 await loadPageContent();
             }
@@ -490,7 +487,6 @@ onMounted(async () => {
         await fetchMaterial();
         await loadCurrentPage();
     }
-    console.log(material.value)
 });
 
 provide('course', course);

@@ -81,7 +81,6 @@ export const editChat = async (chatId, newChat) => {
         if (newChat.avatar) {
             formData.append('attachment', newChat.avatar);
         }
-        console.log(formData.title)
         await client.put(`${ENDPOINTS.CHAT}/${chatId}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'

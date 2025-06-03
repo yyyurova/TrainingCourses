@@ -56,7 +56,6 @@ const getTypeNumber = (type) => {
 }
 
 const handleCreate = () => {
-    // console.log(selectedType.value, getTypeNumber(selectedType.value))
     emit('create', getTypeNumber(selectedType.value));
     selectedType.value = 'text';
 };

@@ -25,8 +25,6 @@
 
 <script setup>
 import { onMounted, ref, computed } from 'vue';
-import axios from 'axios';
-import { mockUser } from '@/mocks/user';
 import { useRouter, useRoute } from 'vue-router';
 import { getCourse } from '@/api/modules/courses.api';
 import { getPracticants } from '@/api/modules/curarorStudents.api';
@@ -109,7 +107,6 @@ const fetchTasks = async () => {
     try {
         isLoading.value = true
         tasks.value = await getTasks()
-        console.log(tasks.value)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false
@@ -149,7 +146,6 @@ const createTask = async (task) => {
         await apiCreateTask(task)
 
         await fetchTasks()
-        // tasks.value = updatedTasks
 
         popupText.value = 'Задание успешно создано'
         showPopup.value = true
@@ -199,7 +195,8 @@ const editTask = async (updatedTask) => {
 const fetchPracticants = async () => {
     try {
         isLoading.value = true
-        practicants.value = await getPracticants()
+        practicants.value = await getPracticants(course.value.id)
+        console.log(practicants.value)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false
