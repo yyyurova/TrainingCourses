@@ -11,6 +11,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { getTasks } from '@/api/modules/tasks.api';
+import { checkOverdueDeadline } from '@/utils/utils';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
@@ -18,7 +19,6 @@ import Tasks from './components/Tasks.vue';
 import Loading from '@/components/Loading.vue';
 
 const tasks = ref([])
-const currentDate = new Date()
 const isLoading = ref(false)
 
 const fetchCurrentTasks = async () => {
@@ -26,20 +26,19 @@ const fetchCurrentTasks = async () => {
         isLoading.value = true
         // const courses = await getCourses()
         tasks.value = await getTasks()
-        tasks.value = tasks.value.filter(task => new Date(task.until) >= currentDate)
+        tasks.value = tasks.value.filter(task => !checkOverdueDeadline(task.until))
+
     }
     finally {
         isLoading.value = false
     }
 }
 
-const navbarItems = computed(() => {
-    return [
-        { name: 'Текущие', linkTo: `/tasks/current` },
-        { name: 'Пропущен срок сдачи', linkTo: `/tasks/overdue` },
-        { name: 'Выполнено', linkTo: `/tasks/done` }
-    ];
-});
+const navbarItems = [
+    { name: 'Текущие', linkTo: `/tasks/current` },
+    { name: 'Пропущен срок сдачи', linkTo: `/tasks/overdue` },
+    { name: 'Выполнено', linkTo: `/tasks/done` }
+];
 
 onMounted(async () => {
     await fetchCurrentTasks()

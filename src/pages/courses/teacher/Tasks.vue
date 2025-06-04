@@ -1,16 +1,18 @@
 <template>
     <Layout :on-create-task="openCreateTaskModal">
         <h1>Задания</h1>
-        <Navbar :elements="navbarItems" />
-        <button class="blue" @click="openCreateTaskModal">
-            Создать задание
-            <img src="/icons/plus.svg" alt="">
-        </button>
-        <div class="tasks" v-if="!isLoading && tasks">
-            <TaskCard v-for="task in tasks" :task="task" :key="task.id" @click="goToWorks(task.id)"
-                @delete="openDeleteModal(task)" @edit="openEditModal(task)" />
-        </div>
+        <div v-if="course">
+            <Navbar :elements="navbarItems" />
+            <button class="blue" @click="openCreateTaskModal">
+                Создать задание
+                <img src="/icons/plus.svg" alt="">
+            </button>
+            <div class="tasks" v-if="!isLoading && tasks">
+                <TaskCard v-for="task in tasks" :task="task" :key="task.id" @click="goToWorks(task.id)"
+                    @delete="openDeleteModal(task)" @edit="openEditModal(task)" />
+            </div>
 
+        </div>
         <EditTask v-if="showEditModal" :task="taskToEdit" @cancel="closeModal" @save="editTask" />
 
         <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" @create="createTask" :users="practicants" />
@@ -196,7 +198,6 @@ const fetchPracticants = async () => {
     try {
         isLoading.value = true
         practicants.value = await getPracticants(course.value.id)
-        console.log(practicants.value)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false

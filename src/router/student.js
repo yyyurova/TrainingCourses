@@ -78,7 +78,6 @@ export const studentRoutes = [
             title: 'Выполненные задания'
         }
     },
-
     {
         path: '/courseCompletion/:courseId',
         name: 'CourseCompletion',

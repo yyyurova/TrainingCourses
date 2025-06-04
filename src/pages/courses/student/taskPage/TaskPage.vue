@@ -78,19 +78,19 @@ const addLink = (link) => {
     showEnterLinkModal.value = false
 }
 
+onMounted(async () => {
+    if (route.params.taskId) {
+        await fetchTask(route.params.taskId);
+    }
+
+    document.addEventListener('click', handleClickOutside)
+});
+
 provide('task', task)
 provide('course', course)
 provide('showChoicePopup', showChoicePopup)
 provide('uploadedFiles', uploadedFiles)
 provide('enteredLinks', enteredLinks)
-
-onMounted(async () => {
-    if (route.params.id) {
-        await fetchTask(route.params.id);
-    }
-
-    document.addEventListener('click', handleClickOutside)
-});
 </script>
 
 <style scoped lang="scss">

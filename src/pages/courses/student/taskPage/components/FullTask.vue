@@ -33,7 +33,6 @@ const task = inject('task')
     line-height: 20px;
     letter-spacing: 0px;
     color: #787878;
-    margin-bottom: 20px;
 }
 
 .name {

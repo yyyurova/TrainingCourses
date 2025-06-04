@@ -68,10 +68,9 @@ const fetchPracticants = async () => {
         isLoading.value = true
         console.log(route.params.courseId)
         course.value = await getCourse(route.params.courseId)
-
-        setTimeout(async () => {
-            practicants.value = await getPracticants(route.params.courseId)
-        }, 2000);
+        const data = await getPracticants(route.params.courseId);
+        practicants.value = data;
+        originalPracticants.value = [...data];
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false

@@ -25,7 +25,7 @@ const fetchCurrentTasks = async () => {
     try {
         isLoading.value = true
         tasks.value = await getTasks()
-        tasks.value = tasks.value.filter(task => new Date(task.until) < new Date())
+        tasks.value = tasks.value.filter(task => checkOverdueDeadline(task.until))
     }
     catch (err) {
         console.log(err)
@@ -34,13 +34,11 @@ const fetchCurrentTasks = async () => {
     }
 }
 
-const navbarItems = computed(() => {
-    return [
-        { name: 'Текущие', linkTo: `/tasks/current` },
-        { name: 'Пропущен срок сдачи', linkTo: `/tasks/overdue` },
-        { name: 'Выполнено', linkTo: `/tasks/done` }
-    ];
-});
+const navbarItems = [
+    { name: 'Текущие', linkTo: `/tasks/current` },
+    { name: 'Пропущен срок сдачи', linkTo: `/tasks/overdue` },
+    { name: 'Выполнено', linkTo: `/tasks/done` }
+];
 
 onMounted(async () => {
     await fetchCurrentTasks()

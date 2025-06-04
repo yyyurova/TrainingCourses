@@ -59,16 +59,14 @@ const navbarItems = computed(() => {
 //     showCreateTaskModal.value = true
 // }
 
-// const goToTasks = () => {
-//     router.push('/course/tasks')
-// }
+const goToTasks = () => {
+    router.push(`/courses/${course.value.id}/tasks`)
+}
 
 const fetchStudents = async () => {
     try {
         isLoading.value = true
         course.value = await getCourse(route.params.courseId);
-        console.log(course.value)
-
     } catch (err) {
         console.error('Ошибка при загрузке студентов:', err);
     } finally {

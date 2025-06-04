@@ -84,9 +84,11 @@ const fetchCourse = async () => {
         course.value = await getCourse(route.params.courseId);
 
         const modules = await getModules(route.params.courseId);
+        modules.sort((a, b) => a.id - b.id);
 
         for (const module of modules) {
             const pages = await getPagesForModule(module.id);
+            pages.sort((a, b) => a.id - b.id);
             module.pages = pages;
         }
 

@@ -33,13 +33,11 @@ const fetchCurrentTasks = async () => {
     }
 }
 
-const navbarItems = computed(() => {
-    return [
-        { name: 'Текущие', linkTo: `/tasks/current` },
-        { name: 'Пропущен срок сдачи', linkTo: `/tasks/overdue` },
-        { name: 'Выполнено', linkTo: `/tasks/done` }
-    ];
-});
+const navbarItems = [
+    { name: 'Текущие', linkTo: `/tasks/current` },
+    { name: 'Пропущен срок сдачи', linkTo: `/tasks/overdue` },
+    { name: 'Выполнено', linkTo: `/tasks/done` }
+];
 
 onMounted(async () => {
     await fetchCurrentTasks()
