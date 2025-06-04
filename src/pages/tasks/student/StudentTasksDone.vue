@@ -4,6 +4,7 @@
         <Navbar :elements="navbarItems" />
         <Loading v-if="isLoading" />
         <Tasks :tasks="tasks" />
+        <h3 v-if="tasks.length === 0 && !isLoading">Вы не выполнили ни одного задания</h3>
     </Layout>
 </template>
 
@@ -11,6 +12,7 @@
 import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
 import { getCourses } from '@/api/modules/courses.api';
+import { getTasks } from '@/api/modules/tasks.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
@@ -24,16 +26,8 @@ const isLoading = ref(false)
 const fetchCurrentTasks = async () => {
     try {
         isLoading.value = true
-        const courses = await getCourses()
-
-        tasks.value = courses.flatMap(course =>
-            course.tasks
-                .filter(task => task.mark)
-                .map(task => ({
-                    ...task,
-                    courseId: course.id,
-                }))
-        )
+        tasks.value = await getTasks()
+        tasks.value = tasks.value.filter(task => task.mark)
     } finally {
         isLoading.value = false
     }
@@ -51,3 +45,13 @@ onMounted(async () => {
     await fetchCurrentTasks()
 })
 </script>
+
+<style scoped lang="scss">
+h3 {
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
+    font-weight: 600;
+    font-size: 20px;
+}
+</style>

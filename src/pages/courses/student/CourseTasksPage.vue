@@ -2,18 +2,17 @@
     <Layout>
         <h1>Задания</h1>
         <Navbar :elements="navbarItems" />
-        <div class="tasks" v-if="course && !isLoading && course.tasks.length > 0">
-            <RouterLink class="link" v-for="task in course.tasks" :key="task.id"
-                :to="`/courses/${course.id}/tasks/${task.id}`">
+        <div class="tasks" v-if="tasks && !isLoading && tasks.length > 0">
+            <RouterLink class="link" v-for="task in tasks" :key="task.id" :to="`/tasks/${task.id}`">
                 <Card>
                     <img src="/icons/task.svg" alt="">
                     <div class="text">
                         <p class="name-of-task">
-                            {{ task.title }}
+                            {{ task.name }}
                         </p>
                         <p class="bottom-row">
-                            <span :class="{ 'overdue': checkOverdueDeadline(task.deadline) }">
-                                {{ format(task.deadline, { date: 'long' }) }}
+                            <span :class="{ 'overdue': checkOverdueDeadline(task.until) }">
+                                {{ format(task.until, { date: 'long' }) }}
                             </span>
                             <span v-if="task.mark" class="mark">Оценка: {{ task.mark }}</span>
                         </p>
@@ -21,7 +20,7 @@
                 </Card>
             </RouterLink>
         </div>
-        <div class="no-tasks" v-else-if="course && course.tasks.length === 0">
+        <div class="no-tasks" v-else-if="tasks && tasks.length === 0">
             <h2>Домашних заданий нет</h2>
             <p>Здесь будут появляться домашние задания от вашего куратора</p>
         </div>
@@ -36,6 +35,7 @@ import { useRoute } from 'vue-router';
 import { format } from '@formkit/tempo';
 import { checkOverdueDeadline } from '@/utils/utils';
 import { getCourse } from '@/api/modules/courses.api';
+import { getTasks } from '@/api/modules/tasks.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
@@ -43,6 +43,7 @@ import Card from '@/components/Card.vue';
 import Loading from '@/components/Loading.vue';
 
 const course = ref(null)
+const tasks = ref([])
 const route = useRoute();
 const isLoading = ref(false)
 
@@ -55,24 +56,35 @@ const navbarItems = computed(() => {
     ];
 });
 
-const fetchCourse = async (id) => {
+const fetchCourse = async () => {
     try {
-        isLoading.value = true;
-        course.value = await getCourse(id);
+        isLoading.value = false
+        course.value = await getCourse(route.params.id)
+    }
+    finally {
+        isLoading.value = false
+    }
+}
+
+const fetchTasks = async () => {
+    try {
+        isLoading.value = true
+        tasks.value = await getTasks()
+        console.log(tasks.value)
+        // tasks.value = tasks.value.filter(task => new Date(task.until) < new Date())
     } finally {
         isLoading.value = false;
     }
 };
 
-onMounted(() => {
-    if (route.params.id) {
-        fetchCourse(route.params.id);
-    }
+onMounted(async () => {
+    await fetchCourse()
+    await fetchTasks();
 });
 
-watch(() => course.value, () => {
-    document.title = course.value.title
-})
+// watch(() => course.value, () => {
+//     document.title = course.value.title
+// })
 
 </script>
 

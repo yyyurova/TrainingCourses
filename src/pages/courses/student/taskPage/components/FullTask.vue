@@ -2,13 +2,9 @@
     <Card class="full-task no-hover">
         <h2>Задание</h2>
         <p v-if="task.mark" class="mark">Оценка: {{ task.mark }}</p>
-        <p class="deadline">Срок сдачи: {{ format(task.deadline, 'short') }}</p>
-        <p class="name">{{ task.title }}</p>
-        <p class="content-of-task">Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum
-            aut cum neque at cumque consequatur mollitia sed recusandae nemo est tempore ex
-            veritatis, consectetur autem quae consequuntur enim doloremque? Magni labore earum
-            expedita doloremque sint, nemo vel ab temporibus. Dolorem ea quisquam saepe. Similique
-            labore temporibus, fugiat vitae sint maxime.</p>
+        <p class="deadline">Срок сдачи: {{ format(task.until, 'short') }}</p>
+        <p class="name">{{ task.name }}</p>
+        <p class="content-of-task" v-html="task.text"></p>
     </Card>
 </template>
 

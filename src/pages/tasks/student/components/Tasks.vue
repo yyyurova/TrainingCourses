@@ -1,16 +1,15 @@
 <template>
     <div class="tasks">
-        <RouterLink class="link" v-for="task in tasks" :key="task.id"
-            :to="`/courses/${task.courseId}/tasks/${task.id}`">
+        <RouterLink class="link" v-for="task in tasks" :key="task.id" :to="`/tasks/${task.id}`">
             <Card>
                 <img src="/icons/task.svg" alt="">
                 <div class="text">
                     <p class="name-of-task">
-                        {{ task.title }}
+                        {{ task.name }}
                     </p>
                     <p class="bottom-row">
-                        <span :class="{ 'overdue': checkOverdueDeadline(task.deadline) && !task.mark }">
-                            {{ format(task.deadline, { date: 'long' }) }}
+                        <span :class="{ 'overdue': checkOverdueDeadline(task.until) && !task.mark }">
+                            {{ format(task.until, { date: 'long' }) }}
                         </span>
                         <span v-if="task.mark" class="mark">Оценка: {{ task.mark }}</span>
                     </p>

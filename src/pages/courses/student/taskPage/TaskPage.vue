@@ -1,16 +1,6 @@
     <template>
         <Layout>
-            <!-- <div class="task" v-if="!isLoading && task">
-                <div class="left ">
-                    <FullTask />
-                    <Comment />
-                </div>
-                <div class="right ">
-                    <MyTasks @openLinkModal="openLinkModal" @openFileModal="openFileModal" />
-                </div>
-            </div> -->
-
-            <div class="task">
+            <div class="task" v-if="task">
                 <FullTask />
                 <MyTasks @openLinkModal="openLinkModal" @openFileModal="openFileModal" />
                 <Comment />
@@ -22,10 +12,9 @@
     </template>
 
 <script setup>
-import axios from 'axios';
-import { computed, onMounted, provide, ref } from 'vue';
+import { onMounted, provide, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { getCourse } from '@/api/modules/courses.api';
+import { getTask } from '@/api/modules/tasks.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Loading from '@/components/Loading.vue';
@@ -47,20 +36,16 @@ const showEnterLinkModal = ref(false)
 const uploadedFiles = ref([]);
 const enteredLinks = ref([])
 
-const task = computed(() => {
-    if (!course.value?.tasks) return {};
-    return course.value.tasks.find(task => task.id.toString() === route.params.taskId.toString()) || {};
-});
+const task = ref(null)
 
-const fetchCourse = async (id) => {
+const fetchTask = async (id) => {
     try {
         isLoading.value = true;
-        course.value = await getCourse(id);
+        task.value = await getTask(id);
     } finally {
         isLoading.value = false;
     }
 };
-
 
 const openFileModal = () => {
     showChoicePopup.value = false;
@@ -101,7 +86,7 @@ provide('enteredLinks', enteredLinks)
 
 onMounted(async () => {
     if (route.params.id) {
-        await fetchCourse(route.params.id);
+        await fetchTask(route.params.id);
     }
 
     document.addEventListener('click', handleClickOutside)

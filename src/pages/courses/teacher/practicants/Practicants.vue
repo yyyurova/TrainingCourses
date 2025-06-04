@@ -23,11 +23,9 @@
 
 <script setup>
 import { inject, onMounted, ref, computed } from 'vue';
-import axios from 'axios';
 import { useRouter, useRoute } from 'vue-router';
 import { getPracticants } from '@/api/modules/curarorStudents.api';
 import { getCourse } from '@/api/modules/courses.api';
-import { mockUser } from '@/mocks/user';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
@@ -68,10 +66,12 @@ const navbarItems = computed(() => {
 const fetchPracticants = async () => {
     try {
         isLoading.value = true
-
+        console.log(route.params.courseId)
         course.value = await getCourse(route.params.courseId)
 
-        practicants.value = await getPracticants(route.params.courseId)
+        setTimeout(async () => {
+            practicants.value = await getPracticants(route.params.courseId)
+        }, 2000);
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false

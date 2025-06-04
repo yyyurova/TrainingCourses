@@ -11,6 +11,16 @@ export const getTasks = async () => {
     }
 };
 
+export const getTask = async (taskId) => {
+    try {
+        const response = await client.get(`${ENDPOINTS.TASK}/${taskId}`)
+        return response.data.data
+    } catch (error) {
+        console.log(error)
+        return [];
+    }
+};
+
 export const createTask = async (newTask) => {
     try {
         function formatDate(dateString) {

@@ -44,15 +44,15 @@ export const studentRoutes = [
                     title: 'Курс'
                 },
             },
-            {
-                path: ':id/tasks/:taskId',
-                name: 'TaskPage',
-                component: TaskPage,
-                meta: {
-                    title: 'Задание'
-                }
-            }
         ]
+    },
+    {
+        path: '/tasks/:taskId',
+        name: 'TaskPage',
+        component: TaskPage,
+        meta: {
+            title: 'Задание'
+        }
     },
     {
         path: '/tasks/current',

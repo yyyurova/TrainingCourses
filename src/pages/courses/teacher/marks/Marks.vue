@@ -22,9 +22,7 @@
 
 <script setup>
 import { onMounted, ref, computed } from 'vue';
-import axios from 'axios';
 import { useRoute, useRouter } from 'vue-router';
-import { mockUser } from '@/mocks/user';
 import { getCourse } from '@/api/modules/courses.api';
 
 import Layout from '@/layouts/Layout.vue';
@@ -61,14 +59,15 @@ const navbarItems = computed(() => {
 //     showCreateTaskModal.value = true
 // }
 
-const goToTasks = () => {
-    router.push('/course/tasks')
-}
+// const goToTasks = () => {
+//     router.push('/course/tasks')
+// }
 
 const fetchStudents = async () => {
     try {
         isLoading.value = true
-        course.value = getCourse(route.params.courseId);
+        course.value = await getCourse(route.params.courseId);
+        console.log(course.value)
 
     } catch (err) {
         console.error('Ошибка при загрузке студентов:', err);

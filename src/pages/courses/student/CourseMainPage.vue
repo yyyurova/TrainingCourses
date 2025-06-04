@@ -11,10 +11,10 @@
                     </div>
                     <button class="blue" @click="continueStudy(course.id)">Продолжить обучение</button>
                 </Card>
-                <Card class="teacher">
+                <Card class="teacher" v-if="teacherName">
                     <div class="top">
                         <p>Куратор</p>
-                        <span class="teacher-name">{{ teacherName || 'teacher name' }}</span>
+                        <span class="teacher-name">{{ teacherName }}</span>
                     </div>
                     <button class="transparent">Написать сообщение</button>
                 </Card>
@@ -61,16 +61,6 @@ const teacherName = ref('');
 
 const router = useRouter()
 
-const fetchTeacherName = async (teacherId) => {
-    try {
-        const user = await getUser(teacherId)
-        teacherName.value = user.name;
-    } catch (err) {
-        console.log(err);
-        teacherName.value = 'Учитель не найден';
-    }
-};
-
 const navbarItems = computed(() => {
     if (!course.value) return [];
     return [
@@ -88,12 +78,7 @@ const fetchCourse = async (id) => {
     try {
         isLoading.value = true;
         course.value = await getCourse(id);
-
-        // if (data.teacher) {
-        //     await fetchTeacherName(data.teacher);
-        // } else {
-        //     teacherName.value = 'Учитель не назначен';
-        // }
+        teacherName.value = course.value.curator_name
     } catch (error) {
         console.error('Ошибка загрузки курса:', error);
     } finally {
