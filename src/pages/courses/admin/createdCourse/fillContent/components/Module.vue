@@ -18,7 +18,7 @@
                 </button>
             </div>
         </Card>
-
+        <p v-if="mod.noPages" class="no-pages">Добавьте хотя бы одну страницу в модуль</p>
         <Transition>
             <div class="pages" v-if="mod.pages && mod.pages.length && isPagesListOpen">
                 <Page v-for="(page, pageIndex) in mod.pages" :key="pageIndex" :page="page" :module-index="moduleIndex"
@@ -123,6 +123,11 @@ const checkEmptyness = (e) => {
         }
     }
 
+    .no-pages {
+        margin-left: 50px;
+        color: red;
+    }
+
     .pages {
         margin-left: 50px;
         display: flex;
@@ -130,7 +135,7 @@ const checkEmptyness = (e) => {
         gap: 10px;
     }
 
-    button.new-lesson {
+    button.new-page {
         margin-left: 50px;
     }
 }

@@ -1,23 +1,32 @@
 <template>
     <FillCourseContentLayout>
-        <h1>Содержание курса</h1>
-
-        <div v-if="content.modules.length === 0" class="no-lessons">
-            <h2>В курсе пока нет ни одного модуля.</h2>
-            <h2>Создайте первый модуль, чтобы добавить страницы</h2>
-            <button class="blue" @click="newModule">
-                Создать модуль
-                <img src="/icons/plus.svg" alt="">
-            </button>
+        <div class="" v-if="!isLoading">
+            <div class="top">
+                <h1>Содержание курса</h1>
+                <button class="blue new-page" @click="newModule" v-if="content.modules.length > 0">
+                    Новый модуль
+                    <img src="/icons/plus.svg" alt="">
+                </button>
+            </div>
+            <div v-if="content.modules.length === 0" class="no-lessons">
+                <h2>В курсе пока нет ни одного модуля.</h2>
+                <h2>Создайте первый модуль, чтобы добавить страницы</h2>
+                <button class="blue" @click="newModule">
+                    Создать модуль
+                    <img src="/icons/plus.svg" alt="">
+                </button>
+            </div>
+            <div v-if="content.modules.length > 0" class="content-of-course">
+                <Module v-for="(chapter, index) in content.modules" :key="index" :num="index + 1" :mod="chapter"
+                    :module-index="index" @update:name="updateModuleName(index, $event)"
+                    @delete-module="deleteChapter(index)" @add-page="addPage(index)"
+                    @update-page-name="updatePageName" />
+            </div>
+            <div v-if="content.modules.length > 0" class="save-block">
+                <button @click="saveCourse" class="blue">Сохранить изменения</button>
+            </div>
         </div>
-        <div v-if="content.modules.length > 0" class="content-of-course">
-            <Module v-for="(chapter, index) in content.modules" :key="index" :num="index + 1" :mod="chapter"
-                :module-index="index" @update:name="updateModuleName(index, $event)"
-                @delete-module="deleteChapter(index)" @add-page="addPage(index)" @update-page-name="updatePageName" />
-        </div>
-        <div v-if="content.modules.length > 0" class="save-block">
-            <button @click="saveCourse" class="blue">Сохранить изменения</button>
-        </div>
+        <Loading v-if="isLoading" />
         <CreateLesson v-if="showCreateLessonModal" @cancel="closeModal" @create="createPageWithType" />
     </FillCourseContentLayout>
 </template>
@@ -40,6 +49,7 @@ import {
 import CreateLesson from '../fillMaterials/components/modals/CreateLesson.vue';
 import FillCourseContentLayout from '@/layouts/FillCourseContentLayout.vue';
 import Module from './components/Module.vue';
+import Loading from '@/components/Loading.vue';
 
 const course = ref(null);
 const content = ref({ modules: [] });
@@ -59,6 +69,8 @@ const changes = reactive({
 const route = useRoute();
 const router = useRouter()
 
+const isLoading = ref(false)
+
 const showCreateLessonModal = ref(false)
 const currentModuleIndex = ref(null);
 
@@ -68,6 +80,7 @@ const closeModal = () => {
 
 const fetchCourse = async () => {
     try {
+        isLoading.value = true
         course.value = await getCourse(route.params.courseId);
 
         const modules = await getModules(route.params.courseId);
@@ -81,6 +94,7 @@ const fetchCourse = async () => {
             modules: modules.map(module => ({
                 id: module.id,
                 name: module.title,
+                noPages: false,
                 pages: module.pages.map(page => ({
                     id: page.id,
                     title: page.title,
@@ -92,12 +106,30 @@ const fetchCourse = async () => {
     } catch (err) {
         console.error('Ошибка загрузки курса:', err);
     }
+    finally {
+        isLoading.value = false
+    }
 };
 
 const newModule = async () => {
     try {
+        if (content.value?.modules?.length > 0 && changes.modules.updated.length > 0) {
+            for (const module of changes.modules.updated) {
+                await updateModule(course.value.id, module.id, module.title);
+            }
+            changes.modules.updated = [];
+        }
+
+        if (changes.pages.updated.length > 0) {
+            for (const page of changes.pages.updated) {
+                await updatePage(page.moduleId, page.id, page.title, page.type);
+            }
+            changes.pages.updated = [];
+        }
+
         await createModule(course.value.id, 'Новый модуль');
-        await fetchCourse()
+
+        await fetchCourse();
     } catch (error) {
         console.error('Ошибка создания модуля:', error);
     }
@@ -151,6 +183,8 @@ const createPageWithType = async (type) => {
     const pageTitle = `Новая страница (${typeNames[type]})`;
 
     try {
+        closeModal();
+
         const response = await createPage(
             module.id,
             pageTitle,
@@ -164,17 +198,7 @@ const createPageWithType = async (type) => {
             content: ''
         });
 
-        closeModal();
-
-        // if (content.value.modules[0].id === module.id &&
-        //     content.value.modules[0].pages.length === 1) {
-        //     router.push({
-        //         name: 'FillContent',
-        //         params: {
-        //             courseId: course.value.id,
-        //         }
-        //     });
-        // }
+        content.value.modules[currentModuleIndex.value].noPages = false
     } catch (error) {
         console.error('Ошибка создания страницы:', error);
     }
@@ -229,6 +253,7 @@ const saveCourse = async () => {
 onMounted(fetchCourse);
 
 provide('course', course);
+provide('content', content)
 </script>
 
 <style scoped lang="scss">
@@ -246,6 +271,12 @@ provide('course', course);
         letter-spacing: 1px;
         text-align: center;
     }
+}
+
+.top {
+    display: flex;
+    // gap: 10px;
+    justify-content: space-between;
 }
 
 .content-of-course {

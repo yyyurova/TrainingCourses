@@ -22,9 +22,12 @@
             <RouterLink class="link" :to="`/course-fill-content/${course.id}`">
                 Содержание курса
             </RouterLink>
-            <RouterLink class="link" :to="`/course-fill-materials/${course.id}`">
+            <!-- <RouterLink class="link" :to="`/course-fill-materials/${course.id}`">
                 Заполнить учебные материалы для курса
-            </RouterLink>
+            </RouterLink> -->
+            <div class="link" @click="goToFillCourse">
+                Заполнить учебные материалы для курса
+            </div>
         </div>
         <div class="user" @click="showUserActions = !showUserActions">
             <img class="avatar" :src="user.avatar || '/image.png'" alt="User-Avatar">
@@ -53,6 +56,10 @@
 <script setup>
 import { ref, onMounted, inject } from 'vue';
 import { getCurrentUser } from '@/utils/auth';
+import { useRouter } from 'vue-router';
+import { logout } from '@/utils/auth';
+import { resetRoleRoutes } from '@/router';
+import { editProfile } from '@/api/modules/profile.api';
 
 import EditUser from '@/components/modals/EditUser.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
@@ -63,6 +70,9 @@ const showEditModal = ref(false);
 const user = ref(getCurrentUser());
 
 const course = inject('course')
+const content = inject('content')
+
+const router = useRouter()
 
 const props = defineProps({
     isMobile: Boolean,
@@ -72,6 +82,8 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 
 const exitFromProfile = () => {
+    logout()
+    resetRoleRoutes()
     router.push('/');
 };
 
@@ -88,8 +100,18 @@ const openEditModal = () => {
     showEditModal.value = true;
 };
 
-const saveUserChanges = (changes) => {
-    if (changes.name) user.value.name = changes.name;
+const saveUserChanges = async (changes) => {
+    if (changes.name) {
+        user.value.name = changes.name;
+        const resp = await editProfile(changes.name)
+        localStorage.removeItem('user')
+        localStorage.setItem('user', JSON.stringify({
+            id: resp.data.id,
+            name: resp.data.name,
+            role: resp.data.role,
+        }));
+
+    }
     if (changes.avatar) user.value.avatar = changes.avatar;
 };
 
@@ -97,6 +119,20 @@ const handleClickOutsideUser = (e) => {
     if (!e.target.closest('.card-user') && !e.target.closest('.user')) {
         showUserActions.value = false;
     }
+};
+
+const goToFillCourse = () => {
+    if (!content.value?.modules || content.value.modules.length === 0) {
+        return;
+    }
+
+    for (const module of content.value.modules) {
+        if (!module.pages || module.pages.length === 0) {
+            module.noPages = true;
+            return;
+        }
+    }
+    router.push(`/course-fill-materials/${course.value.id}/module/${content.value.modules[0].id}/page/${content.value.modules[0].pages[0].id}`);
 };
 
 onMounted(() => {
@@ -197,6 +233,7 @@ onMounted(() => {
         margin-top: 10px;
 
         .link {
+            cursor: pointer;
             width: 100%;
             text-decoration: none;
             padding: 8px 20px;

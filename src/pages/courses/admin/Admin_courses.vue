@@ -192,7 +192,7 @@ button.blue {
             align-items: flex-start;
 
             .name-of-course {
-                word-break: break-all;
+                word-break: break-word;
                 flex: 1;
                 font-weight: 600;
                 font-size: 24px;

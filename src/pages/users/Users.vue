@@ -283,11 +283,10 @@ const closePopup = () => {
 }
 
 onMounted(async () => {
-    await waitForRole();
-
-    if (getUserRole() === 'admin') {
-        await fetchUsers();
-    }
+    isLoading.value = true
+    setTimeout(async () => {
+        await fetchUsers()
+    }, 2000);
 });
 
 const waitForRole = () => {
