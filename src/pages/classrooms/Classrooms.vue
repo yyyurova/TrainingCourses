@@ -127,9 +127,8 @@ const openAddModal = async (classroomData) => {
 const handleSave = async (data) => {
     try {
         isLoading.value = true;
-
-        if (data.curator) {
-            await addCuratorToClass(createdClassroomId.value, data.curator);
+        if (data.curator_id) {
+            await addCuratorToClass(createdClassroomId.value, data.curator_id);
         }
 
         if (data.members && data.members.length > 0) {

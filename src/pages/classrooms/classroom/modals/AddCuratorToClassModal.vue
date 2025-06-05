@@ -33,11 +33,9 @@ const fetchUsers = async () => {
     const data = await getUsers({ role: 'curator' })
     availableCurators.value = data.data
     availableCurators.value = availableCurators.value.filter(u => u.role === 'curator')
-    console.log(availableCurators.value)
 }
 
 const save = () => {
-    console.log(selectedCurator.value.id)
     emit('save',
         selectedCurator.value.id,
     );

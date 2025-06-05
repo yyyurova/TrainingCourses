@@ -38,7 +38,6 @@ const fetchUsers = async () => {
     allUsers.value = allUsers.value.filter(user =>
         !members.value.some(member => member.id === user.id)
     );
-    console.log(allUsers.value)
 }
 
 const save = () => {
