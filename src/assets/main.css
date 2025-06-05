@@ -96,6 +96,10 @@ html {
     &.transparent {
       background-color: transparent;
       color: #292929;
+
+      &.border {
+        border: 1px solid #513DEB
+      }
     }
 
     &.icon {

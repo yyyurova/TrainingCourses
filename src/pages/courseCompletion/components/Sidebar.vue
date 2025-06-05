@@ -4,7 +4,7 @@
             <img src="/icons/logo.svg" alt="Logo">
         </div>
         <h3>{{ course?.title || 'Название курса' }}</h3>
-        <button class="transparent" @click="goBack">
+        <button class="transparent border" @click="goBack">
             <img src="/icons/arrow.svg" class="arrow-left" alt="">
             Вернуться к курсу
         </button>
@@ -121,11 +121,6 @@ onMounted(initOpenModules)
             width: 68px;
             height: 78px;
         }
-    }
-
-    .transparent {
-        border: 1px solid #513DEB;
-        transition: all 0.2s ease;
     }
 
     .navigation {

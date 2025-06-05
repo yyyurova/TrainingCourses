@@ -21,7 +21,8 @@
                         <div v-if="item.list" class="courses-list" :class="{ 'active': isCoursesListOpen }">
                             <RouterLink v-for="course in courses" :key="course.id" :to="getCourseLink(course)"
                                 class="course-link">
-                                <img class="avatar" :src="course.imageUrl || '/image.png'" alt="">
+                                <img v-if="course.photo" class="avatar" :src="course.photo" alt="">
+                                <AvatarLetter v-else :name="course.title" />
                                 <span class="name">{{ course.title }}</span>
                             </RouterLink>
                         </div>
@@ -39,7 +40,8 @@
             </template>
         </div>
         <div class="user" @click="showUserActions = !showUserActions">
-            <img class="avatar" :src="user.avatar || '/image.png'" alt="User-Avatar">
+            <img v-if="user.avatar" class="avatar" :src="user.avatar" alt="User-Avatar">
+            <AvatarLetter v-else :name="user.name" />
             <span>{{ user.name }}</span>
             <button class="icon">
                 <img src="/icons/menu-vertical.svg" alt="">
@@ -74,6 +76,7 @@ import { editProfile } from '@/api/modules/profile.api';
 
 import ConfirmDelete from './modals/ConfirmDelete.vue';
 import EditUser from './modals/EditUser.vue';
+import AvatarLetter from './AvatarLetter.vue';
 
 const props = defineProps({
     isMobile: Boolean,
@@ -402,6 +405,10 @@ provide('user', user)
                 &.router-link-active {
                     background-color: #E9F2FF;
                     font-weight: bold;
+                }
+
+                .name {
+                    flex: 1;
                 }
             }
         }

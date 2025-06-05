@@ -1,9 +1,11 @@
 import client from '../http/client';
 import { ENDPOINTS } from '../constants/endpoints';
 
-export const getUsers = async () => {
+export const getUsers = async (queryParams = {}) => {
     try {
-        const response = await client.get(`${ENDPOINTS.ADMIN_USERS}`);
+        const response = await client.get(`${ENDPOINTS.ADMIN_USERS}`, {
+            params: queryParams
+        });
         return response.data;
     } catch (error) {
         console.error('Полная ошибка:', error);

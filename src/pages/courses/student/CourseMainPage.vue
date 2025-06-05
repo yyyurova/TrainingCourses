@@ -16,7 +16,7 @@
                         <p>Куратор</p>
                         <span class="teacher-name">{{ teacherName }}</span>
                     </div>
-                    <button class="transparent">Написать сообщение</button>
+                    <button class="transparent border">Написать сообщение</button>
                 </Card>
             </div>
             <h2>Активность</h2>
@@ -192,10 +192,6 @@ h2 {
         button {
             margin: 10px 0;
             height: 46px;
-
-            &.transparent {
-                border: 1px solid #513DEB;
-            }
         }
     }
 }

@@ -27,14 +27,13 @@ export const getClassroom = async (classId) => {
     try {
         const response = await client.get(`${ENDPOINTS.ADMIN_CLASS}/${classId}`);
         const classroom = response.data.data;
-
-        const members = await getClassroomMembers(classroom.id);
+        const members = await getClassroomMembers(classId);
         return {
             ...classroom,
             members
         }
     } catch (error) {
-        console.error('Ошибка загрузки классов:', error);
+        console.error('Ошибка загрузки класса:', error);
         return [];
     }
 };
@@ -63,9 +62,7 @@ export const deleteClass = async (classroomId) => {
 
 export const addCuratorToClass = async (classroomId, curatorId) => {
     try {
-        await client.post(`${ENDPOINTS.ADMIN_CLASS}/${classroomId}/curator`, {
-            user_id: curatorId
-        });
+        await client.post(`${ENDPOINTS.ADMIN_CLASS}/${classroomId}/curator`, { curator_id: curatorId });
     } catch (error) {
         console.error('Ошибка добавления куратора:', error);
         throw error;
@@ -77,6 +74,15 @@ export const addUsersToClass = async (classroomId, users) => {
         await client.post(`${ENDPOINTS.ADMIN_CLASS}/${classroomId}/users`, {
             user_ids: users.map(user => user.id)
         });
+    } catch (error) {
+        console.error('Ошибка добавления пользователей:', error);
+        throw error;
+    }
+};
+
+export const deleteUserFromClass = async (classroomId, userId) => {
+    try {
+        await client.delete(`${ENDPOINTS.ADMIN_CLASS}/${classroomId}/users/${userId}`);
     } catch (error) {
         console.error('Ошибка добавления пользователей:', error);
         throw error;

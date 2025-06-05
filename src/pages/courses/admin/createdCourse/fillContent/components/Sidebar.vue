@@ -30,7 +30,8 @@
             </div>
         </div>
         <div class="user" @click="showUserActions = !showUserActions">
-            <img class="avatar" :src="user.avatar || '/image.png'" alt="User-Avatar">
+            <img v-if="user.avatar" class="avatar" :src="user.avatar" alt="User-Avatar">
+            <AvatarLetter v-else :name="user.name" />
             <span>{{ user.name }}</span>
             <button class="icon">
                 <img src="/icons/menu-vertical.svg" alt="">
@@ -64,6 +65,7 @@ import { editCourse } from '@/api/modules/adminCourses.api';
 
 import EditUser from '@/components/modals/EditUser.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
+import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const showUserActions = ref(false);
 const showConfirmExit = ref(false);

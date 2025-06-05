@@ -7,20 +7,20 @@
                     <img src="/icons/image.svg" alt="">
                     <label>Загрузить фотографию</label>
                     <input type="file" accept="image/*" style="display: none;">
-                    <button class="transparent" @click="fileUpload">
+                    <button class="transparent border" @click="fileUpload">
                         <span>Загрузить</span>
                         <img src="/icons/paperclip.svg" alt="">
                     </button>
                 </Card>
                 <Card v-if="file" class="no-hover">
                     <img :src="file.preview" alt="Загруженное изображение" style="max-width: 100%; max-height: 200px;">
-                    <button class="transparent" @click="deleteImage">Удалить</button>
+                    <button class="transparent border" @click="deleteImage">Удалить</button>
                 </Card>
                 <p>Название группы<span class="required">*</span></p>
                 <input ref="nameInput" type="text" autocomplete="off" placeholder="Введите название">
 
                 <div class="modal-buttons">
-                    <button class="transparent" @click="$emit('cancel')">Отмена</button>
+                    <button class="transparent border" @click="$emit('cancel')">Отмена</button>
                     <button class="blue" @click="next">Далее</button>
                 </div>
             </div>
@@ -109,7 +109,6 @@ const fileUpload = () => {
         button.transparent {
             height: 43px;
             width: 200px;
-            border: 1px solid #513DEB;
         }
     }
 

@@ -1,99 +1,235 @@
 <template>
     <Layout>
-        <!-- <div v-if="classroom">
-            <h1>{{ classroom.name }}</h1>
-            <p>{{ classroom.course }}</p>
+        <div v-if="classroom && !isLoading">
+            <div class="">
+                <h1>{{ classroom.title }}</h1>
+                <p>{{ classroom.course.title }}</p>
+            </div>
 
-            <h2>Практиканты</h2>
-        </div> -->
+            <div class="block">
+                <h2>Практиканты</h2>
+                <button class="transparent border" @click="openAddUserModal">
+                    Добавить практикантов
+                    <img src="/icons/plus-black.svg" alt="">
+                </button>
+                <div class="practicants">
+                    <Card class="no-hover" v-for="member in classroom.members" :key="member.id"
+                        @click="openConfirmDeleteModal(member)">
+                        <img v-if="member.avatar" :src="member.avatar" alt="">
+                        <AvatarLetter v-else :name="member.name" />
+                        <p> {{ member.name }}</p>
+                        <button class="icon">
+                            <img src="/icons/x.svg" alt="">
+                        </button>
+                    </Card>
+                </div>
+            </div>
 
-        <!-- <ConfirmDelete v-if="showConfirmDeleteModal" :question="`Удалить ${studentRoutes.name}?`"
-            text="Студенты и куратор потеряют доступ к курсу" right-button-text="Удалить" @confirm="deleteClassroom"
+            <div class="block">
+                <h2>Куратор</h2>
+                <button class="transparent border" :disabled="classroom.curator.name" @click="openAddCuratorModal">
+                    Добавить куратора
+                    <img src="/icons/plus-black.svg" alt="" v-if="!classroom.curator.name">
+                    <img src="/icons/plus-gray.svg" alt="" v-else>
+                </button>
+                <Card class="no-hover" v-if="classroom.curator.name">
+                    <img v-if="classroom.curator.avatar" :src="classroom.curator.avatar" alt="">
+                    <AvatarLetter v-else :name="classroom.curator.name" />
+                    <p>{{ classroom.curator.name }}</p>
+                    <button class="icon">
+                        <img src="/icons/x.svg" alt="">
+                    </button>
+                </Card>
+            </div>
+        </div>
+        <Loading v-if="isLoading" />
+
+        <AddUsersToClassModal v-if="showAddUsersModal" @cancel="closeModal" @save="addMembers" />
+        <AddCuratorToClassModal v-if="showAddCuratorModal" @cancel="closeModal" @save="addCurator" />
+
+        <ConfirmDelete v-if="showConfirmDeleteModal" :question="`Удалить ${memberToDelete.name} из учебного класса?`"
+            text="Студент потеряет доступ к курсу" right-button-text="Удалить" @confirm="deleteMember"
             @cancel="closeModal" />
-
-        <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" /> -->
+        <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :is-success="isSuccess" />
     </Layout>
 </template>
 
 <script setup>
 import { useRoute } from 'vue-router';
-import { onMounted, ref } from 'vue';
-import { getClassroom } from '@/api/modules/classrooms.api';
+import { onMounted, provide, ref } from 'vue';
+import { addUsersToClass, getClassroom, deleteUserFromClass, addCuratorToClass } from '@/api/modules/classrooms.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Popup from '@/components/Popup.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
+import Loading from '@/components/Loading.vue';
+import Card from '@/components/Card.vue';
+import AddUsersToClassModal from './modals/AddUsersToClassModal.vue';
+import AddCuratorToClassModal from './modals/AddCuratorToClassModal.vue';
+import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const route = useRoute()
 
 const classroom = ref(null)
+const members = ref([])
+const memberToDelete = ref(null)
+// const allUsers = ref([])
 const isLoading = ref(false)
+
+const showAddUsersModal = ref(false)
+const showAddCuratorModal = ref(false)
+const showConfirmDeleteModal = ref(false)
+
+const showPopup = ref(false)
+const popupText = ref('')
+const isSuccess = ref(true)
+
+const closeModal = () => {
+    if (showAddUsersModal.value) { showAddUsersModal.value = false }
+    if (showConfirmDeleteModal.value) { showConfirmDeleteModal.value = false }
+    if (showAddCuratorModal.value) { showAddCuratorModal.value = false }
+}
+
+const closePopup = () => {
+    showPopup.value = false
+}
+
+const openAddUserModal = () => {
+    showAddUsersModal.value = true
+}
+
+const openAddCuratorModal = () => {
+    showAddCuratorModal.value = true
+}
+
+const openConfirmDeleteModal = (member) => {
+    memberToDelete.value = member
+    showConfirmDeleteModal.value = true
+}
 
 const fetchClassroom = async () => {
     try {
         isLoading.value = true
-        // classroom.value = await getClassroom(route.params.classId)
-        classroom.value = { name: 'eijikef', course: 'dbhjwbfwe' }
+        classroom.value = await getClassroom(route.params.classId)
+        members.value = classroom.value.members
     } finally {
         isLoading.value = false
     }
 }
 
-onMounted(fetchClassroom)
+const deleteMember = async () => {
+    try {
+        isLoading.value = true
+        closeModal()
+        await deleteUserFromClass(classroom.value.id, memberToDelete.value.id)
+        await fetchClassroom()
+        popupText.value = 'Практикант успешно удален'
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 4000);
+    } catch {
+        popupText.value = 'Не удалось удалить практиканта'
+        isSuccess.value = false
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 4000);
+    } finally {
+        isLoading.value = false
+    }
+}
+
+const addMembers = async (members) => {
+    try {
+        isLoading.value = true
+        closeModal()
+        await addUsersToClass(classroom.value.id, members)
+        await fetchClassroom()
+        popupText.value = 'Практиканты успешно добавлены'
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 4000);
+    } catch {
+        popupText.value = 'Не удалось добавить практикантов'
+        isSuccess.value = false
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 4000);
+    } finally {
+        isLoading.value = false
+    }
+}
+
+const addCurator = async (curatorId) => {
+    try {
+        isLoading.value = true
+        closeModal()
+
+        await addCuratorToClass(classroom.value.id, curatorId)
+        await fetchClassroom()
+
+        popupText.value = 'Куратор успешно добавлен'
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 4000);
+    } catch {
+        popupText.value = 'Не удалось добавить куратора'
+        isSuccess.value = false
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 4000);
+    } finally {
+        isLoading.value = false
+    }
+}
+
+onMounted(async () => {
+    await fetchClassroom()
+    document.title = classroom.value.title
+})
+
+provide('members', members)
 </script>
 
 <style scoped lang="scss">
-button.blue {
-    margin: 10px 0;
-}
-
-div.classrooms {
+div:has(.block) {
     display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin: 15px 0;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 20px;
 
-    .card {
-        cursor: pointer;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-start;
+    .block {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
 
-        .left {
+        button:disabled {
+            border-color: #969696;
+            color: #969696;
+        }
+
+        .practicants {
             display: flex;
-            flex-direction: column;
-            gap: 7px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
-        .right {
-            display: flex;
-            gap: 8px;
-        }
-
-        p.name {
-            font-weight: 600;
-            font-size: 24px;
-            line-height: 28px;
-            letter-spacing: 1px;
-        }
-
-        p.course {
-            font-weight: 400;
-            font-size: 16px;
-            line-height: 20px;
-            letter-spacing: 0px;
-            color: #787878;
-        }
-
-        p.members {
-            display: flex;
+        .card {
+            flex-direction: row;
+            width: calc(50% - 5px);
             align-items: center;
-            gap: 8px;
-            font-weight: 400;
-            font-size: 16px;
-            line-height: 20px;
-            letter-spacing: 0px;
+            gap: 10px;
+
+            p {
+                flex: 1
+            }
         }
     }
+
 }
 </style>

@@ -359,10 +359,6 @@ provide('course', course);
     .action-buttons {
         gap: 10px;
 
-        button.transparent {
-            border: 1px solid #513DEB;
-        }
-
         button:disabled {
             pointer-events: none;
             background-color: #EBEBEB;

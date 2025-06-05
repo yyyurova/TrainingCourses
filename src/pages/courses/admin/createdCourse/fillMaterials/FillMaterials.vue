@@ -89,7 +89,7 @@
                             @update:correct="updateCorrectAnswers" />
                     </div>
 
-                    <button class="transparent" @click="addAnswer">
+                    <button class="transparent border" @click="addAnswer">
                         Добавить вариант ответа
                         <img src="/icons/plus-black.svg" alt="">
                     </button>
@@ -645,10 +645,6 @@ provide('material', material);
             :deep(.editor-content) {
                 min-height: 70px;
             }
-
-            button.transparent {
-                border: 1px solid #513DEB;
-            }
         }
 
         .answers {
@@ -669,9 +665,6 @@ provide('material', material);
     border-radius: 8px;
     margin-bottom: 20px;
 
-    button.transparent {
-        border: 1px solid #513DEB;
-    }
 }
 
 @media (max-width: 480px) {
