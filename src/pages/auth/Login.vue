@@ -109,7 +109,6 @@ const handleSubmit = async () => {
 
         router.push('/courses');
         location.reload()
-
     } catch (err) {
         console.error('Ошибка входа:', err);
         errors.value.all = 'Неправильные email или пароль';

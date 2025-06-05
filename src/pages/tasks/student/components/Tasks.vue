@@ -13,6 +13,7 @@
                         </span>
                         <span v-if="task.mark" class="mark">Оценка: {{ task.mark }}</span>
                     </p>
+                    <p class="course-name">Курс: {{ task.course.title }}</p>
                 </div>
             </Card>
         </RouterLink>
@@ -25,9 +26,11 @@ import { checkOverdueDeadline } from '@/utils/utils';
 
 import Card from '@/components/Card.vue';
 
-defineProps({
+const props = defineProps({
     tasks: Array,
 })
+
+console.log(props.tasks)
 </script>
 
 <style scoped lang="scss">
@@ -59,6 +62,13 @@ defineProps({
                 .bottom-row {
                     display: flex;
                     gap: 15px;
+                }
+
+                .course-name {
+                    font-size: 14px;
+                    color: #969696;
+
+                    // color: ;
                 }
 
                 p span {

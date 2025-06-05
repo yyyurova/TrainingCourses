@@ -37,7 +37,8 @@ export const createTask = async (newTask) => {
             until: formatDate(newTask.until),
             published: newTask.published,
             attachments: newTask.attachments,
-            users: newTask.users
+            users: newTask.users,
+            course_id: newTask.course_id
         })
         return response.data.data
     } catch (error) {

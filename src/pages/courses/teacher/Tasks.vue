@@ -3,7 +3,8 @@
         <h1>Задания</h1>
         <div v-if="course">
             <Navbar :elements="navbarItems" />
-            <button class="blue" @click="openCreateTaskModal">
+            <button class="blue" @click="openCreateTaskModal" :disabled="!practicants || practicants.length === 0"
+                :title="!practicants || practicants.length === 0 ? 'В курсе нет практикантов' : ''">
                 Создать задание
                 <img src="/icons/plus.svg" alt="">
             </button>
@@ -145,6 +146,7 @@ const createTask = async (task) => {
         isLoading.value = true
         closeModal()
 
+        task = { ...task, course_id: course.value.id }
         await apiCreateTask(task)
 
         await fetchTasks()

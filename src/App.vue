@@ -11,9 +11,9 @@ onMounted(async () => {
   initRouter();
   isRouterReady.value = true;
 
-  if (!router.currentRoute.value.matched.length) {
-    router.push('/courses');
-  }
+  // if (!router.currentRoute.value.matched.length) {
+  //   router.push('/courses');
+  // }
 });
 </script>
 
