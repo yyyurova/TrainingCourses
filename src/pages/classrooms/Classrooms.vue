@@ -103,6 +103,7 @@ const goToClassroom = (id) => {
 const openCreateModal = () => {
     showCreateModal.value = true
 }
+
 const openAddModal = async (classroomData) => {
     try {
         isLoading.value = true;
@@ -137,6 +138,9 @@ const handleSave = async (data) => {
 
         popupText.value = 'Класс успешно создан';
         showPopup.value = true;
+        setTimeout(() => {
+            showPopup.value = false
+        }, 4000);
         closeModal();
         await fetchClassrooms();
     } catch (error) {
@@ -179,24 +183,6 @@ const editClassroom = async (updatedClassroom) => {
         console.log(err)
     }
 }
-
-// const createClassroom = async (classroomData) => {
-//     if (!classroomData) return
-//     try {
-//         await axios.post(`https://c1a9f09250b13f61.mokky.dev/classrooms`, {
-//             name: classroomData.name,
-//             course: classroomData.course.name,
-//             members: classroomData.members.map(member => member.id)
-//         })
-//         await fetchClassrooms()
-//         popupText.value = 'Учебный класс создан'
-//         showPopup.value = true
-//         setTimeout(() => {
-//             showPopup.value = false
-//         }, 5000)
-//     }
-//     catch (err) { console.log(err) }
-// }
 
 const fetchClassrooms = async () => {
     isLoading.value = true;

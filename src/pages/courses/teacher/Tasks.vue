@@ -12,7 +12,9 @@
                 <TaskCard v-for="task in tasks" :task="task" :key="task.id" @click="goToWorks(task.id)"
                     @delete="openDeleteModal(task)" @edit="openEditModal(task)" />
             </div>
-
+            <div class="no-tasks" v-if="tasks.length === 0">
+                <h2>В этом курсе пока нет заданий</h2>
+            </div>
         </div>
         <EditTask v-if="showEditModal" :task="taskToEdit" @cancel="closeModal" @save="editTask" />
 
@@ -109,7 +111,8 @@ const fetchCourse = async () => {
 const fetchTasks = async () => {
     try {
         isLoading.value = true
-        tasks.value = await getTasks()
+        // tasks.value = await getTasks()
+        tasks.value = [{ name: 'djkesd', text: 'vdv' }]
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false

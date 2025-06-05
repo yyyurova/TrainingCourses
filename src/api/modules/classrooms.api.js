@@ -69,6 +69,15 @@ export const addCuratorToClass = async (classroomId, curatorId) => {
     }
 };
 
+export const deleteCuratorFromClass = async (classroomId) => {
+    try {
+        await client.delete(`${ENDPOINTS.ADMIN_CLASS}/${classroomId}/curator`);
+    } catch (error) {
+        console.error('Ошибка добавления куратора:', error);
+        throw error;
+    }
+};
+
 export const addUsersToClass = async (classroomId, users) => {
     try {
         await client.post(`${ENDPOINTS.ADMIN_CLASS}/${classroomId}/users`, {

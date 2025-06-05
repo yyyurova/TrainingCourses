@@ -17,7 +17,7 @@
                 :practicantId="route.params.practicantId" @edit="openEditModal(task)" />
         </div>
         <Loading v-if="isLoading" />
-        <div v-if="nothingFoundMessage && tasks.length === 0 && !isLoading" class="no-found-message">
+        <div v-if="nothingFoundMessage && tasks.length === 0 && !isLoading" class="no-items">
             <h2> {{ nothingFoundMessage }}</h2>
         </div>
         <!-- <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" @create="createTask" :users="allPraricants" /> -->
@@ -329,12 +329,5 @@ select {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-}
-
-.no-found-message {
-    margin-top: 20px;
-    display: flex;
-    width: 100%;
-    justify-content: center;
 }
 </style>

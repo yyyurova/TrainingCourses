@@ -1,5 +1,5 @@
-import './assets/main.css'
-import './assets/modals.css'
+import './assets/main.scss'
+import './assets/modals.scss'
 import { createApp } from 'vue'
 import { router, initRouter } from './router'
 import App from './App.vue'

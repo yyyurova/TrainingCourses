@@ -18,10 +18,10 @@
                 @delete="openDeleteMemberModal(member)" />
         </div>
 
-        <div v-else-if="searchQuery.trim() !== ''" class="no-results">
+        <div v-else-if="searchQuery.trim() !== ''" class="no-items">
             <p>Нет результатов по запросу</p>
         </div>
-        <div v-else class="no-members">
+        <div v-else class="no-items">
             <p>В этом чате нет участников</p>
         </div>
     </div>
@@ -141,18 +141,6 @@ provide('members', chat.members)
         flex-direction: column;
         gap: 7px;
         overflow-y: auto;
-    }
-
-    .no-results,
-    .no-members {
-        width: 100%;
-        text-align: center;
-
-        p {
-            font-size: 19px;
-            font-weight: 550;
-        }
-
     }
 }
 </style>

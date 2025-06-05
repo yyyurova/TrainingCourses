@@ -20,7 +20,7 @@
                 v-for="chat in chats" @delete="openConfirmDeleteModal(chat)" :key="chat.id"
                 :is="chat.is_group === 1 ? GroupDialogCard : DialogCard" :chat="chat" />
         </div>
-        <div class="no-chats" v-else>
+        <div class="no-items" v-else>
             <p>У вас пока нет ни одного чата.</p>
         </div>
         <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить чат?"
@@ -166,16 +166,6 @@ const searchChat = () => {
 
         .choosen {
             background-color: #E9F2FF;
-        }
-    }
-
-    .no-chats {
-        width: 100%;
-
-        p {
-            text-align: center;
-            font-weight: 600;
-            font-size: 17px;
         }
     }
 }

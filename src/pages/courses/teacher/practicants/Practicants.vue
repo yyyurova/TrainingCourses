@@ -15,8 +15,7 @@
             </Card>
         </div>
         <Loading v-if="isLoading" />
-        <div v-else-if="(!practicants && !isLoading) || (practicants.length === 0 && !isLoading)"
-            class="no-pracricants">
+        <div v-else-if="(!practicants && !isLoading) || (practicants.length === 0 && !isLoading)" class="no-items">
             <h2>В данном курсе нет практикантов.</h2>
         </div>
         <!-- <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" :users="practicants" /> -->
@@ -122,13 +121,6 @@ onMounted(fetchPracticants)
             height: auto;
         }
     }
-}
-
-.no-pracricants {
-    margin-top: 20px;
-    display: flex;
-    width: 100%;
-    justify-content: center;
 }
 
 .card.search {

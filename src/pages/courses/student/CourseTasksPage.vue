@@ -70,7 +70,6 @@ const fetchTasks = async () => {
     try {
         isLoading.value = true
         tasks.value = await getTasks()
-        console.log(tasks.value)
         // tasks.value = tasks.value.filter(task => new Date(task.until) < new Date())
     } finally {
         isLoading.value = false;

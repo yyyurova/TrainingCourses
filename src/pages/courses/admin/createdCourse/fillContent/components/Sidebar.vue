@@ -49,6 +49,7 @@
             </div>
         </div>
     </aside>
+    <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :is-success="isSuccess" />
 
     <ConfirmDelete v-if="showConfirmExit" right-button-text="Выйти" question="Выйти из профиля?"
         text="Вы потеряете доступ к функционалу сервиса." @cancel="closeModal" @confirm="exitFromProfile" />
@@ -67,11 +68,16 @@ import { editCourse } from '@/api/modules/adminCourses.api';
 import EditUser from '@/components/modals/EditUser.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 import AvatarLetter from '@/components/AvatarLetter.vue';
+import Popup from '@/components/Popup.vue';
 
 const showUserActions = ref(false);
 const showConfirmExit = ref(false);
 const showEditModal = ref(false);
 const user = ref(getCurrentUser());
+
+const showPopup = ref(false)
+const popupText = ref('')
+const isSuccess = ref(true)
 
 const course = inject('course')
 const content = inject('content')
@@ -83,8 +89,30 @@ const props = defineProps({
     isActive: Boolean,
 });
 
-const publishCourse = async () => {
+const closePopup = () => {
+    showPopup.value = false
+    popupText.value = ''
+}
 
+const publishCourse = async () => {
+    try {
+        closeModal();
+        await editCourse(course.value.id, { title: course.value.title, published: true })
+
+        router.push('/courses')
+        popupText.value = 'Курс успешно опубликован';
+        showPopup.value = true;
+        setTimeout(() => {
+            showPopup.value = false
+        }, 5000)
+    } catch {
+        popupText.value = 'Не удалось опубликовать курс'
+        isSuccess.value = false
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 4000);
+    }
 }
 
 const emit = defineEmits(['close']);

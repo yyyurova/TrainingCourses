@@ -13,12 +13,11 @@
                     <img src="/icons/plus-black.svg" alt="">
                 </button>
                 <div class="practicants">
-                    <Card class="no-hover" v-for="member in classroom.members" :key="member.id"
-                        @click="openConfirmDeleteModal(member)">
+                    <Card v-for="member in classroom.members" :key="member.id">
                         <img v-if="member.avatar" :src="member.avatar" alt="">
                         <AvatarLetter v-else :name="member.name" />
                         <p> {{ member.name }}</p>
-                        <button class="icon">
+                        <button class="icon" @click="openConfirmDeleteMemberModal(member)">
                             <img src="/icons/x.svg" alt="">
                         </button>
                     </Card>
@@ -32,11 +31,11 @@
                     <img src="/icons/plus-black.svg" alt="" v-if="!classroom.curator.name">
                     <img src="/icons/plus-gray.svg" alt="" v-else>
                 </button>
-                <Card class="no-hover" v-if="classroom.curator.name">
+                <Card v-if="classroom.curator.name">
                     <img v-if="classroom.curator.avatar" :src="classroom.curator.avatar" alt="">
                     <AvatarLetter v-else :name="classroom.curator.name" />
                     <p>{{ classroom.curator.name }}</p>
-                    <button class="icon">
+                    <button class="icon" @click="openConfirmDeleteCuratorModal">
                         <img src="/icons/x.svg" alt="">
                     </button>
                 </Card>
@@ -47,7 +46,11 @@
         <AddUsersToClassModal v-if="showAddUsersModal" @cancel="closeModal" @save="addMembers" />
         <AddCuratorToClassModal v-if="showAddCuratorModal" @cancel="closeModal" @save="addCurator" />
 
-        <ConfirmDelete v-if="showConfirmDeleteModal" :question="`Удалить ${memberToDelete.name} из учебного класса?`"
+        <ConfirmDelete v-if="showConfirmDeleteCuratorModal" :question="`Удалить куратора из класса ${classroom.title}?`"
+            right-button-text="Удалить" @confirm="deleteCurator" @cancel="closeModal" />
+
+        <ConfirmDelete v-if="showConfirmDeletePracticantModal"
+            :question="`Удалить ${memberToDelete.name} из класса ${classroom.title}?`"
             text="Студент потеряет доступ к курсу" right-button-text="Удалить" @confirm="deleteMember"
             @cancel="closeModal" />
         <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :is-success="isSuccess" />
@@ -57,7 +60,13 @@
 <script setup>
 import { useRoute } from 'vue-router';
 import { onMounted, provide, ref } from 'vue';
-import { addUsersToClass, getClassroom, deleteUserFromClass, addCuratorToClass } from '@/api/modules/classrooms.api';
+import {
+    addUsersToClass,
+    getClassroom,
+    deleteUserFromClass,
+    addCuratorToClass,
+    deleteCuratorFromClass
+} from '@/api/modules/classrooms.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Popup from '@/components/Popup.vue';
@@ -78,7 +87,8 @@ const isLoading = ref(false)
 
 const showAddUsersModal = ref(false)
 const showAddCuratorModal = ref(false)
-const showConfirmDeleteModal = ref(false)
+const showConfirmDeletePracticantModal = ref(false)
+const showConfirmDeleteCuratorModal = ref(false)
 
 const showPopup = ref(false)
 const popupText = ref('')
@@ -86,7 +96,8 @@ const isSuccess = ref(true)
 
 const closeModal = () => {
     if (showAddUsersModal.value) { showAddUsersModal.value = false }
-    if (showConfirmDeleteModal.value) { showConfirmDeleteModal.value = false }
+    if (showConfirmDeletePracticantModal.value) { showConfirmDeletePracticantModal.value = false }
+    if (showConfirmDeleteCuratorModal.value) { showConfirmDeleteCuratorModal.value = false }
     if (showAddCuratorModal.value) { showAddCuratorModal.value = false }
 }
 
@@ -102,9 +113,13 @@ const openAddCuratorModal = () => {
     showAddCuratorModal.value = true
 }
 
-const openConfirmDeleteModal = (member) => {
+const openConfirmDeleteMemberModal = (member) => {
     memberToDelete.value = member
-    showConfirmDeleteModal.value = true
+    showConfirmDeletePracticantModal.value = true
+}
+
+const openConfirmDeleteCuratorModal = () => {
+    showConfirmDeleteCuratorModal.value = true
 }
 
 const fetchClassroom = async () => {
@@ -178,6 +193,30 @@ const addCurator = async (curatorId) => {
         }, 4000);
     } catch {
         popupText.value = 'Не удалось добавить куратора'
+        isSuccess.value = false
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 4000);
+    } finally {
+        isLoading.value = false
+    }
+}
+
+const deleteCurator = async () => {
+    try {
+        isLoading.value = true
+        closeModal()
+        await deleteCuratorFromClass(classroom.value.id)
+        await fetchClassroom()
+
+        popupText.value = 'Куратор удален'
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 4000);
+    } catch {
+        popupText.value = 'Не удалось удалить куратора'
         isSuccess.value = false
         showPopup.value = true
         setTimeout(() => {

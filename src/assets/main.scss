@@ -80,12 +80,16 @@ html {
     cursor: pointer;
     outline: none;
 
+    &:disabled {
+      cursor: not-allowed;
+    }
+
     &.blue {
-      background-color: #513DEB;
-      color: #F5F5F5;
+      background-color: #513deb;
+      color: #f5f5f5;
 
       span {
-        color: #F5F5F5;
+        color: #f5f5f5;
       }
     }
 
@@ -98,7 +102,7 @@ html {
       color: #292929;
 
       &.border {
-        border: 1px solid #513DEB
+        border: 1px solid #513deb;
       }
     }
 
@@ -132,7 +136,7 @@ html {
   }
 
   .required {
-    color: #CD3232;
+    color: #cd3232;
     margin-left: 5px;
   }
 
@@ -143,8 +147,8 @@ html {
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background-color: #513DEB;
-    color: #F5F5F5;
+    background-color: #513deb;
+    color: #f5f5f5;
     font-weight: 400;
     font-size: 12px;
     line-height: 100%;
@@ -158,7 +162,7 @@ html {
   }
 
   .overdue {
-    color: #CD3232 !important;
+    color: #cd3232 !important;
   }
 
   input:not(input[type="checkbox"], input[type="radio"]) {
@@ -169,7 +173,7 @@ html {
     border-radius: 8px;
     outline: none;
     margin: 0;
-    border: 1px solid #D9D9D9;
+    border: 1px solid #d9d9d9;
     padding: 10px;
   }
 
@@ -178,17 +182,17 @@ html {
     position: relative;
     width: 24px;
     height: 24px;
-    background: #FFFFFF;
+    background: #ffffff;
     box-shadow: inset 0 0 5px rgb(0 0 0 / 0.2);
     border-radius: 5px;
-    border: 1px solid #513DEB;
+    border: 1px solid #513deb;
     transition: 500ms;
     cursor: pointer;
     outline: none;
 
     &::after {
       content: url(/icons/tick-white.svg);
-      color: #FFFFFF;
+      color: #ffffff;
       position: absolute;
       top: 1px;
       display: flex;
@@ -201,7 +205,7 @@ html {
     }
 
     &:checked {
-      background-color: #513DEB;
+      background-color: #513deb;
       border: none;
     }
 
@@ -216,13 +220,13 @@ html {
     appearance: none;
     width: 24px;
     height: 24px;
-    border: 5px solid #513DEB;
+    border: 5px solid #513deb;
     border-radius: 50%;
     outline: none;
     cursor: pointer;
 
     &:checked {
-      background-color: #513DEB;
+      background-color: #513deb;
     }
   }
 
@@ -234,5 +238,15 @@ html {
     resize: vertical;
     outline: none;
     border: none;
+  }
+
+  .no-items {
+    width: 100%;
+    text-align: center;
+    * {
+      text-align: center;
+      font-weight: 600;
+      font-size: 17px;
+    }
   }
 }

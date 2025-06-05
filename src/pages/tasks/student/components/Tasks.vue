@@ -29,8 +29,6 @@ import Card from '@/components/Card.vue';
 const props = defineProps({
     tasks: Array,
 })
-
-console.log(props.tasks)
 </script>
 
 <style scoped lang="scss">
