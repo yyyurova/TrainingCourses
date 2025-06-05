@@ -107,29 +107,23 @@ export function initRouter() {
     return false;
 }
 
-// Главная навигационная охрана
 router.beforeEach(async (to, from, next) => {
     const token = localStorage.getItem('token');
     const role = getUserRole();
 
-    // Установка заголовка страницы
     document.title = to.meta?.title || 'Training Courses';
 
-    // Для публичных маршрутов всегда разрешаем доступ
     if (to.meta.requiresAuth === false) {
         return next();
     }
 
-    // Если маршрут требует авторизации
     if (!token) {
-        // Перенаправляем на логин если нет токена
         return next('/');
     }
 
-    // Если роль еще не добавлена в роутер
     if (role && !router.hasRoute(to.name)) {
         addRoleRoutes(role);
-        return next(to.fullPath); // Повторяем навигацию
+        return next(to.fullPath);
     }
 
     next();
@@ -143,7 +137,6 @@ export function resetRoleRoutes() {
     });
 }
 
-// В конец routes после добавления всех маршрутов
 router.addRoute({
     path: '/:pathMatch(.*)*',
     name: 'NotFound',

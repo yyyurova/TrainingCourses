@@ -7,27 +7,6 @@ import FillMaterials from '@/pages/courses/admin/createdCourse/fillMaterials/Fil
 
 export const adminRoutes = [
     {
-        path: '/users',
-        name: 'users',
-        component: Users,
-        meta: {
-            title: 'Пользователи'
-        },
-    },
-    {
-        path: '/classrooms',
-        name: 'Classrooms',
-        component: Classrooms,
-        meta: {
-            title: 'Учебные классы'
-        },
-    },
-    {
-        path: '/classrooms/:classId',
-        component: Classroom,
-        name: 'Classroom'
-    },
-    {
         path: '/courses',
         name: 'Courses',
         component: Courses,
@@ -65,5 +44,26 @@ export const adminRoutes = [
                 ]
             }
         ]
-    }
+    },
+    {
+        path: '/users',
+        name: 'users',
+        component: Users,
+        meta: {
+            title: 'Пользователи'
+        },
+    },
+    {
+        path: '/classrooms',
+        name: 'Classrooms',
+        component: Classrooms,
+        meta: {
+            title: 'Учебные классы'
+        },
+    },
+    {
+        path: '/classrooms/:classId',
+        component: Classroom,
+        name: 'Classroom'
+    },
 ]  

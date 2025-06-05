@@ -8,18 +8,11 @@ const router = useRouter();
 const isRouterReady = ref(false);
 
 onMounted(async () => {
-  await initRouter();
+  initRouter();
   isRouterReady.value = true;
 
   if (!router.currentRoute.value.matched.length) {
-    const role = getUserRole()
-    if (role === 'admin') {
-      router.push('/users');
-    } else if (role === 'curator') {
-      router.push('/courses');
-    } else {
-      router.push('/courses');
-    }
+    router.push('/courses');
   }
 });
 </script>
