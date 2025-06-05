@@ -6,11 +6,13 @@
 
                 <div class="form-group">
                     <p>Куратор<span class="required">*</span></p>
-                    <select v-model="selectedCurator">
-                        <option v-for="user in curators" :key="user.id" :value="user">
-                            {{ user.name }}
-                        </option>
-                    </select>
+
+                    <div class="dropdown">
+                        <div v-for="user in curators" :key="user.id" class="item">
+                            <input type="radio" :id="'user-' + user.id" :value="user" v-model="selectedCurator">
+                            <label :for="'user-' + user.id">{{ user.name }}</label>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -63,10 +65,6 @@ const fetchUsers = async () => {
 };
 
 const save = () => {
-    // Добавляем куратора в список участников
-    if (selectedCurator.value) {
-        classroomMembers.value.push(selectedCurator.value);
-    }
     emit('save', {
         members: classroomMembers.value,
         curator_id: selectedCurator.value.id
