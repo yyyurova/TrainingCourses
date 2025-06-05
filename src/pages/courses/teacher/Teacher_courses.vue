@@ -7,7 +7,8 @@
         <div class="courses">
             <Card v-for="course in courses" :key="course.id" @click="goToCourse(course)">
                 <div class="top">
-                    <img class="avatar" width :src="course.photo || '/image.png'" alt="avatar">
+                    <img v-if="course.photo" class="avatar" width :src="course.photo" alt="avatar">
+                    <AvatarLetter v-else :name="course.title" />
                     <span class="name-of-course">{{ course.title }}</span>
                 </div>
             </Card>
@@ -27,6 +28,7 @@ import { getCourses } from "@/api/modules/courses.api";
 import Layout from '@/layouts/Layout.vue'
 import Card from '@/components/Card.vue'
 import Loading from "@/components/Loading.vue";
+import AvatarLetter from "@/components/AvatarLetter.vue";
 
 import Popup from "@/components/Popup.vue";
 

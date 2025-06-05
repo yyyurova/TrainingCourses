@@ -1,7 +1,8 @@
 <template>
     <div class="selected-practicant">
         <div class="top">
-            <img :src="practicant.avatar || '/avatar.png'" alt="">
+            <img v-if="practicant.avatar" :src="practicant.avatar" alt="">
+            <AvatarLetter v-else :name="practicant.name" />
             <p>{{ practicant.name }}</p>
             <button class="icon" @click="deleteFromSelected">
                 <img src="/icons/x.svg" alt="">
@@ -48,6 +49,7 @@ import { format } from '@formkit/tempo';
 import { decodeUtf8 } from '@/utils/utils';
 
 import Card from '@/components/Card.vue';
+import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const props = defineProps({
     practicant: Object

@@ -9,7 +9,8 @@
         </Card>
         <div v-if="practicants && practicants.length > 0 && !isLoading" class="practicants">
             <Card v-for="practicant in practicants" :key="practicant.id" @click="openTasks(practicant)">
-                <img :src="practicant.avatar || '/avatar.png'" alt="">
+                <img v-if="practicant.avatar" :src="practicant.avatar" alt="">
+                <AvatarLetter v-else :name="practicant.name" />
                 {{ practicant.name }}
             </Card>
         </div>
@@ -32,6 +33,7 @@ import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
 import Card from '@/components/Card.vue';
 import Loading from '@/components/Loading.vue';
+import AvatarLetter from '@/components/AvatarLetter.vue';
 // import CreateTask from '../components/modals/CreateTask.vue';
 
 const practicants = ref([])

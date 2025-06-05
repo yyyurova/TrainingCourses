@@ -4,17 +4,16 @@
             <div class="header-left-part">
                 <img src="/icons/users.svg" alt="">
 
-                <!-- <img :src="chat.avatar ? chat.avatar : '/avatar.png'"> -->
-                <img :src="getAvatarUrl(chat.avatar)" alt="" @error="handleImageError">
-
+                <img v-if="chat.avatar" :src="getAvatarUrl(chat.avatar)" alt="" @error="handleImageError">
+                <AvatarLetter v-else :name="chat.title" />
                 <p class="partner-name">{{ chat.title }}</p>
             </div>
             <button class="icon" @click="$emit('delete', chat.id)">
                 <img src="/icons/delete.svg" alt="">
             </button>
         </div>
-        <div class="dialog-content">
-            <div class="text" v-if="chat.latest_message">
+        <div class="dialog-content" v-if="chat.latest_message">
+            <div class="text">
                 <p v-if="chat.latest_message.message && chat.latest_message.message !== 'null'" class="message-preview">
                     {{
                         chat.latest_message.message }} </p>
@@ -31,6 +30,8 @@
 
 <script setup>
 import { format } from '@formkit/tempo';
+import AvatarLetter from '@/components/AvatarLetter.vue';
+
 const props = defineProps({
     chat: Object,
 })
@@ -46,6 +47,9 @@ const getAvatarUrl = (avatarPath) => {
 
 <style scoped lang="scss">
 .dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     max-width: 100%;
     box-sizing: border-box;
     width: 100%;
@@ -56,7 +60,6 @@ const getAvatarUrl = (avatarPath) => {
         display: flex;
         align-items: center;
         // justify-content: space-between;
-        margin-bottom: 10px;
 
         .header-left-part {
             flex: 1%;

@@ -1,7 +1,8 @@
 <template>
     <div class="practicant-row">
         <input :checked="isSelect" type="checkbox">
-        <img class="avatar" src="/avatar.png" alt="">
+        <img v-if="practicant.avatar" class="avatar" :src="practicant.avatar" alt="">
+        <AvatarLetter v-else :name="practicant.name" />
         <span>{{ practicant.name }}</span>
         <input :disabled="action === 'Назначить'" @click.stop v-model="mark" class="mark" type="text" @blur="updateMark"
             @keyup.enter="updateMark">
@@ -20,6 +21,7 @@
 
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue';
+import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const props = defineProps({
     isSelect: { type: Boolean, default: false },

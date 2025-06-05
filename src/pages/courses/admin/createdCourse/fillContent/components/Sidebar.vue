@@ -8,7 +8,8 @@
         </div>
 
         <div class="course-info">
-            <img :src="course.imageUrl || '/avatar.png'" alt="">
+            <img v-if="course.avatar" :src="course.avatar" alt="">
+            <AvatarLetter v-else :name="course.title" />
             <p class="course-name">{{ course.title }}</p>
         </div>
 

@@ -2,16 +2,16 @@
     <div class="dialog">
         <div class="dialog-card-header">
             <div class="header-left-part">
-                <img :src="chat.avatar || '/avatar.png'">
-
+                <img v-if="chat.avatar" :src="chat.avatar">
+                <AvatarLetter v-else :name="chat.title" />
                 <p class="partner-name">{{ chat.title }}</p>
             </div>
             <button class="icon" @click="$emit('delete', chat.id)">
                 <img src="/icons/delete.svg" alt="">
             </button>
         </div>
-        <div class="dialog-content">
-            <div class="text" v-if="chat.latest_message">
+        <div class="dialog-content" v-if="chat.latest_message">
+            <div class="text">
                 <p class="message-preview">
                     <img v-if="chat.latest_message.attachments.length > 0" src="/icons/file.svg" alt="">
                     {{ chat.latest_message.message !== 'null' ? chat.latest_message.message : '' }}
@@ -26,6 +26,8 @@
 <script setup>
 import { format } from '@formkit/tempo';
 
+import AvatarLetter from '@/components/AvatarLetter.vue';
+
 const emit = defineEmits(['delete'])
 const props = defineProps({
     chat: Object,
@@ -34,18 +36,18 @@ const props = defineProps({
 
 <style scoped lang="scss">
 .dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     max-width: 100%;
     box-sizing: border-box;
     width: 100%;
     cursor: pointer;
     padding: 15px 10px;
 
-
     .dialog-card-header {
         display: flex;
         align-items: center;
-        // justify-content: space-between;
-        margin-bottom: 10px;
 
         .header-left-part {
             flex: 1%;

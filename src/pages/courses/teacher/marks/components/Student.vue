@@ -1,7 +1,8 @@
 <template>
     <div class="student" @click="toggleInfo">
         <div class="row">
-            <img :src="student.avatar || '/avatar.png'" alt="">
+            <img v-if="student.avatar" :src="student.avatar" alt="">
+            <AvatarLetter v-else :name="student.name" />
             <p>{{ student.name }}</p>
             <button class="icon">
                 <img src="/icons/arrow.svg" :class="isOpen ? 'arrow-down' : 'arrow-right'" alt="">
@@ -36,6 +37,8 @@
 import { format } from '@formkit/tempo';
 import { checkOverdueDeadline } from '@/utils/utils';
 import { ref } from 'vue';
+
+import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const isOpen = ref(false)
 

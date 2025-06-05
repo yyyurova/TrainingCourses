@@ -95,7 +95,7 @@ const addMembersToNewChat = async (members) => {
         await addMembersToChat(createdChat.value.id, memberIds);
 
         // Обновляем данные чата
-        await fetchChats();
+        // await fetchChats();
         openDialog(createdChat.value);
     } catch (error) {
         console.error("Ошибка добавления участников", error);

@@ -7,7 +7,8 @@
                 </button>
                 <div class="center">
                     <div class="top">
-                        <img :src="getAvatarUrl(selectedChat.avatar)">
+                        <img v-if="selectedChat.avatar" :src="getAvatarUrl(selectedChat.avatar)">
+                        <AvatarLetter v-else :name="selectedChat.title" />
                         <p class="grop-name">{{ selectedChat.title }}</p>
                     </div>
                     <p v-if="selectedChat.is_group === 1" class="am-members">{{ pluralizeParticipants }}</p>
@@ -40,6 +41,8 @@ import Navbar from '@/components/Navbar.vue';
 import Members from './components/members/Members.vue';
 import Docs from './components/Docs.vue';
 import Attachments from './components/attachments/Attachments.vue';
+
+import AvatarLetter from '@/components/AvatarLetter.vue';
 
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 import EditChat from './components/modals/EditChat.vue';

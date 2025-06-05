@@ -2,7 +2,8 @@
     <!-- <Layout :on-create-task="openCreateTaskModal"> -->
     <Layout>
         <div v-if="practicant" class="header">
-            <img :src="practicant.avatar || '/avatar.png'" alt="">
+            <img v-if="practicant.avatar" :src="practicant.avatar" alt="">
+            <AvatarLetter v-else :name="practicant.name" />
             <h1>{{ practicant.name }}</h1>
         </div>
         <select ref="taskFilter" @change="filterTasks">
@@ -39,6 +40,7 @@ import { getUser } from '@/api/modules/adminUsers.api';
 import Layout from '@/layouts/Layout.vue';
 import TaskCard from '../components/TaskCard.vue';
 import Loading from '@/components/Loading.vue';
+import AvatarLetter from '@/components/AvatarLetter.vue';
 // import CreateTask from '../components/modals/CreateTask.vue';
 import Popup from '@/components/Popup.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';

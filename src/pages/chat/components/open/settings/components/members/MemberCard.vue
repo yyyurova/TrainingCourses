@@ -1,6 +1,7 @@
 <template>
     <div class="group-member-row">
-        <img src="/avatar.png">
+        <img v-if="member.avatar" :src="member.avatar">
+        <AvatarLetter v-else :name="member.name" />
         <p>{{ member.name }}</p>
         <button class="icon" @click="$emit('delete', member)">
             <img src="/icons/delete.svg" alt="">
@@ -9,6 +10,8 @@
 </template>
 
 <script setup>
+import AvatarLetter from '@/components/AvatarLetter.vue';
+
 defineProps({
     member: Object
 })

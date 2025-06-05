@@ -8,7 +8,8 @@
                         <button v-if="isMobile" class="icon" @click="() => emit('backToAllChats')">
                             <img class="arrow-left" src="/icons/arrow.svg" alt="">
                         </button>
-                        <img class="avatar" :src="getAvatarUrl(selectedChat.avatar)">
+                        <img v-if="selectedChat.avatar" class="avatar" :src="getAvatarUrl(selectedChat.avatar)">
+                        <AvatarLetter v-else :name="selectedChat.title" />
                         <h1>{{ selectedChat.title }}</h1>
                     </div>
                     <p v-if="selectedChat.is_group === 1" class="am-members">{{ pluralizeParticipants }}</p>
@@ -44,7 +45,7 @@
             <button class="icon">
                 <img src="/icons/emote-smile.svg" alt="">
             </button>
-            <button class="icon" @click="sendMessage">
+            <button class="icon bigger" @click="sendMessage">
                 <img src="/icons/send.svg" alt="">
             </button>
         </div>
@@ -66,6 +67,7 @@ import Message from '@/components/Message.vue';
 import FileCard from './components/FileCard.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 import AddUserModal from './components/modals/AddUserModal.vue';
+import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const emit = defineEmits(['openSettings', 'backToAllChats'])
 const deleteChat = inject('deleteChat')
@@ -345,11 +347,7 @@ onMounted(async () => {
         img {
             width: 24px;
             height: 24px;
-        }
 
-        button:nth-child(4) img {
-            width: 21px;
-            height: 21px;
         }
 
         .inp-field {

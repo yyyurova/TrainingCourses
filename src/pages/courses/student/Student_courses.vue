@@ -6,7 +6,8 @@
             <div class="courses">
                 <Card v-for="course in courses" :key="course.id">
                     <div class="top">
-                        <img class="avatar" :src="course.imageUrl || '/image.png'" alt="avatar">
+                        <img v-if="course.photo" class="avatar" :src="course.photo" alt="avatar">
+                        <AvatarLetter v-else :name="course.title" />
                         <span class="name-of-course">{{ course.title }}</span>
                     </div>
                     <button class="blue" @click="continueStudy(course.id)">Продолжить обучение</button>
@@ -26,6 +27,7 @@ import { getCourses } from '@/api/modules/courses.api';
 import Loading from '@/components/Loading.vue';
 import Layout from '@/layouts/Layout.vue';
 import Card from '@/components/Card.vue';
+import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const courses = inject('courses')
 const router = useRouter()
