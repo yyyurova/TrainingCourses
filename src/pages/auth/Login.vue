@@ -101,16 +101,14 @@ const handleSubmit = async () => {
 
         addRoleRoutes(resp.data.data.role);
 
-        const redirectMap = {
-            admin: '/users',
-            curator: '/courses',
-            default: '/courses'
-        };
+        // const redirectMap = {
+        //     admin: '/users',
+        //     curator: '/courses',
+        //     default: '/courses'
+        // };
 
-        setTimeout(() => {
-            router.push(redirectMap[resp.data.data.role] || redirectMap.default);
-        }, 1000);
-        // location.reload()
+        router.push('/courses');
+        location.reload()
 
     } catch (err) {
         console.error('Ошибка входа:', err);

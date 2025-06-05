@@ -58,7 +58,7 @@
                             translateRole(user.role)
                         }}
                     </td>
-                    <td>{{ format(user.date, { date: 'long', time: 'short' }) }}</td>
+                    <td>{{ format(user.created_at, { date: 'long', time: 'short' }) }}</td>
                     <td>
                         <div class="action-buttons">
                             <button :class="button.class" @click="handleAction(button.class, user)" class="icon"

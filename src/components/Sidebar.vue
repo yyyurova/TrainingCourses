@@ -99,18 +99,19 @@ const isCoursesRoute = computed(() => route.path.startsWith('/courses'));
 
 const sidebarContent = {
     admin: [
-        {
-            title: 'Пользователи',
-            name: 'users',
-            imageUrl: '/icons/users.svg',
-            linkTo: '/users'
-        },
+
         {
             title: 'Курсы',
             name: 'courses',
             list: true,
             imageUrl: '/icons/graduation.svg',
             linkTo: '/courses'
+        },
+        {
+            title: 'Пользователи',
+            name: 'users',
+            imageUrl: '/icons/users.svg',
+            linkTo: '/users'
         },
         {
             title: 'Учебные классы',

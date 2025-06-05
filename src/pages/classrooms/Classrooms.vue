@@ -7,7 +7,7 @@
         </button>
         <Loading v-if="isLoading" />
         <div class="classrooms" v-if="classrooms && !isLoading">
-            <Card v-for="classroom in classrooms" :key="classroom.id">
+            <Card v-for="classroom in classrooms" :key="classroom.id" @click="goToClassroom(classroom.id)">
                 <div class="left">
                     <p class="name">{{ classroom.title }}</p>
                     <p class="course">{{ classroom.course.title }}</p>
@@ -21,10 +21,10 @@
                     </p>
                 </div>
                 <div class="right">
-                    <button class="icon edit" @click="openEeditModal(classroom)">
+                    <button class="icon edit" @click.stop="openEeditModal(classroom)">
                         <img src="/icons/pen.svg" alt="">
                     </button>
-                    <button class="icon delete" @click="openDeleteModal(classroom)">
+                    <button class="icon delete" @click.stop="openDeleteModal(classroom)">
                         <img src="/icons/delete.svg" alt="">
                     </button>
                 </div>
@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import axios from 'axios';
+import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
 import { getClassrooms, deleteClass, createClassroom, addCuratorToClass, addUsersToClass, editClass } from '@/api/modules/classrooms.api';
 
@@ -72,6 +72,8 @@ const selectedClassroom = ref(null)
 const showPopup = ref(false)
 const popupText = ref('')
 
+const router = useRouter()
+
 const closeModal = () => {
     if (showConfirmDeleteModal.value) { showConfirmDeleteModal.value = false }
     if (showEditModal.value) { showEditModal.value = false }
@@ -92,6 +94,10 @@ const openDeleteModal = (classroom) => {
 const openEeditModal = (classroom) => {
     selectedClassroom.value = classroom
     showEditModal.value = true
+}
+
+const goToClassroom = (id) => {
+    router.push(`/classrooms/${id}`)
 }
 
 const openCreateModal = () => {
@@ -259,6 +265,7 @@ div.classrooms {
     margin: 15px 0;
 
     .card {
+        cursor: pointer;
         flex-direction: row;
         justify-content: space-between;
         align-items: flex-start;

@@ -12,7 +12,7 @@
             <p class="course-name">{{ course.title }}</p>
         </div>
 
-        <button class="blue wide">Опубликовать курс</button>
+        <button class="blue wide" @click="publishCourse">Опубликовать курс</button>
         <RouterLink to="/courses">
             <button class="transparent wide">
                 <img class="arrow-left" src="/icons/arrow.svg" alt="">
@@ -60,6 +60,7 @@ import { useRouter } from 'vue-router';
 import { logout } from '@/utils/auth';
 import { resetRoleRoutes } from '@/router';
 import { editProfile } from '@/api/modules/profile.api';
+import { editCourse } from '@/api/modules/adminCourses.api';
 
 import EditUser from '@/components/modals/EditUser.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
@@ -78,6 +79,10 @@ const props = defineProps({
     isMobile: Boolean,
     isActive: Boolean,
 });
+
+const publishCourse = async () => {
+
+}
 
 const emit = defineEmits(['close']);
 

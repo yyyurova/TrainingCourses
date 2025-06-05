@@ -5,7 +5,6 @@ export const getCourse = async (courseId) => {
     try {
         const response = await client.get(`${ENDPOINTS.ADMIN_COURSE}/${courseId}`)
         return response.data.data
-        // return await client.get(`${ENDPOINTS.COURSES}/${courseId}`);
     } catch (error) {
         return [];
     }

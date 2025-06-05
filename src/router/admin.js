@@ -1,5 +1,6 @@
 import Users from '../pages/users/Users.vue'
 import Classrooms from '@/pages/classrooms/Classrooms.vue'
+import Classroom from '@/pages/classrooms/classroom/Classroom.vue'
 import Courses from '@/pages/courses/Courses.vue'
 import FillContent from '@/pages/courses/admin/createdCourse/fillContent/FillContent.vue'
 import FillMaterials from '@/pages/courses/admin/createdCourse/fillMaterials/FillMaterials.vue'
@@ -15,11 +16,16 @@ export const adminRoutes = [
     },
     {
         path: '/classrooms',
-        name: 'classrooms',
+        name: 'Classrooms',
         component: Classrooms,
         meta: {
             title: 'Учебные классы'
         },
+    },
+    {
+        path: '/classrooms/:classId',
+        component: Classroom,
+        name: 'Classroom'
     },
     {
         path: '/courses',

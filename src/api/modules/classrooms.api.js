@@ -6,7 +6,6 @@ export const getClassrooms = async () => {
         const response = await client.get(`${ENDPOINTS.ADMIN_CLASS}`);
         const classrooms = response.data.data;
 
-        // Загружаем участников для каждого класса параллельно
         const classroomsWithMembers = await Promise.all(
             classrooms.map(async classroom => {
                 const members = await getClassroomMembers(classroom.id);
@@ -18,6 +17,22 @@ export const getClassrooms = async () => {
         );
 
         return classroomsWithMembers;
+    } catch (error) {
+        console.error('Ошибка загрузки классов:', error);
+        return [];
+    }
+};
+
+export const getClassroom = async (classId) => {
+    try {
+        const response = await client.get(`${ENDPOINTS.ADMIN_CLASS}/${classId}`);
+        const classroom = response.data.data;
+
+        const members = await getClassroomMembers(classroom.id);
+        return {
+            ...classroom,
+            members
+        }
     } catch (error) {
         console.error('Ошибка загрузки классов:', error);
         return [];

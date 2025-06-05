@@ -14,7 +14,8 @@
             </Card>
         </div>
         <Loading v-if="isLoading" />
-        <div v-else-if="practicants && practicants.length === 0 && !isLoading" class="no-pracricants">
+        <div v-else-if="(!practicants && !isLoading) || (practicants.length === 0 && !isLoading)"
+            class="no-pracricants">
             <h2>В данном курсе нет практикантов.</h2>
         </div>
         <!-- <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" :users="practicants" /> -->
@@ -70,7 +71,8 @@ const fetchPracticants = async () => {
         course.value = await getCourse(route.params.courseId)
         const data = await getPracticants(route.params.courseId);
         practicants.value = data;
-        originalPracticants.value = [...data];
+        originalPracticants.value = data;
+        console.log(practicants.value)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false
