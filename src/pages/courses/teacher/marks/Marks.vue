@@ -23,7 +23,8 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getCourse } from '@/api/modules/courses.api';
+import { getPracticants } from '@/api/modules/curarorStudents.api';
+import { getTasksByCourse } from '@/api/modules/tasks.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
@@ -33,23 +34,19 @@ import Loading from '@/components/Loading.vue';
 
 const students = ref([])
 
-const course = ref(null)
-
 const isLoading = ref(false)
 // const showCreateTaskModal = ref(false)
 
 const router = useRouter()
 const route = useRoute()
 
-const navbarItems = computed(() => {
-    if (!course.value) return [];
+const courseId = route.params.courseId
 
-    return [
-        { name: 'Практиканты', linkTo: `/courses/${course.value.id}/practicants` },
-        { name: 'Задания', linkTo: `/courses/${course.value.id}/tasks` },
-        { name: 'Оценки', linkTo: `/courses/${course.value.id}/marks` }
-    ];
-});
+const navbarItems = [
+    { name: 'Практиканты', linkTo: `/courses/${courseId}/practicants` },
+    { name: 'Задания', linkTo: `/courses/${courseId}/tasks` },
+    { name: 'Оценки', linkTo: `/courses/${courseId}/marks` }
+];
 
 // const closeModal = () => {
 //     if (showCreateTaskModal.value) { showCreateTaskModal.value = false }
@@ -60,17 +57,51 @@ const navbarItems = computed(() => {
 // }
 
 const goToTasks = () => {
-    router.push(`/courses/${course.value.id}/tasks`)
+    router.push(`/courses/${courseId}/tasks`)
 }
 
 const fetchStudents = async () => {
     try {
-        isLoading.value = true
-        course.value = await getCourse(route.params.courseId);
+        isLoading.value = true;
+
+        students.value = await getPracticants(route.params.courseId);
+        const tasks = await getTasksByCourse(route.params.courseId);
+
+        const tasksByStudentId = new Map();
+
+        // Заполняем карту данными из заданий
+        tasks.forEach(task => {
+            task.students.forEach(studentTask => {
+                if (!tasksByStudentId.has(studentTask.id)) {
+                    tasksByStudentId.set(studentTask.id, []);
+                }
+
+                const taskData = {
+                    taskId: task.id,
+                    name: task.name,
+                    text: task.text,
+                    mark: studentTask.mark,
+                    until: task.until
+                };
+
+                tasksByStudentId.get(studentTask.id).push(taskData);
+            });
+        });
+
+        students.value = students.value.map(student => {
+            return {
+                ...student,
+                tasks: tasksByStudentId.get(student.id) || []
+            };
+        });
+        students.value = students.value.filter(student =>
+            student.tasks.length > 0 &&
+            student.tasks.every(task => task.mark !== null)
+        )
     } catch (err) {
         console.error('Ошибка при загрузке студентов:', err);
     } finally {
-        isLoading.value = false
+        isLoading.value = false;
     }
 };
 

@@ -27,11 +27,11 @@
                 </div>
                 <span v-if="errors.password" class="error">{{ errors.password }}</span>
             </div>
-            <button type="submit" class="sign-up" :class="{ 'active': isFormFilled }">Войти</button>
+            <button type="submit" class="blue wide" :disabled="!isFormFilled">Зарегистрироваться</button>
 
             <div class="separator">или</div>
             <div class="google-container">
-                <button class="google-sign-in">
+                <button class="transparent border wide">
                     Войти через Google
                     <img src="/icons/google.svg" alt="Google Icon">
                 </button>
@@ -155,38 +155,17 @@ const handleSubmit = async () => {
         }
     }
 
-    .sign-in,
-    .sign-up {
-        width: 100%;
-        background-color: #513DEB;
-        border-radius: 10px;
-        border: none;
-        padding: 12px 20px;
-        color: white;
-        cursor: pointer;
-        font-size: 16px;
-        line-height: 100%;
-    }
-
-    .google-sign-in {
-        width: 100%;
-        background-color: #fff;
-        border: 1px solid #513DEB;
-        border-radius: 10px;
-        padding: 12px 20px;
-        cursor: pointer;
-        font-size: 16px;
-        line-height: 100%;
+    .google-container {
         display: flex;
-        align-items: center;
-        justify-content: center;
+        flex-direction: column;
         gap: 10px;
-    }
 
-    .google-sign-in img {
-        width: 20px;
-        height: 20px;
-        margin: 0;
+        button {
+
+            img {
+                margin: 0;
+            }
+        }
     }
 
     .separator {
@@ -276,7 +255,7 @@ const handleSubmit = async () => {
         }
     }
 
-    .sign-up {
+    button:disabled {
         background-color: #EBEBEB;
         color: #969696;
     }
@@ -301,7 +280,7 @@ const handleSubmit = async () => {
 
     }
 
-    .sign-up.active {
+    .sign-up {
         background-color: #513DEB !important;
         color: white !important;
         cursor: pointer;

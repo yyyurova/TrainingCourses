@@ -18,10 +18,11 @@
                 <span v-if="errors.password" class="error">{{ errors.password }}</span>
             </div>
             <span v-if="errors.all" class="error">{{ errors.all }}</span>
-            <button type="submit" class="sign-in">Войти</button>
+            <button type="submit" class="blue wide" :disabled="!(email.trim() && password.trim())">Войти</button>
             <div class="separator">или</div>
             <div class="google-container">
-                <button class="google-sign-in">
+                <span v-if="errors.google" class="error">{{ errors.google }}</span>
+                <button class="transparent border wide" @click.prevent="signInWithGoogle">
                     Войти через Google
                     <img src="/icons/google.svg" alt="Google Icon">
                 </button>
@@ -39,7 +40,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { login } from '@/api/modules/auth.api';
+import { login, getLoginUrls } from '@/api/modules/auth.api';
 import { addRoleRoutes } from '@/router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
@@ -49,9 +50,7 @@ const errors = ref({});
 const passwordInput = ref(null);
 const eye = ref(null);
 const router = useRouter();
-
-// Убрана установка роли по умолчанию!
-// onMounted(() => { ... })
+const googleUrl = ref('');
 
 const switchPasswordVisibility = () => {
     passwordInput.value.type = passwordInput.value.type === "password"
@@ -108,10 +107,23 @@ const handleSubmit = async () => {
         // };
 
         router.push('/courses');
-        location.reload()
+        // location.reload()
     } catch (err) {
         console.error('Ошибка входа:', err);
         errors.value.all = 'Неправильные email или пароль';
+    }
+};
+
+const signInWithGoogle = async () => {
+    try {
+        const urls = await getLoginUrls();
+        googleUrl.value = urls.google_url;
+        if (googleUrl.value) {
+            window.location.href = googleUrl.value;
+        }
+    } catch (error) {
+        console.error('Ошибка при получении URL для входа:', error);
+        errors.value.google = 'Не удалось получить ссылку для входа';
     }
 };
 </script>
@@ -129,7 +141,6 @@ const handleSubmit = async () => {
     color: #292929;
     margin: 0;
 
-
     .credintals {
         width: 100%;
         border: 1px solid #D9D9D9;
@@ -141,40 +152,6 @@ const handleSubmit = async () => {
             border: 1px solid #513DEB;
             outline: none;
         }
-    }
-
-    .sign-in,
-    .sign-up {
-        width: 100%;
-        background-color: #513DEB;
-        border-radius: 10px;
-        border: none;
-        padding: 12px 20px;
-        color: white;
-        cursor: pointer;
-        font-size: 16px;
-        line-height: 100%;
-    }
-
-    .google-sign-in {
-        width: 100%;
-        background-color: #fff;
-        border: 1px solid #513DEB;
-        border-radius: 10px;
-        padding: 12px 20px;
-        cursor: pointer;
-        font-size: 16px;
-        line-height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    .google-sign-in img {
-        width: 20px;
-        height: 20px;
-        margin: 0;
     }
 
     .separator {
@@ -204,6 +181,19 @@ const handleSubmit = async () => {
 
         &::after {
             right: 0;
+        }
+    }
+
+    .google-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        button {
+
+            img {
+                margin: 0;
+            }
         }
     }
 
@@ -264,7 +254,7 @@ const handleSubmit = async () => {
         }
     }
 
-    .sign-up {
+    button:disabled {
         background-color: #EBEBEB;
         color: #969696;
     }

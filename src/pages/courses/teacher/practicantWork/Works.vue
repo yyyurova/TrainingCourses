@@ -17,24 +17,23 @@
                 <div class="status" v-if="assigned.length > 0">
                     <h3>Назначено</h3>
                     <PracticantRow v-for="practicant in assigned" :key="practicant.id" :practicant="practicant"
-                        :task-id="task.id" :course-id="course.id" @click="selectPracticant(practicant)"
-                        :is-select="practicant.isSelect" @action-with-practicant="cancelTask" action="Отменить"
-                        @update-mark="updateMark" />
+                        :task-id="task.id" @click="selectPracticant(practicant)" :is-select="practicant.isSelect"
+                        @action-with-practicant="cancelTask" action="Отменить" @update-mark="updateMark" />
                 </div>
 
                 <div class="status" v-if="done.length > 0">
                     <h3>Сдано</h3>
                     <PracticantRow v-for="practicant in done" :key="practicant.id" :practicant="practicant"
-                        :task-id="task.id" :course-id="course.id" @click="selectPracticant(practicant)"
-                        :is-select="practicant.isSelect" @action-with-practicant="cancelTask" action="Отменить"
-                        @update-mark="updateMark" />
+                        :task-id="task.id" @click="selectPracticant(practicant)" :is-select="practicant.isSelect"
+                        action="Отменить" @update-mark="updateMark" />
+                    <!-- @action-with-practicant="cancelTask" -->
                 </div>
 
                 <div class="status" v-if="cancelled.length > 0">
                     <h3>Отменено</h3>
                     <PracticantRow v-for="practicant in cancelled" :key="practicant.id" :practicant="practicant"
-                        @click="selectPracticant(practicant)" :is-select="practicant.isSelect"
-                        @action-with-practicant="assignTask" action="Назначить" />
+                        @click="selectPracticant(practicant)" :is-select="practicant.isSelect" action="Назначить" />
+                    <!-- @action-with-practicant="assignTask" -->
                 </div>
             </Card>
             <Card class="no-hover right">
@@ -61,15 +60,14 @@
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { mockUser } from '@/mocks/user';
 import { format } from '@formkit/tempo';
+import { getTask, completeTask } from '@/api/modules/tasks.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Card from '@/components/Card.vue';
 import PracticantRow from './components/PracticantRow.vue';
 import SelectedPracticant from './components/SelectedPracticant.vue';
 
-const course = ref(null)
 const task = ref(null)
 
 const route = useRoute()
@@ -111,100 +109,66 @@ const selectAllPracticants = () => {
     })
 }
 
-const cancelTask = async (id) => {
+// const cancelTask = async (id) => {
+//     try {
+//         if (!task.value.cancelled.includes(id)) {
+//             task.value.cancelled.push(id);
+//             updateTaskStatuse();
+
+//             const updatedCourse = {
+//                 ...course.value,
+//                 tasks: course.value.tasks.map(t =>
+//                     t.id === task.value.id ? task.value : t
+//                 )
+//             };
+
+//             await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${course.value.id}`, {
+//                 tasks: updatedCourse.tasks
+//             });
+//         }
+//     } catch (err) {
+//         console.error("Ошибка при отмене задания:", err);
+//         task.value.cancelled = task.value.cancelled.filter(c => c !== id);
+//         updateTaskStatuse();
+//     }
+// }
+
+// const assignTask = async (id) => {
+//     try {
+//         task.value.cancelled = task.value.cancelled.filter(c => c !== id);
+//         updateTaskStatuse();
+
+//         const updatedCourse = {
+//             ...course.value,
+//             tasks: course.value.tasks.map(t =>
+//                 t.id === task.value.id ? task.value : t
+//             )
+//         };
+
+//         await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${course.value.id}`, {
+//             tasks: updatedCourse.tasks
+//         });
+//     } catch (err) {
+//         console.error("Ошибка при назначении задания:", err);
+//         task.value.cancelled.push(id);
+//         updateTaskStatuse();
+//     }
+// }
+
+const updateMark = async (taskId, practicantId, mark) => {
     try {
-        if (!task.value.cancelled.includes(id)) {
-            task.value.cancelled.push(id);
-            updateTaskStatuse();
-
-            const updatedCourse = {
-                ...course.value,
-                tasks: course.value.tasks.map(t =>
-                    t.id === task.value.id ? task.value : t
-                )
-            };
-
-            await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${course.value.id}`, {
-                tasks: updatedCourse.tasks
-            });
-        }
-    } catch (err) {
-        console.error("Ошибка при отмене задания:", err);
-        task.value.cancelled = task.value.cancelled.filter(c => c !== id);
-        updateTaskStatuse();
-    }
-}
-
-const assignTask = async (id) => {
-    try {
-        task.value.cancelled = task.value.cancelled.filter(c => c !== id);
-        updateTaskStatuse();
-
-        const updatedCourse = {
-            ...course.value,
-            tasks: course.value.tasks.map(t =>
-                t.id === task.value.id ? task.value : t
-            )
-        };
-
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${course.value.id}`, {
-            tasks: updatedCourse.tasks
-        });
-    } catch (err) {
-        console.error("Ошибка при назначении задания:", err);
-        task.value.cancelled.push(id);
-        updateTaskStatuse();
-    }
-}
-
-const updateMark = async ({ practicantId, mark, taskId, courseId }) => {
-    try {
-        task.value.marks[practicantId] = Number(mark);
-
-        const practicant = allPracticants.value.find(p => p.id === practicantId);
-        if (practicant) {
-            practicant.mark = Number(mark);
-        }
-        updateTaskStatuse();
-
-        const updatedCourse = {
-            ...course.value,
-            tasks: course.value.tasks.map(t =>
-                t.id === taskId ? task.value : t
-            )
-        };
-
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${courseId}`, {
-            tasks: updatedCourse.tasks
-        });
-
+        await completeTask(taskId, practicantId, mark)
+        await fetchTask()
     } catch (err) {
         console.error("Ошибка при обновлении оценки:", err);
     }
 }
 
 const fetchTask = async () => {
-    const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses?teacher=${mockUser.id}`)
-    course.value = data[0]
-    task.value = course.value.tasks.filter(task => task.id === Number(route.params.taskId))[0]
-}
-
-const fetchPracticants = async () => {
-    try {
-        if (!task.value.assignedTo) { return }
-        const membersParams = task.value.assignedTo.map(id => `id[]=${id}`).join('&');
-        const url = `https://c1a9f09250b13f61.mokky.dev/users?${membersParams}`;
-
-        const { data: all } = await axios.get(url);
-        allPracticants.value = all.map(practicant => ({
-            ...practicant,
-            mark: task.value.marks ? task.value.marks[practicant.id] : null,
-            isSelect: false,
-            // cancelled: false
-        }));
-        updateTaskStatuse()
-    }
-    catch (err) { console.log(err) }
+    task.value = await getTask(route.params.taskId)
+    console.log(task.value)
+    allPracticants.value = task.value.students
+    updateTaskStatuse()
 }
 
 const updateTaskStatuse = () => {
@@ -213,20 +177,19 @@ const updateTaskStatuse = () => {
     done.value = []
 
     allPracticants.value.map(pr => {
-        if (pr.mark === null || pr.mark === 0 && !task.value.cancelled.includes(pr.id)) {
+        if (pr.mark === null || pr.mark === 0) {
             assigned.value.push(pr)
-        } else if (pr.mark !== null && !task.value.cancelled.includes(pr.id)) {
+        } else if (pr.done === 1) {
             done.value.push(pr)
         }
-        else if (task.value.cancelled.includes(pr.id)) {
-            cancelled.value.push(pr)
-        }
+        // else if (task.value.cancelled.includes(pr.id)) {
+        //     cancelled.value.push(pr)
+        // }
     })
 }
 
 onMounted(async () => {
     await fetchTask()
-    await fetchPracticants()
 })
 </script>
 

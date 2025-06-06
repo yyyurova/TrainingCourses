@@ -8,8 +8,8 @@
                 <img src="/icons/arrow.svg" :class="isOpen ? 'arrow-down' : 'arrow-right'" alt="">
             </button>
         </div>
-
-        <div class="table-container" :class="{ open: isOpen }">
+        <!-- :class="{ open: isOpen }" -->
+        <div class="table-container" v-if="isOpen">
             <table>
                 <thead>
                     <tr>
@@ -20,11 +20,11 @@
                 </thead>
                 <tbody>
                     <tr v-for="(task, index) in student.tasks" :key="index">
-                        <td class="title">{{ truncateText(task.title, 70) }}</td>
-                        <td class="deadline">{{ format(task.deadline, 'medium') }}</td>
+                        <td class="title">{{ truncateText(task.name, 70) }}</td>
+                        <td class="deadline">{{ format(task.until, 'medium') }}</td>
                         <td class="mark">
                             <p>{{ task.mark }}</p>
-                            <p v-if="checkOverdueDeadline(task.deadline)" class="overdue">Пропущен срок сдачи</p>
+                            <p v-if="checkOverdueDeadline(task.until)" class="overdue">Пропущен срок сдачи</p>
                         </td>
                     </tr>
                 </tbody>
@@ -42,9 +42,11 @@ import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const isOpen = ref(false)
 
-defineProps({
+const props = defineProps({
     student: Object,
 });
+
+console.log(props.student)
 
 const truncateText = (text, maxLength) => {
     if (!text) return '';

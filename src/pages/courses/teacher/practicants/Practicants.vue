@@ -68,12 +68,10 @@ const navbarItems = computed(() => {
 const fetchPracticants = async () => {
     try {
         isLoading.value = true
-        console.log(route.params.courseId)
         course.value = await getCourse(route.params.courseId)
         const data = await getPracticants(route.params.courseId);
         practicants.value = data;
         originalPracticants.value = data;
-        console.log(practicants.value)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false

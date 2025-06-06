@@ -12,7 +12,7 @@
                 <TaskCard v-for="task in tasks" :task="task" :key="task.id" @click="goToWorks(task.id)"
                     @delete="openDeleteModal(task)" @edit="openEditModal(task)" />
             </div>
-            <div class="no-tasks" v-if="tasks.length === 0">
+            <div class="no-items" v-if="tasks.length === 0">
                 <h2>В этом курсе пока нет заданий</h2>
             </div>
         </div>
@@ -33,7 +33,7 @@ import { onMounted, ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { getCourse } from '@/api/modules/courses.api';
 import { getPracticants } from '@/api/modules/curarorStudents.api';
-import { getTasks, createTask as apiCreateTask, deleteTask as apiDeleteTask, updateTask } from '@/api/modules/tasks.api';
+import { getTasksByCourse, createTask as apiCreateTask, deleteTask as apiDeleteTask, updateTask } from '@/api/modules/tasks.api';
 
 import CreateTask from './components/modals/CreateTask.vue';
 import Layout from '@/layouts/Layout.vue';
@@ -76,7 +76,7 @@ const navbarItems = computed(() => {
 });
 
 const goToWorks = (id) => {
-    router.push(`/course/works/${id}`)
+    router.push(`/courses/${course.value.id}/works/${id}`)
 }
 
 const closeModal = () => {
@@ -111,8 +111,8 @@ const fetchCourse = async () => {
 const fetchTasks = async () => {
     try {
         isLoading.value = true
-        // tasks.value = await getTasks()
-        tasks.value = [{ name: 'djkesd', text: 'vdv' }]
+        tasks.value = await getTasksByCourse(course.value.id)
+        console.log(tasks.value)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false

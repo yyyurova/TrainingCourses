@@ -28,7 +28,7 @@
                 </div>
 
                 <div class="group">
-                    <p for="taskDeadline">Срок сдачи</p>
+                    <p for="taskDeadline">Срок сдачи<span class="required">*</span></p>
                     <input v-model="deadline" placeholder="Без срока сдачи" type="date">
                 </div>
 

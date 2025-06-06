@@ -4,8 +4,8 @@
         <img v-if="practicant.avatar" class="avatar" :src="practicant.avatar" alt="">
         <AvatarLetter v-else :name="practicant.name" />
         <span>{{ practicant.name }}</span>
-        <input :disabled="action === 'Назначить'" @click.stop v-model="mark" class="mark" type="text" @blur="updateMark"
-            @keyup.enter="updateMark">
+        <input min="1" max="10" :disabled="action === 'Назначить'" @click.stop v-model="mark" class="mark" type="text"
+            @blur="updateMark" @keyup.enter="updateMark">
         <button class="icon" @click.stop="showAction = !showAction" ref="actionButton">
             <img src="/icons/menu-vertical.svg" alt="">
         </button>
@@ -28,7 +28,7 @@ const props = defineProps({
     practicant: Object,
     action: String,
     taskId: Number,
-    courseId: Number
+    // courseId: Number
 })
 
 const emit = defineEmits(['actionWithPracticant', 'updateMark'])
@@ -50,16 +50,13 @@ const handleClickOutside = (event) => {
     }
 };
 const updateMark = async () => {
-    emit('updateMark', {
-        practicantId: props.practicant.id,
-        mark: Number(mark.value),
-        taskId: props.taskId,
-        courseId: props.courseId
-    });
+    emit('updateMark',
+        props.taskId, props.practicant.id, Number(mark.value),
+    );
 }
 
 onUnmounted(() => {
-    updateMark();
+    // updateMark();
     document.removeEventListener('click', handleClickOutside)
 });
 
@@ -78,7 +75,7 @@ onMounted(() => {
     gap: 10px;
     padding: 5px;
 
-    span {
+    span:not(.avatar-letter) {
         flex: 1
     }
 

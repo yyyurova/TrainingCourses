@@ -9,7 +9,6 @@ export const login = async (email, password) => {
     }
 };
 
-
 export const register = async (name, email, password) => {
     try {
         return await client.post(`${ENDPOINTS.REGISTER}`, {
@@ -20,5 +19,15 @@ export const register = async (name, email, password) => {
     } catch (error) {
         console.error('Ошибка:', error);
         return [];
+    }
+};
+
+export const getLoginUrls = async () => {
+    try {
+        const response = await client.get(`${ENDPOINTS.LOGIN}`);
+        return response.data.data;
+    } catch (error) {
+        console.error('Error fetching auth URLs:', error);
+        throw error;
     }
 };

@@ -11,6 +11,16 @@ export const getTasks = async () => {
     }
 };
 
+export const getTasksByCourse = async (courseId) => {
+    try {
+        const response = await client.get(`${ENDPOINTS.TASK}/course/${courseId}`)
+        return response.data.data
+    } catch (error) {
+        console.log(error)
+        return [];
+    }
+};
+
 export const getTask = async (taskId) => {
     try {
         const response = await client.get(`${ENDPOINTS.TASK}/${taskId}`)
@@ -64,6 +74,16 @@ export const updateTask = async (taskId, newTask) => {
             text: newTask.text,
             until: newTask.until
         })
+        return response.data.data
+    } catch (error) {
+        console.log(error)
+        return [];
+    }
+};
+
+export const completeTask = async (taskId, userId, mark) => {
+    try {
+        const response = await client.post(`${ENDPOINTS.TASK}/${taskId}/user/${userId}/complete`, { mark: mark })
         return response.data.data
     } catch (error) {
         console.log(error)

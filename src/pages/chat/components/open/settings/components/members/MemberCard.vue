@@ -25,6 +25,7 @@ const emit = defineEmits(['delete'])
     width: 100%;
     align-items: center;
     max-height: 40px;
+    gap: 10px;
 
     img {
         width: 36px;

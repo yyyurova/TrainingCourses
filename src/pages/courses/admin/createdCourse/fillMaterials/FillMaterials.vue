@@ -98,6 +98,7 @@
         </Card>
         <div class="save-block">
             <button class="blue" @click="saveCourse">Сохранить изменения</button>
+            <button class="transparent border" @click="goToCourses">Вернуться к списку курсов</button>
         </div>
         <SaveChanges v-if="showSaveChangesModal" @cancel="closeModal" @confirm="saveCourse" />
         <Popup v-if="showPopup" :text="popupText" @close="closePopup" :is-success="isSuccess" />
@@ -173,6 +174,10 @@ const translateType = (type) => {
     }
 };
 
+const goToCourses = () => {
+    router.push('/courses')
+}
+
 const goToPage = async (index) => {
     if (!currentModule.value) return;
 
@@ -215,9 +220,15 @@ const fetchMaterial = async () => {
         if (!course.value?.id) return;
 
         const modules = await getModules(course.value.id);
+        modules.sort((a, b) => a.id - b.id);
 
+        // for (const module of modules) {
+        //     module.pages = await getPagesForModule(module.id);
+        // }
         for (const module of modules) {
-            module.pages = await getPagesForModule(module.id);
+            const pages = await getPagesForModule(module.id);
+            pages.sort((a, b) => a.id - b.id);
+            module.pages = pages;
         }
 
         material.value = {
@@ -250,6 +261,7 @@ const loadPageContent = async () => {
     if (currentPage.value.type === 1) {
         currentPageContent.value = currentQuestion.value?.description || '';
     }
+
     else if (currentPage.value.type === 2) {
         try {
             const videoData = currentQuestion.value?.description ? JSON.parse(currentQuestion.value.description) : {};
