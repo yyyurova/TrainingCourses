@@ -123,12 +123,12 @@ const currentPage = computed(() => {
 });
 
 onMounted(() => {
-    if (route.params.id) {
-        fetchCourse(route.params.id);
+    if (route.params.courseId) {
+        fetchCourse(route.params.courseId);
     }
 });
 
-watch(() => route.params.id, (newId) => {
+watch(() => route.params.courseId, (newId) => {
     if (newId) {
         fetchCourse(newId);
     }

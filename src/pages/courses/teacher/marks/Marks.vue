@@ -1,9 +1,8 @@
 <template>
-    <!-- <Layout :on-create-task="openCreateTaskModal"> -->
     <Layout>
         <h1>Оценки</h1>
         <Navbar :elements="navbarItems" />
-        <div v-if="students.length > 0 && !isLoading">
+        <div v-if="students && students.length > 0 && !isLoading">
             <h3>Студенты</h3>
 
             <div class="students">
@@ -11,12 +10,11 @@
             </div>
         </div>
         <Loading v-else-if="isLoading" />
-        <div v-else-if="students.length === 0 && !isLoading" class="no-marks">
+        <div v-else-if="(!students && !isLoading) || (students.length === 0 && !isLoading)" class="no-marks">
             <h2>Выставленных оценок нету</h2>
             <p>Посмотрите присланные работы практикантов и выставьте оценки за них</p>
             <button class="blue" @click="goToTasks">К заданиям</button>
         </div>
-        <!-- <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" :users="students" /> -->
     </Layout>
 </template>
 
@@ -30,12 +28,10 @@ import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
 import Student from './components/Student.vue';
 import Loading from '@/components/Loading.vue';
-// import CreateTask from '../components/modals/CreateTask.vue';
 
 const students = ref([])
 
 const isLoading = ref(false)
-// const showCreateTaskModal = ref(false)
 
 const router = useRouter()
 const route = useRoute()
@@ -48,14 +44,6 @@ const navbarItems = [
     { name: 'Оценки', linkTo: `/courses/${courseId}/marks` }
 ];
 
-// const closeModal = () => {
-//     if (showCreateTaskModal.value) { showCreateTaskModal.value = false }
-// }
-
-// const openCreateTaskModal = () => {
-//     showCreateTaskModal.value = true
-// }
-
 const goToTasks = () => {
     router.push(`/courses/${courseId}/tasks`)
 }
@@ -64,40 +52,42 @@ const fetchStudents = async () => {
     try {
         isLoading.value = true;
 
+
         students.value = await getPracticants(route.params.courseId);
         const tasks = await getTasksByCourse(route.params.courseId);
 
         const tasksByStudentId = new Map();
 
-        // Заполняем карту данными из заданий
-        tasks.forEach(task => {
-            task.students.forEach(studentTask => {
-                if (!tasksByStudentId.has(studentTask.id)) {
-                    tasksByStudentId.set(studentTask.id, []);
-                }
+        if (students.value) {
+            tasks.forEach(task => {
+                task.students.forEach(studentTask => {
+                    if (!tasksByStudentId.has(studentTask.id)) {
+                        tasksByStudentId.set(studentTask.id, []);
+                    }
 
-                const taskData = {
-                    taskId: task.id,
-                    name: task.name,
-                    text: task.text,
-                    mark: studentTask.mark,
-                    until: task.until
-                };
+                    const taskData = {
+                        taskId: task.id,
+                        name: task.name,
+                        text: task.text,
+                        mark: studentTask.mark,
+                        until: task.until
+                    };
 
-                tasksByStudentId.get(studentTask.id).push(taskData);
+                    tasksByStudentId.get(studentTask.id).push(taskData);
+                });
             });
-        });
 
-        students.value = students.value.map(student => {
-            return {
-                ...student,
-                tasks: tasksByStudentId.get(student.id) || []
-            };
-        });
-        students.value = students.value.filter(student =>
-            student.tasks.length > 0 &&
-            student.tasks.every(task => task.mark !== null)
-        )
+            students.value = students.value.map(student => {
+                return {
+                    ...student,
+                    tasks: tasksByStudentId.get(student.id) || []
+                };
+            });
+            students.value = students.value.filter(student =>
+                student.tasks.length > 0 &&
+                student.tasks.every(task => task.mark !== null)
+            )
+        }
     } catch (err) {
         console.error('Ошибка при загрузке студентов:', err);
     } finally {

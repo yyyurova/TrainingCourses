@@ -3,22 +3,20 @@
         <h1>Задания</h1>
         <Navbar :elements="navbarItems" />
         <div class="tasks" v-if="tasks && !isLoading && tasks.length > 0">
-            <RouterLink class="link" v-for="task in tasks" :key="task.id" :to="`/tasks/${task.id}`">
-                <Card>
-                    <img src="/icons/task.svg" alt="">
-                    <div class="text">
-                        <p class="name-of-task">
-                            {{ task.name }}
-                        </p>
-                        <p class="bottom-row">
-                            <span :class="{ 'overdue': checkOverdueDeadline(task.until) }">
-                                {{ format(task.until, { date: 'long' }) }}
-                            </span>
-                            <span v-if="task.mark" class="mark">Оценка: {{ task.mark }}</span>
-                        </p>
-                    </div>
-                </Card>
-            </RouterLink>
+            <Card v-for="task in tasks" :key="task.id" @click="goToTask(task.id)">
+                <img src="/icons/task.svg" alt="">
+                <div class="text">
+                    <p class="name-of-task">
+                        {{ task.name }}
+                    </p>
+                    <p class="bottom-row">
+                        <span :class="{ 'overdue': checkOverdueDeadline(task.until) }">
+                            {{ format(task.until, { date: 'long' }) }}
+                        </span>
+                        <span v-if="task.mark" class="mark">Оценка: {{ task.mark }}</span>
+                    </p>
+                </div>
+            </Card>
         </div>
         <div class="no-tasks" v-else-if="tasks && tasks.length === 0">
             <h2>Домашних заданий нет</h2>
@@ -31,7 +29,7 @@
 <script setup>
 import axios from 'axios';
 import { ref, onMounted, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { format } from '@formkit/tempo';
 import { checkOverdueDeadline } from '@/utils/utils';
 import { getCourse } from '@/api/modules/courses.api';
@@ -44,7 +42,10 @@ import Loading from '@/components/Loading.vue';
 
 const course = ref(null)
 const tasks = ref([])
+
 const route = useRoute();
+const router = useRouter()
+
 const isLoading = ref(false)
 
 const navbarItems = computed(() => {
@@ -59,11 +60,15 @@ const navbarItems = computed(() => {
 const fetchCourse = async () => {
     try {
         isLoading.value = false
-        course.value = await getCourse(route.params.id)
+        course.value = await getCourse(route.params.courseId)
     }
     finally {
         isLoading.value = false
     }
+}
+
+const goToTask = (id) => {
+    router.push(`/tasks/${id}`)
 }
 
 const fetchTasks = async () => {
@@ -119,59 +124,55 @@ onMounted(async () => {
     gap: 10px;
     margin-bottom: 20px;
 
-    .link {
-        text-decoration: none;
-        width: fit-content;
+    .card {
+        width: calc(50% - 5px);
 
-        .card {
-            width: 477px;
+        display: flex;
+        align-items: flex-start;
+        flex-direction: row;
+        gap: 10px;
+        cursor: pointer;
+
+        .text {
+            flex: 1;
             display: flex;
-            align-items: flex-start;
-            flex-direction: row;
+            flex-direction: column;
             gap: 10px;
-            cursor: pointer;
 
-            .text {
-                flex: 1;
+            .bottom-row {
                 display: flex;
-                flex-direction: column;
-                gap: 10px;
+                gap: 15px;
+            }
 
-                .bottom-row {
-                    display: flex;
-                    gap: 15px;
-                }
+            p span {
+                font-weight: 400;
+                font-size: 16px;
+                line-height: 20px;
+                letter-spacing: 0px;
+            }
 
-                p span {
-                    font-weight: 400;
-                    font-size: 16px;
-                    line-height: 20px;
-                    letter-spacing: 0px;
-                }
+            .name-of-task {
+                font-weight: 600;
+                font-size: 16px;
+                line-height: 20px;
+                letter-spacing: 0px;
 
-                .name-of-task {
-                    font-weight: 600;
-                    font-size: 16px;
-                    line-height: 20px;
-                    letter-spacing: 0px;
-
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2;
-                    -webkit-box-orient: vertical;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         }
     }
 }
 
 
-@media (max-width:1280px) {
-    .card {
-        width: 460px !important;
-    }
-}
+// @media (max-width:1280px) {
+//     .card {
+//         width: 460px !important;
+//     }
+// }
 
 @media (max-width:930px) {
     .link {

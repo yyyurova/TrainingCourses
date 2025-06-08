@@ -72,8 +72,8 @@ const fetchCourse = async (id) => {
 };
 
 onMounted(() => {
-    if (route.params.id) {
-        fetchCourse(route.params.id);
+    if (route.params.courseId) {
+        fetchCourse(route.params.courseId);
     }
 });
 

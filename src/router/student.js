@@ -21,7 +21,7 @@ export const studentRoutes = [
         },
         children: [
             {
-                path: ':id/my-study',
+                path: ':courseId/my-study',
                 name: 'CourseMain',
                 component: CourseMainPage,
                 meta: {
@@ -29,7 +29,7 @@ export const studentRoutes = [
                 }
             },
             {
-                path: ':id/performance',
+                path: ':courseId/performance',
                 name: 'CoursePerfomance',
                 component: CoursePerfomancePage,
                 meta: {
@@ -37,7 +37,7 @@ export const studentRoutes = [
                 }
             },
             {
-                path: ':id/tasks',
+                path: ':courseId/tasks',
                 name: 'CourseTasks',
                 component: CourseTasksPage,
                 meta: {

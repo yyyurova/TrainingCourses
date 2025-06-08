@@ -1,5 +1,5 @@
 <template>
-    <router-view v-if="$route.params.id" /> <!-- Рендерим страницу курса -->
+    <router-view v-if="$route.params.courseId" /> <!-- Рендерим страницу курса -->
     <div v-else>
         <Layout>
             <h1>Курсы</h1>

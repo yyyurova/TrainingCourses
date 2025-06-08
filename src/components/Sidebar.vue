@@ -20,7 +20,10 @@
                         </div>
                         <div v-if="item.list" class="courses-list" :class="{ 'active': isCoursesListOpen }">
                             <RouterLink v-for="course in courses" :key="course.id" :to="getCourseLink(course)"
-                                class="course-link">
+                                class="course-link" :class="{
+                                    'router-link-active': currentCourseId === course.id.toString(),
+                                    'router-link-exact-active': route.path === getCourseLink(course)
+                                }">
                                 <img v-if="course.photo" class="avatar" :src="course.photo" alt="">
                                 <AvatarLetter v-else :name="course.title" />
                                 <span class="name">{{ course.title }}</span>
@@ -99,6 +102,11 @@ const user = ref({ role: getCurrentUser().role, name: getCurrentUser().name })
 const loadedCourses = ref(false);
 
 const isCoursesRoute = computed(() => route.path.startsWith('/courses'));
+
+const currentCourseId = computed(() => {
+    let matched = route.matched.find(m => m.path.includes(':courseId'));
+    return matched ? route.params.courseId : null;
+});
 
 const sidebarContent = {
     admin: [
@@ -249,14 +257,15 @@ const handleClickOutsideUser = (e) => {
 };
 
 const getCourseLink = (course) => {
-    if (user.value.role === 'user') {
-        return `/courses/${course.id}/my-study`;
-    } else if (user.value.role === 'curator') {
-        return `/courses/${course.id}/practicants`;
-    } else if (user.value.role === 'admin') {
-        return `/course-fill-content/${course.id}`;
-    }
-    return '#';
+    const basePath = user.value.role === 'user'
+        ? `/courses/${course.id}/my-study`
+        : user.value.role === 'curator'
+            ? `/courses/${course.id}/practicants`
+            : user.value.role === 'admin'
+                ? `/course-fill-content/${course.id}`
+                : '#';
+
+    return basePath;
 }
 
 watch(() => route.path, async (newPath) => {
@@ -402,7 +411,8 @@ provide('user', user)
                     background-color: #E9F2FF;
                 }
 
-                &.router-link-active {
+                &.router-link-active,
+                &.router-link-exact-active {
                     background-color: #E9F2FF;
                     font-weight: bold;
                 }
