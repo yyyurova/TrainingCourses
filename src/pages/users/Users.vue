@@ -13,7 +13,7 @@
 
         <Loading v-if="isLoading || getUserRole() === null" />
 
-        <Pagination v-else :totalItems="totalItems" :currentPage="currentPage"
+        <Pagination v-else :totalItems="totalItems" :currentPage="currentPage" :perPage="15"
             @update:currentPage="updateCurrentPage" />
 
         <ConfirmDelete v-if="showConfirmModal" :question="modalConfig.question" :text="modalConfig.text"
@@ -84,6 +84,11 @@ const fetchUsers = async () => {
     try {
         saveScrollPosition();
 
+        const params = {
+            page: currentPage.value,
+            per_page: 15 // или можно получать из API, если он поддерживает изменение
+        };
+
         if (filters.value.role) params.role = filters.value.role;
         if (filters.value.status) params.status = filters.value.status;
         if (filters.value.email) params.email = filters.value.email;
@@ -91,9 +96,10 @@ const fetchUsers = async () => {
 
         isLoading.value = true;
 
-        const response = await getUsers();
+        const response = await getUsers(params); // Убедитесь, что getUsers принимает параметры
         users.value = response.data;
         totalItems.value = response.meta.total;
+        currentPage.value = response.meta.current_page; // Обновляем текущую страницу из ответа
 
         nextTick(() => {
             window.scrollTo(0, scrollPosition.value);

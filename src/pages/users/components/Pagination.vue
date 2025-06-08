@@ -1,7 +1,7 @@
 <template>
-    <div class="pagination">
+    <div class="pagination" v-if="totalPages > 1">
         <button class="icon" @click="prevPage" :class="{ 'disable': currentPage === 1 }" :disabled="currentPage === 1">
-            <img class=" arrow-left" src="/icons/arrow.svg" alt="">
+            <img class="arrow-left" src="/icons/arrow.svg" alt="">
         </button>
 
         <button v-for="page in visiblePages" :key="page" @click="goToPage(page)"
@@ -11,7 +11,7 @@
 
         <button class="icon" @click="nextPage" :class="{ 'disable': currentPage === totalPages }"
             :disabled="currentPage === totalPages">
-            <img class=" arrow-right" src="/icons/arrow.svg" alt="">
+            <img class="arrow-right" src="/icons/arrow.svg" alt="">
         </button>
     </div>
 </template>
@@ -21,7 +21,11 @@ import { computed, defineEmits } from 'vue';
 
 const props = defineProps({
     totalItems: Number,
-    currentPage: Number
+    currentPage: Number,
+    perPage: {
+        type: Number,
+        default: 15 // Устанавливаем значение по умолчанию из метаданных API
+    }
 });
 
 const emit = defineEmits(['update:currentPage']);
@@ -43,7 +47,7 @@ const goToPage = (page) => {
 };
 
 const totalPages = computed(() => {
-    return Math.ceil(props.totalItems / 10);
+    return Math.ceil(props.totalItems / props.perPage);
 });
 
 const visiblePages = computed(() => {
