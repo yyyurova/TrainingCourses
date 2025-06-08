@@ -95,7 +95,7 @@ const handleSubmit = async () => {
             id: resp.data.data.id,
             name: resp.data.data.name,
             role: resp.data.data.role,
-            // email: resp.data.data.email,
+            email: resp.data.data.email,
         }));
 
         addRoleRoutes(resp.data.data.role);

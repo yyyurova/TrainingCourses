@@ -120,8 +120,13 @@ const handleSubmit = async () => {
                 password.value
             )
             localStorage.setItem('token', resp.data.data.access_token)
-            localStorage.setItem('user_name', resp.data.data.name)
-            localStorage.setItem('user_role', resp.data.data.role)
+            localStorage.setItem('user', JSON.stringify({
+                id: resp.data.data.id,
+                name: resp.data.data.name,
+                role: resp.data.data.role,
+                email: resp.data.data.email,
+            }));
+
             router.push('/verification')
         }
         catch (err) { console.log(err) }

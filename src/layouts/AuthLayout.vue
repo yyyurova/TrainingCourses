@@ -40,19 +40,6 @@
             }
         }
 
-        .sign-in,
-        .sign-up {
-            width: 100%;
-            background-color: #513DEB;
-            border-radius: 10px;
-            border: none;
-            padding: 12px 20px;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            line-height: 100%;
-        }
-
         .google-sign-in {
             width: 100%;
             background-color: #fff;
@@ -183,7 +170,6 @@
             line-height: 130%;
             letter-spacing: 1%;
             width: 600px;
-
         }
 
         .error {
