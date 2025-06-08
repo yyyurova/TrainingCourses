@@ -50,7 +50,7 @@
                     <td>{{ user.email }}</td>
                     <td>
                         <p :style="{ backgroundColor: statusBackgrounds[user.status] }">{{ translateStatus(user.status)
-                            }}</p>
+                        }}</p>
                     </td>
                     <td>
                         {{ translateStatus(user.status) === 'Доступ не одобрен' || translateStatus(user.status) ===
@@ -93,8 +93,9 @@ const showFilter = reactive({
     email: false,
     name: false
 })
+
 const toggleStatusFilter = (event) => {
-    closeAllFilters(); // Сбрасываем все фильтры перед открытием нового
+    closeAllFilters();
     showFilter.status = !showFilter.status;
     toggleArrow(event);
 }

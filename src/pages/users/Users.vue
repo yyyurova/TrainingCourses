@@ -86,7 +86,7 @@ const fetchUsers = async () => {
 
         const params = {
             page: currentPage.value,
-            per_page: 15 // или можно получать из API, если он поддерживает изменение
+            per_page: 15
         };
 
         if (filters.value.role) params.role = filters.value.role;
@@ -96,14 +96,14 @@ const fetchUsers = async () => {
 
         isLoading.value = true;
 
-        const response = await getUsers(params); // Убедитесь, что getUsers принимает параметры
+        const response = await getUsers(params);
         users.value = response.data;
         totalItems.value = response.meta.total;
-        currentPage.value = response.meta.current_page; // Обновляем текущую страницу из ответа
+        currentPage.value = response.meta.current_page;
 
-        nextTick(() => {
-            window.scrollTo(0, scrollPosition.value);
-        });
+        // nextTick(() => {
+        //     window.scrollTo(0, scrollPosition.value);
+        // });
     } catch (error) {
         console.error('Ошибка:', error);
     } finally {
@@ -223,7 +223,6 @@ const filters = ref({
 
 const handleFilter = ({ type, value }) => {
     if (type === 'name') {
-        // Сохраняем массив имён или null, если фильтр сброшен
         filters.value[type] = Array.isArray(value) && value.length > 0 ? value : null;
     } else {
         filters.value[type] = value;

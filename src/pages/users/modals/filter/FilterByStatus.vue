@@ -3,8 +3,8 @@ const emit = defineEmits(['filter']);
 
 const statuses = [
     { value: 'approved', label: 'Доступ одобрен', color: '#007843' },
-    { value: 'disapproved', label: 'Доступ не одобрен', color: 'rgb(205, 50, 50)' },
-    { value: 'new user', label: 'Новый пользователь', color: '#513DEB' }
+    { value: 'rejected', label: 'Доступ не одобрен', color: 'rgb(205, 50, 50)' },
+    { value: 'pending', label: 'Новый пользователь', color: '#513DEB' }
 ];
 
 const handleClick = (status) => {

@@ -2,8 +2,8 @@
 const emit = defineEmits(['filter']);
 
 const roles = [
-    { value: 'teacher', label: 'Куратор', },
-    { value: 'student', label: 'Студент', },
+    { value: 'curator', label: 'Куратор', },
+    { value: 'user', label: 'Студент', },
     { value: 'admin', label: 'Администратор', }
 ];
 
