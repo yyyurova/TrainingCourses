@@ -222,11 +222,7 @@ const filters = ref({
 });
 
 const handleFilter = ({ type, value }) => {
-    if (type === 'name') {
-        filters.value[type] = Array.isArray(value) && value.length > 0 ? value : null;
-    } else {
-        filters.value[type] = value;
-    }
+    filters.value[type] = value;
 };
 
 const handleCreateUser = async (user) => {
