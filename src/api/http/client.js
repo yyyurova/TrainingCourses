@@ -3,17 +3,17 @@ import axios from 'axios';
 const client = axios.create({
     baseURL: 'https://api-course.hellishworld.ru/api',
     headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${localStorage.getItem('token')}`
+        Accept: "application/json"
     }
 });
 
-// client.interceptors.response.use(
-//     response => response.data,
-//     error => {
-//         console.error('API Error:', error.message);
-//         return Promise.reject(error);
-//     }
-// );
+// Добавляем интерцептор запросов для динамического обновления токена
+client.interceptors.request.use(config => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
 
 export default client;

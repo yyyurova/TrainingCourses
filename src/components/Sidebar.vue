@@ -70,8 +70,11 @@
 <script setup>
 import { ref, watch, computed, onMounted, provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
 import { getCourses as studentCoursesApi } from '@/api/modules/courses.api';
 import { getCourses as adminCoursesApi } from '@/api/modules/adminCourses.api';
+import { getCourses as curatorCoursesApi } from '@/api/modules/curatorCourses.api';
+
 import { resetRoleRoutes } from '@/router';
 import { getCurrentUser } from '@/utils/auth';
 import { logout } from '@/utils/auth';
@@ -235,8 +238,10 @@ const saveUserChanges = async (changes) => {
 const fetchCourses = async () => {
     if (user.value.role === 'admin') {
         courses.value = await adminCoursesApi()
-    } else {
+    } else if (user.value.role === 'user') {
         courses.value = await studentCoursesApi()
+    } else {
+        courses.value = await curatorCoursesApi()
     }
 }
 

@@ -83,7 +83,6 @@ export const router = createRouter({
     routes: baseRoutes
 });
 
-// Соответствие ролей и маршрутов
 const roleRoutesMap = {
     admin: [...adminRoutes],
     user: [...studentRoutes, chatRoute],

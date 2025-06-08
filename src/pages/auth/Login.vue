@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { login, getLoginUrls } from '@/api/modules/auth.api';
 import { addRoleRoutes } from '@/router';
@@ -99,15 +99,8 @@ const handleSubmit = async () => {
         }));
 
         addRoleRoutes(resp.data.data.role);
-
-        // const redirectMap = {
-        //     admin: '/users',
-        //     curator: '/courses',
-        //     default: '/courses'
-        // };
-
+        await nextTick()
         router.push('/courses');
-        // location.reload()
     } catch (err) {
         console.error('Ошибка входа:', err);
         errors.value.all = 'Неправильные email или пароль';
