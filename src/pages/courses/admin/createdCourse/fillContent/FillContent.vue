@@ -156,7 +156,7 @@ const updateModuleName = (index, newName) => {
 const updatePageName = (chapterIndex, pageIndex, newName) => {
     const page = content.value.modules[chapterIndex].pages[pageIndex];
     const module = content.value.modules[chapterIndex];
-    page.name = newName;
+    page.title = newName;
 
     // Добавляем в изменения для сохранения
     const existingUpdate = changes.pages.updated.find(p => p.id === page.id);
@@ -194,8 +194,8 @@ const createPageWithType = async (type) => {
         );
 
         module.pages.push({
-            id: response.id,
-            title: response.title || `Новая страница (${typeNames[type]})`,
+            id: response.data.id,
+            title: response.data.title || `Новая страница (${typeNames[type]})`,
             type: type,
             content: ''
         });

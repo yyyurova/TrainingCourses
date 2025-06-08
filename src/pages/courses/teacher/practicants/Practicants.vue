@@ -18,7 +18,6 @@
         <div v-else-if="(!practicants && !isLoading) || (practicants.length === 0 && !isLoading)" class="no-items">
             <h2>В данном курсе нет практикантов.</h2>
         </div>
-        <!-- <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" :users="practicants" /> -->
     </Layout>
 </template>
 
@@ -33,7 +32,6 @@ import Navbar from '@/components/Navbar.vue';
 import Card from '@/components/Card.vue';
 import Loading from '@/components/Loading.vue';
 import AvatarLetter from '@/components/AvatarLetter.vue';
-// import CreateTask from '../components/modals/CreateTask.vue';
 
 const practicants = ref([])
 const originalPracticants = ref([])
@@ -45,7 +43,6 @@ const router = useRouter()
 const route = useRoute()
 
 const isLoading = ref(false)
-// const showCreateTaskModal = ref(false)
 
 const navbarItems = computed(() => {
     if (!course.value) return [];
@@ -56,14 +53,6 @@ const navbarItems = computed(() => {
         { name: 'Оценки', linkTo: `/courses/${course.value.id}/marks` }
     ];
 });
-
-// const closeModal = () => {
-//     if (showCreateTaskModal.value) { showCreateTaskModal.value = false }
-// }
-
-// const openCreateTaskModal = () => {
-//     showCreateTaskModal.value = true
-// }
 
 const fetchPracticants = async () => {
     try {

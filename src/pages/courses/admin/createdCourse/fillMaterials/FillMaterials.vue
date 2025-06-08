@@ -5,7 +5,7 @@
             <h1>Заполнение учебных материалов для курса</h1>
             <Card class="no-hover page-name">
                 <!-- <p>{{ currentPage.title }}</p> -->
-                <input type="text" v-model="currentPage.title">
+                <input type="text" v-model="pageName">
             </Card>
 
             <h4>
@@ -152,7 +152,7 @@ const quizData = ref({
     quantity: 'several'
 });
 
-const initialPageName = ref('')
+const pageName = ref('')
 const isSaved = ref(false);
 const showSaveChangesModal = ref(false);
 
@@ -327,8 +327,8 @@ const saveCourse = async () => {
         let description = '';
         const title = currentPage.value.title;
 
-        if (title !== initialPageName.value) {
-            await updatePage(currentModule.value.id, currentPage.value.id, title, currentPage.value.type)
+        if (title !== pageName.value) {
+            await updatePage(currentModule.value.id, currentPage.value.id, pageName.value, currentPage.value.type)
         }
 
         switch (currentPage.value.type) {
@@ -350,7 +350,6 @@ const saveCourse = async () => {
                 break;
         }
 
-        // Сохраняем или обновляем вопрос
         let question;
         if (currentQuestion.value) {
             question = await updateQuestion(
@@ -368,22 +367,17 @@ const saveCourse = async () => {
             currentQuestion.value = question;
         }
 
-        // Для тестов сохраняем варианты ответов
         if (currentPage.value.type === 3 && currentQuestion.value) {
-            // Сначала получаем текущие варианты, чтобы знать какие удалить
             const currentVariants = await getVariants(currentQuestion.value.id);
 
-            // Сохраняем все новые варианты
             for (const option of quizData.value.options) {
                 if (option.id) {
-                    // Обновляем существующий вариант
                     await updateVariant(
                         currentQuestion.value.id,
                         option.id,
                         option.text,
                         quizData.value.correct.includes(quizData.value.options.indexOf(option)))
                 } else {
-                    // Создаем новый вариант
                     const newVariant = await createVariant(
                         currentQuestion.value.id,
                         option.text,
@@ -392,14 +386,12 @@ const saveCourse = async () => {
                 }
             }
 
-            // Удаляем варианты, которые были удалены в интерфейсе
             const currentVariantIds = currentVariants.map(v => v.id);
             const newVariantIds = quizData.value.options.map(o => o.id).filter(id => id !== null);
             const variantsToDelete = currentVariantIds.filter(id => !newVariantIds.includes(id));
 
-            // Здесь нужно добавить метод deleteVariant в API и вызывать его для каждого variantsToDelete
-            // await Promise.all(variantsToDelete.map(id => deleteVariant(currentQuestion.value.id, id)));
         }
+        await fetchMaterial()
 
         popupText.value = 'Изменения успешно сохранены';
         showPopup.value = true;
@@ -492,7 +484,7 @@ const loadCurrentPage = async () => {
             const page = module.pages.find(p => p.id === pageId);
             if (page) {
                 currentPage.value = page;
-                initialPageName.value = page.title
+                pageName.value = page.title
                 currentPageIndex.value = module.pages.indexOf(page);
                 await loadPageContent();
             }
