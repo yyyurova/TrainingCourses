@@ -1,10 +1,9 @@
 <template>
     <CourseCompletionLayout>
-        <Card v-if="end" class="no-hover end">
-            <h1>Ты завершил модуль!!!</h1>
-            <img src="/nice.jfif" alt="">
-        </Card>
-        <Card v-if="module && !end" class="no-hover" :style="!material ? 'height:100vh' : ''">
+        <EndOfModule v-if="endOfModule" @next="goToNextModule" />
+        <EndOfCourse v-if="endOfCourse" />
+
+        <Card v-if="module && !endOfModule && !endOfCourse" class="no-hover" :style="!material ? 'height:100vh' : ''">
             <h1 class="chapterName">
                 {{ module.title }}
                 <span class="score">{{ completedPages + " из " + module.pages.length + " шагов пройдено" }}</span>
@@ -55,7 +54,7 @@
 
 <script setup>
 import { computed, onMounted, ref, watch, provide } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { getCourse } from '@/api/modules/courses.api';
 import { getModules } from '@/api/modules/studentMaterials.api';
 import { getModulePage } from '@/api/modules/studentMaterials.api';
@@ -63,12 +62,19 @@ import { sendAnswer } from '@/api/modules/studentAnswers.api';
 
 import CourseCompletionLayout from '@/layouts/CourseCompletionLayout.vue';
 import Card from '@/components/Card.vue';
+import EndOfModule from './components/EndOfModule.vue';
+import EndOfCourse from './components/EndOfCourse.vue';
 
 const material = ref(null);
+
+const router = useRouter()
 const route = useRoute();
 const course = ref(null);
 const courseId = route.params.courseId;
-const end = ref(false);
+
+const endOfModule = ref(false);
+const endOfCourse = ref(false)
+
 const loading = ref(false);
 
 const currentPageData = ref(null);
@@ -83,6 +89,7 @@ const resetQuizState = () => {
     quizPassed.value = {};
     quizWasChecked.value = false;
 };
+
 const moduleIndex = computed(() => parseInt(route.params.moduleIndex) || 0)
 const pageIndex = computed(() => parseInt(route.params.pageIndex) || 0)
 
@@ -104,6 +111,11 @@ const fetchMaterial = async () => {
         console.error('Ошибка загрузки данных:', err);
     }
 };
+
+const goToNextModule = () => {
+    endOfModule.value = false
+    router.push(`/courseCompletion/${courseId}/${moduleIndex.value + 1}/0`)
+}
 
 const loadPageContent = async () => {
     if (!module.value || !module.value.pages[currentPageIndex.value]) return;
@@ -234,6 +246,11 @@ const nextPage = () => {
     if (!module.value.pages[currentPageIndex.value].completed) {
         module.value.pages[currentPageIndex.value].completed = true;
     }
+    // console.log(moduleIndex.value, material.value.length)
+    if (moduleIndex.value === material.value.length - 1 && currentPageIndex.value >= module.value.pages.length - 1) {
+        completeCourse()
+        return
+    }
 
     if (currentPageIndex.value < module.value.pages.length - 1) {
         currentPageIndex.value++;
@@ -247,8 +264,12 @@ const goToPage = (index) => {
 };
 
 const completeModule = () => {
-    end.value = true;
+    endOfModule.value = true;
 };
+
+const completeCourse = () => {
+    endOfCourse.value = true
+}
 
 watch(currentPageIndex, async () => {
     await loadPageContent();
@@ -270,10 +291,6 @@ provide('course', course);
 .card {
     width: 100%;
     gap: 15px;
-
-    &.end {
-        align-items: center;
-    }
 
     .chapterName {
         font-weight: 600;

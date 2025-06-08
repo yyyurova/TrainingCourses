@@ -100,7 +100,7 @@ onMounted(initOpenModules)
     gap: 16px;
     min-width: 300px;
     width: 300px;
-    padding: 20px 8px;
+    padding: 20px 10px;
     background-color: #F8F8F8;
     min-height: 100vh;
     box-sizing: border-box;
