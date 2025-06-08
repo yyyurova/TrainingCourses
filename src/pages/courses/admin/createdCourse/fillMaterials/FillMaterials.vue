@@ -3,8 +3,9 @@
     <FillCourseMaterialsLayout v-else>
         <Card class="no-hover fill-material" v-if="material && currentModule">
             <h1>Заполнение учебных материалов для курса</h1>
-            <Card class="no-hover name">
-                <p>{{ currentPage.title }}</p>
+            <Card class="no-hover page-name">
+                <!-- <p>{{ currentPage.title }}</p> -->
+                <input type="text" v-model="currentPage.title">
             </Card>
 
             <h4>
@@ -151,6 +152,7 @@ const quizData = ref({
     quantity: 'several'
 });
 
+const initialPageName = ref('')
 const isSaved = ref(false);
 const showSaveChangesModal = ref(false);
 
@@ -325,6 +327,10 @@ const saveCourse = async () => {
         let description = '';
         const title = currentPage.value.title;
 
+        if (title !== initialPageName.value) {
+            await updatePage(currentModule.value.id, currentPage.value.id, title, currentPage.value.type)
+        }
+
         switch (currentPage.value.type) {
             case 1:
                 description = currentPageContent.value;
@@ -486,6 +492,7 @@ const loadCurrentPage = async () => {
             const page = module.pages.find(p => p.id === pageId);
             if (page) {
                 currentPage.value = page;
+                initialPageName.value = page.title
                 currentPageIndex.value = module.pages.indexOf(page);
                 await loadPageContent();
             }
@@ -510,6 +517,17 @@ provide('material', material);
     width: 100%;
     gap: 15px;
     margin-bottom: 10px;
+
+    .page-name {
+        padding: 5px;
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            outline: none;
+        }
+    }
 
     .radio-inputs {
         position: relative;

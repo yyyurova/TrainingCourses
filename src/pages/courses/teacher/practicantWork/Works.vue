@@ -166,7 +166,6 @@ const updateMark = async (taskId, practicantId, mark) => {
 
 const fetchTask = async () => {
     task.value = await getTask(route.params.taskId)
-    console.log(task.value)
     allPracticants.value = task.value.students
     updateTaskStatuse()
 }

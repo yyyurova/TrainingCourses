@@ -130,7 +130,6 @@ const createCourse = async (course) => {
             title: course.title,
             // photo: course.photo || null
         })
-        console.log(data)
         router.push(`/course-fill-content/${data.data.data.id}`)
     }
     catch (err) {

@@ -46,7 +46,6 @@ const props = defineProps({
     student: Object,
 });
 
-console.log(props.student)
 
 const truncateText = (text, maxLength) => {
     if (!text) return '';
