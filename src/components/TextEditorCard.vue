@@ -10,6 +10,21 @@ import Card from '@/components/Card.vue';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 
+const props = defineProps({
+    content: {
+        type: String,
+        default: ''
+    },
+    modelValue: {
+        type: String,
+        default: ''
+    }
+});
+
+const emit = defineEmits(['update:modelValue']);
+
+const editor = ref(null);
+const quill = ref(null);
 const isMounted = ref(true);
 
 onUnmounted(() => {
@@ -41,22 +56,6 @@ class CustomLink extends LinkBlot {
     }
 }
 Quill.register(CustomLink, true);
-
-const props = defineProps({
-    content: {
-        type: String,
-        default: ''
-    },
-    modelValue: {
-        type: String,
-        default: ''
-    }
-});
-
-const emit = defineEmits(['update:modelValue']);
-
-const editor = ref(null);
-const quill = ref(null);
 
 onMounted(() => {
     initializeIcons();
@@ -94,82 +93,120 @@ onMounted(() => {
         const html = quill.value.root.innerHTML;
         emit('update:modelValue', html === '<p><br></p>' ? '' : html);
     });
+
+    quill.value.root.addEventListener('click', handleLinkClick);
 });
+
+const handleLinkClick = (event) => {
+    if (event.target.tagName === 'A') {
+        event.preventDefault();
+        const url = event.target.href;
+        window.open(url, '_blank');
+    }
+};
+
+const ensureEditorFocus = () => {
+    if (!quill.value.hasFocus()) {
+        quill.value.focus();
+    }
+};
+
+const getSafeSelection = () => {
+    ensureEditorFocus();
+
+    // Даем редактору время обновить состояние
+    setTimeout(() => {
+        let range = quill.value.getSelection();
+        if (!range || range.length === 0) {
+            range = { index: quill.value.getLength(), length: 0 };
+        }
+        return range;
+    }, 100);
+};
 
 const imageHandler = () => {
     if (!isMounted.value) return Promise.resolve();
+
     return new Promise((resolve) => {
         if (!quill.value) return resolve();
 
+        ensureEditorFocus();
+
         const input = document.createElement('input');
-        input.setAttribute('type', 'file');
-        input.setAttribute('accept', 'image/*');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.style.display = 'none';
+        document.body.appendChild(input);
         input.click();
 
-        input.onchange = async () => {
+        input.onchange = () => {
             const file = input.files[0];
-            if (!file) return;
+            document.body.removeChild(input);
+
+            if (!file) return resolve();
 
             try {
-                let range = quill.value.getSelection(true);
-
-                if (!range) {
-                    range = { index: quill.value.getLength(), length: 0 };
-                }
-
+                const range = getSafeSelection();
                 const reader = new FileReader();
+
                 reader.onload = (e) => {
-                    if (quill.value) {
-                        quill.value.insertEmbed(range.index, 'image', e.target.result, Quill.sources.USER);
-                        quill.value.setSelection(range.index + 1, 0);
-                    }
+                    quill.value.insertEmbed(
+                        range.index,
+                        'image',
+                        e.target.result,
+                        Quill.sources.USER
+                    );
+                    quill.value.setSelection(range.index + 1, 0);
                     resolve();
                 };
+
                 reader.readAsDataURL(file);
             } catch (error) {
                 console.error('Ошибка при вставке изображения:', error);
                 resolve();
             }
         };
+
+        input.oncancel = () => {
+            document.body.removeChild(input);
+            resolve();
+        };
     });
 };
 
 const linkHandler = () => {
-    if (!isMounted.value) return;
-    if (!quill.value) return;
+    if (!isMounted.value || !quill.value) return;
 
-    let range = quill.value.getSelection();
+    ensureEditorFocus();
 
-    if (!range) {
-        range = { index: quill.value.getLength(), length: 0 };
-    }
+    setTimeout(() => {
+        const range = getSafeSelection();
 
-    if (range.length > 0) {
-        const text = quill.value.getText(range.index, range.length);
-        const preview = text.length > 20 ? text.substring(0, 20) + '...' : text;
-        const currentLink = quill.value.getFormat(range.index, range.length).link;
+        if (range.length > 0) {
+            const format = quill.value.getFormat(range);
+            let url = format.link || '';
 
-        let url = prompt('Введите URL для ссылки:', currentLink || 'https://');
-        if (!url) return;
+            url = prompt('Введите URL для ссылки:', url) || '';
+            if (!url) return;
 
-        if (!/^https?:\/\//i.test(url)) {
-            url = 'https://' + url;
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'https://' + url;
+            }
+
+            quill.value.formatText(range.index, range.length, 'link', url);
+        } else {
+            const url = prompt('Введите URL для ссылки:', 'https://') || '';
+            if (!url) return;
+
+            const text = prompt('Введите текст ссылки:', url) || url;
+            const normalizedUrl = /^https?:\/\//i.test(url)
+                ? url
+                : 'https://' + url;
+
+            quill.value.insertText(range.index, text, 'link', normalizedUrl);
+            quill.value.setSelection(range.index + text.length, 0);
         }
-
-        quill.value.formatText(range.index, range.length, 'link', url);
-    } else {
-        const url = prompt('Введите URL для ссылки:', 'https://');
-        if (!url) return;
-
-        const text = prompt('Введите текст ссылки:', url);
-        if (!text) return;
-
-        const normalizedUrl = /^https?:\/\//i.test(url) ? url : 'https://' + url;
-        const index = range.index;
-
-        quill.value.insertText(index, text, 'link', normalizedUrl);
-        quill.value.setSelection(index + text.length, 0);
-    }
+    }, 100);
 };
 
 watch(() => props.modelValue, (newValue) => {

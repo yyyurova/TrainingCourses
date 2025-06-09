@@ -32,8 +32,9 @@
                 <div class="status" v-if="cancelled.length > 0">
                     <h3>Отменено</h3>
                     <PracticantRow v-for="practicant in cancelled" :key="practicant.id" :practicant="practicant"
-                        @click="selectPracticant(practicant)" :is-select="practicant.isSelect" action="Назначить" />
-                    <!-- @action-with-practicant="assignTask" -->
+                        @click="selectPracticant(practicant)" :task-id="task.id" :is-select="practicant.isSelect"
+                        action="Назначить" @action-with-practicant="assignTask" />
+
                 </div>
             </Card>
             <Card class="no-hover right">
@@ -54,20 +55,21 @@
                 </div>
             </Card>
         </div>
+        <Loading v-else />
     </Layout>
 </template>
 
 <script setup>
-import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { format } from '@formkit/tempo';
-import { getTask, completeTask, cancelTask as apiCancelTask } from '@/api/modules/tasks.api';
+import { getTask, completeTask, cancelTask as apiCancelTask, assignTask as apiAssignTask } from '@/api/modules/tasks.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Card from '@/components/Card.vue';
 import PracticantRow from './components/PracticantRow.vue';
 import SelectedPracticant from './components/SelectedPracticant.vue';
+import Loading from '@/components/Loading.vue';
 
 const task = ref(null)
 
@@ -113,14 +115,13 @@ const selectAllPracticants = () => {
 const cancelTask = async (taskId, userId) => {
     try {
         await apiCancelTask(taskId, userId);
-        // Обновляем статус практиканта локально
         const practicant = allPracticants.value.find(p => p.id === userId);
         if (practicant) {
             practicant.cancelled = 1;
             practicant.done = 0;
             practicant.mark = null;
         }
-        updateTaskStatuse(); // Обновляем распределение по статусам
+        updateTaskStatuse();
     } catch (err) {
         console.error("Ошибка при отмене задания:", err);
     }
@@ -142,27 +143,18 @@ const updateTaskStatuse = () => {
     });
 };
 
-// const assignTask = async (id) => {
-//     try {
-//         task.value.cancelled = task.value.cancelled.filter(c => c !== id);
-//         updateTaskStatuse();
-
-//         const updatedCourse = {
-//             ...course.value,
-//             tasks: course.value.tasks.map(t =>
-//                 t.id === task.value.id ? task.value : t
-//             )
-//         };
-
-//         await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${course.value.id}`, {
-//             tasks: updatedCourse.tasks
-//         });
-//     } catch (err) {
-//         console.error("Ошибка при назначении задания:", err);
-//         task.value.cancelled.push(id);
-//         updateTaskStatuse();
-//     }
-// }
+const assignTask = async (taskId, userId) => {
+    try {
+        await apiAssignTask(taskId, userId)
+        const practicant = allPracticants.value.find(p => p.id === userId);
+        if (practicant) {
+            practicant.cancelled = 0;
+        }
+        updateTaskStatuse()
+    } catch (err) {
+        console.error("Ошибка при назначении задания:", err);
+    }
+}
 
 const updateMark = async (taskId, practicantId, mark) => {
     try {

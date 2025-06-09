@@ -28,7 +28,6 @@ const props = defineProps({
     practicant: Object,
     action: String,
     taskId: Number,
-    // courseId: Number
 })
 
 const emit = defineEmits(['actionWithPracticant', 'updateMark'])
