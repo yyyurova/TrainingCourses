@@ -41,7 +41,8 @@ const courseId = route.params.courseId
 const navbarItems = [
     { name: 'Практиканты', linkTo: `/courses/${courseId}/practicants` },
     { name: 'Задания', linkTo: `/courses/${courseId}/tasks` },
-    { name: 'Оценки', linkTo: `/courses/${courseId}/marks` }
+    { name: 'Оценки', linkTo: `/courses/${courseId}/marks` },
+    { name: 'Содержание курса', linkTo: `/courses/${courseId}/content` }
 ];
 
 const goToTasks = () => {

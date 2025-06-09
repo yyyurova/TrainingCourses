@@ -5,6 +5,7 @@ import Courses from '@/pages/courses/Courses.vue'
 import Tasks from '@/pages/courses/teacher/Tasks.vue'
 import Works from '@/pages/courses/teacher/practicantWork/Works.vue'
 import Marks from '@/pages/courses/teacher/marks/Marks.vue'
+import CourseContent from '@/pages/courses/teacher/courseContent/CourseContent.vue'
 
 export const curatorRoutes = [
     {
@@ -36,6 +37,12 @@ export const curatorRoutes = [
                 name: 'Marks',
                 component: Marks,
                 meta: { title: 'Оценки' },
+            },
+            {
+                path: ':courseId/content',
+                name: 'Content',
+                component: CourseContent,
+                meta: { title: 'Содержание курса' },
             },
             {
                 path: ':courseId/works/:taskId',

@@ -16,7 +16,6 @@ onUnmounted(() => {
     isMounted.value = false;
 });
 
-// Инициализация кастомных иконок
 const initializeIcons = () => {
     const icons = Quill.import('ui/icons');
     icons['bold'] = '<img src="/icons/bold.svg" alt="Ж" class="ql-icon">';
@@ -32,7 +31,6 @@ const initializeIcons = () => {
     icons['link'] = '<img src="/icons/link.svg" alt="Добавить ссылку" class="ql-icon">';
 };
 
-// Регистрация модуля ссылок
 const LinkBlot = Quill.import('formats/link');
 class CustomLink extends LinkBlot {
     static create(value) {
@@ -86,14 +84,12 @@ onMounted(() => {
         formats: ['bold', 'italic', 'underline', 'code', 'list', 'align', 'link', 'image']
     });
 
-    // Инициализация содержимого
     if (props.modelValue) {
         quill.value.root.innerHTML = props.modelValue;
     } else if (props.content) {
         quill.value.root.innerHTML = props.content;
     }
 
-    // Обработчик изменений
     quill.value.on('text-change', () => {
         const html = quill.value.root.innerHTML;
         emit('update:modelValue', html === '<p><br></p>' ? '' : html);
@@ -103,7 +99,6 @@ onMounted(() => {
 const imageHandler = () => {
     if (!isMounted.value) return Promise.resolve();
     return new Promise((resolve) => {
-        // Проверка на существование Quill
         if (!quill.value) return resolve();
 
         const input = document.createElement('input');
@@ -116,17 +111,14 @@ const imageHandler = () => {
             if (!file) return;
 
             try {
-                // Получаем позицию курсора (с флагом для последнего выделения)
                 let range = quill.value.getSelection(true);
 
-                // Если нет выделения - используем конец редактора
                 if (!range) {
                     range = { index: quill.value.getLength(), length: 0 };
                 }
 
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    // Дополнительная проверка перед вставкой
                     if (quill.value) {
                         quill.value.insertEmbed(range.index, 'image', e.target.result, Quill.sources.USER);
                         quill.value.setSelection(range.index + 1, 0);
@@ -142,22 +134,17 @@ const imageHandler = () => {
     });
 };
 
-// Обработчик ссылок
 const linkHandler = () => {
     if (!isMounted.value) return;
-    // Проверка на существование Quill
     if (!quill.value) return;
 
-    // Получаем текущее выделение (без флага)
     let range = quill.value.getSelection();
 
-    // Если нет выделения - используем конец редактора
     if (!range) {
         range = { index: quill.value.getLength(), length: 0 };
     }
 
     if (range.length > 0) {
-        // Текст выделен
         const text = quill.value.getText(range.index, range.length);
         const preview = text.length > 20 ? text.substring(0, 20) + '...' : text;
         const currentLink = quill.value.getFormat(range.index, range.length).link;
@@ -171,7 +158,6 @@ const linkHandler = () => {
 
         quill.value.formatText(range.index, range.length, 'link', url);
     } else {
-        // Текст не выделен
         const url = prompt('Введите URL для ссылки:', 'https://');
         if (!url) return;
 

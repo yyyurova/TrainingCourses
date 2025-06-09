@@ -71,7 +71,8 @@ const navbarItems = computed(() => {
     return [
         { name: 'Практиканты', linkTo: `/courses/${course.value.id}/practicants` },
         { name: 'Задания', linkTo: `/courses/${course.value.id}/tasks` },
-        { name: 'Оценки', linkTo: `/courses/${course.value.id}/marks` }
+        { name: 'Оценки', linkTo: `/courses/${course.value.id}/marks` },
+        { name: 'Содержание курса', linkTo: `/courses/${course.value.id}/content` }
     ];
 });
 
