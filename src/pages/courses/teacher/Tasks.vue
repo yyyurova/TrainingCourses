@@ -16,6 +16,7 @@
                 <h2>В этом курсе пока нет заданий</h2>
             </div>
         </div>
+
         <EditTask v-if="showEditModal" :task="taskToEdit" @cancel="closeModal" @save="editTask" />
 
         <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" @create="createTask" :users="practicants" />
@@ -106,7 +107,12 @@ const openDeleteModal = (task) => {
 }
 
 const fetchCourse = async () => {
-    course.value = await getCourse(route.params.courseId)
+    try {
+        isLoading.value = true
+        course.value = await getCourse(route.params.courseId)
+    } finally {
+        isLoading.value = false
+    }
 }
 
 const fetchTasks = async () => {

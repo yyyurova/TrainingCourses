@@ -90,62 +90,67 @@ const toggleMember = (user) => {
 </script>
 
 <style scoped lang="scss">
-.card {
-    padding: 0;
-    width: 100%;
+.modal-content {
+    width: 550px !important;
 
-    textarea {
-        margin: 5px;
-        border-radius: 8px;
-        width: calc(100% - 10px);
-        min-height: 50px;
-    }
-}
-
-input {
-    width: 100%;
-}
-
-.group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 10px;
-
-    :deep(.format-toolbar) {
-        padding: 0 !important;
-        gap: 10px !important;
+    .card {
+        padding: 0;
+        width: 100%;
     }
 
-    :deep(.editor-content) {
-        min-height: 50px !important;
-    }
+    :deep(.ql-formats) {
+        gap: 5px !important;
 
-    .dropdown {
-        max-height: 100px;
-    }
-}
-
-.icons {
-    padding: 10px;
-    border-top: 1px solid #d9d9d9;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    button {
-        padding: 7px;
-
-        img {
-            width: 20px;
-            height: auto;
-        }
-
-        &:hover {
-            background-color: #E9F2FF;
+        .ql-image {
+            width: 28px;
+            height: 28px;
         }
     }
 
+    input:not(input[type="checkbox"]) {
+        width: 100%;
+    }
+
+    .group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
+
+        :deep(.format-toolbar) {
+            padding: 0 !important;
+            gap: 10px !important;
+        }
+
+        :deep(.editor-content) {
+            min-height: 50px !important;
+        }
+
+        .dropdown {
+            max-height: 100px;
+        }
+    }
+
+    .icons {
+        padding: 10px;
+        border-top: 1px solid #d9d9d9;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        button {
+            padding: 7px;
+
+            img {
+                width: 20px;
+                height: auto;
+            }
+
+            &:hover {
+                background-color: #E9F2FF;
+            }
+        }
+    }
 }
 </style>

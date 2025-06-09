@@ -46,16 +46,28 @@ const initializeIcons = () => {
     icons['link'] = '<img src="/icons/link.svg" alt="Добавить ссылку" class="ql-icon">';
 };
 
-const LinkBlot = Quill.import('formats/link');
-class CustomLink extends LinkBlot {
-    static create(value) {
-        const node = super.create(value);
-        node.setAttribute('target', '_blank');
-        node.setAttribute('rel', 'noopener noreferrer');
-        return node;
+function imageHandler() {
+    const range = this.quill.getSelection();
+    const imageUrl = prompt("Введите URL изображения:");
+    if (imageUrl) {
+        this.quill.insertEmbed(range.index, 'image', imageUrl, 'user');
     }
 }
-Quill.register(CustomLink, true);
+
+function linkHandler() {
+    const range = this.quill.getSelection();
+    const linkUrl = prompt("Введите URL ссылки:");
+    if (linkUrl) {
+        // Если пользователь не выделил текст - запрашиваем заголовок ссылки
+        if (range.length === 0) {
+            const linkText = prompt("Введите текст ссылки:");
+            this.quill.insertText(range.index, linkText, 'link', linkUrl);
+        } else {
+            // Если есть выделенный текст, применяем к нему формат link
+            this.quill.format('link', linkUrl);
+        }
+    }
+}
 
 onMounted(() => {
     initializeIcons();
@@ -64,25 +76,24 @@ onMounted(() => {
         modules: {
             toolbar: {
                 container: [
+                    // Здесь можно задать порядок иконок в тулбаре.
                     'image',
                     'bold', 'italic', 'underline', 'code', 'link',
                     { 'list': 'ordered' }, { 'list': 'bullet' },
                     { 'align': '' }, { 'align': 'center' }, { 'align': 'right' }
                 ],
+                // Регистрируем наши кастомные обработчики
                 handlers: {
                     image: imageHandler,
                     link: linkHandler
                 }
-            },
-            clipboard: {
-                matchVisual: false
             }
         },
         theme: 'snow',
         placeholder: 'Введите текст...',
-        formats: ['bold', 'italic', 'underline', 'code', 'list', 'align', 'link', 'image']
     });
 
+    // Загрузка исходного содержимого
     if (props.modelValue) {
         quill.value.root.innerHTML = props.modelValue;
     } else if (props.content) {
@@ -93,121 +104,7 @@ onMounted(() => {
         const html = quill.value.root.innerHTML;
         emit('update:modelValue', html === '<p><br></p>' ? '' : html);
     });
-
-    quill.value.root.addEventListener('click', handleLinkClick);
 });
-
-const handleLinkClick = (event) => {
-    if (event.target.tagName === 'A') {
-        event.preventDefault();
-        const url = event.target.href;
-        window.open(url, '_blank');
-    }
-};
-
-const ensureEditorFocus = () => {
-    if (!quill.value.hasFocus()) {
-        quill.value.focus();
-    }
-};
-
-const getSafeSelection = () => {
-    ensureEditorFocus();
-
-    // Даем редактору время обновить состояние
-    setTimeout(() => {
-        let range = quill.value.getSelection();
-        if (!range || range.length === 0) {
-            range = { index: quill.value.getLength(), length: 0 };
-        }
-        return range;
-    }, 100);
-};
-
-const imageHandler = () => {
-    if (!isMounted.value) return Promise.resolve();
-
-    return new Promise((resolve) => {
-        if (!quill.value) return resolve();
-
-        ensureEditorFocus();
-
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.style.display = 'none';
-        document.body.appendChild(input);
-        input.click();
-
-        input.onchange = () => {
-            const file = input.files[0];
-            document.body.removeChild(input);
-
-            if (!file) return resolve();
-
-            try {
-                const range = getSafeSelection();
-                const reader = new FileReader();
-
-                reader.onload = (e) => {
-                    quill.value.insertEmbed(
-                        range.index,
-                        'image',
-                        e.target.result,
-                        Quill.sources.USER
-                    );
-                    quill.value.setSelection(range.index + 1, 0);
-                    resolve();
-                };
-
-                reader.readAsDataURL(file);
-            } catch (error) {
-                console.error('Ошибка при вставке изображения:', error);
-                resolve();
-            }
-        };
-
-        input.oncancel = () => {
-            document.body.removeChild(input);
-            resolve();
-        };
-    });
-};
-
-const linkHandler = () => {
-    if (!isMounted.value || !quill.value) return;
-
-    ensureEditorFocus();
-
-    setTimeout(() => {
-        const range = getSafeSelection();
-
-        if (range.length > 0) {
-            const format = quill.value.getFormat(range);
-            let url = format.link || '';
-
-            url = prompt('Введите URL для ссылки:', url) || '';
-            if (!url) return;
-
-            if (!/^https?:\/\//i.test(url)) {
-                url = 'https://' + url;
-            }
-
-            quill.value.formatText(range.index, range.length, 'link', url);
-        } else {
-            const url = prompt('Введите URL для ссылки:', 'https://') || '';
-            if (!url) return;
-
-            const text = prompt('Введите текст ссылки:', url) || url;
-            const normalizedUrl = /^https?:\/\//i.test(url)
-                ? url
-                : 'https://' + url;
-
-            quill.value.insertText(range.index, text, 'link', normalizedUrl);
-            quill.value.setSelection(range.index + text.length, 0);
-        }
-    }, 100);
-};
 
 watch(() => props.modelValue, (newValue) => {
     if (newValue !== quill.value.root.innerHTML) {
@@ -232,9 +129,10 @@ watch(() => props.content, (newValue) => {
 
     .ql-formats {
         display: flex;
-        gap: 10px;
+        gap: 7px;
         align-items: center;
         flex-wrap: wrap;
+        margin: 0;
 
         button {
             width: 32px;
@@ -270,7 +168,7 @@ watch(() => props.content, (newValue) => {
 
 .ql-editor {
     padding: 15px !important;
-    min-height: 200px !important;
+    // min-height: 200px !important;
 
     &::before {
         font-style: normal !important;
@@ -303,8 +201,8 @@ watch(() => props.content, (newValue) => {
 
     .quill-editor {
         width: 100%;
-        height: 100%;
-        min-height: 200px;
+        // height: 100%;
+        min-height: 70px;
     }
 }
 </style>
