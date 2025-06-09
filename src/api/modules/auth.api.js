@@ -25,7 +25,8 @@ export const register = async (name, email, password) => {
 export const getLoginUrls = async () => {
     try {
         const response = await client.get(`${ENDPOINTS.LOGIN}`);
-        return response.data.data;
+        console.log(response)
+        return response.data;
     } catch (error) {
         console.error('Error fetching auth URLs:', error);
         throw error;

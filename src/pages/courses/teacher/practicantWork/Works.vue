@@ -38,8 +38,9 @@
             </Card>
             <Card class="no-hover right">
                 <div class="info">
-                    <h3 class="title">{{ task.title }}</h3>
-                    <p class="deadline">{{ format(task.deadline, 'short') }}</p>
+                    <h2>{{ task.name }}</h2>
+                    <h3 v-html="task.text"></h3>
+                    <p class="deadline">{{ format(task.until, 'short') }}</p>
                 </div>
 
                 <div v-if="selectedPracticants.length === 0" class="no-selected-student">
@@ -222,12 +223,21 @@ onMounted(async () => {
             .info {
                 padding: 20px;
 
+                h3 {
+                    margin: 15px 0;
+
+                    * {
+                        font-weight: 500 !important;
+
+                    }
+                }
+
                 .deadline {
+                    color: #6c6b6b;
                     font-weight: 400;
                     font-size: 16px;
                     line-height: 20px;
                     letter-spacing: 0px;
-                    vertical-align: middle;
                 }
             }
 

@@ -12,7 +12,7 @@
 
                 <div class="group">
                     <p>Описание<span class="required">*</span></p>
-                    <TextEditorCard v-model="description" />
+                    <TextEditorCard v-model="description" :content="description" />
                 </div>
 
                 <div class="group">

@@ -18,7 +18,9 @@
                     v-for="(page, index) in currentModule.pages" :key="index">
                 </span>
             </div>
-
+            <!-- <TextEditor v-if="currentPage.type === 1" /> -->
+            <!-- <QuillEditor v-if="currentPage.type === 1" v-model:content="currentPageContent" :options="editorOptions"
+                contentType="html" /> -->
             <TextEditorCard v-if="currentPage.type === 1" :content="currentPageContent" v-model="currentPageContent" />
             <div class="video" v-else-if="currentPage.type === 2">
                 <div class="radio-inputs">

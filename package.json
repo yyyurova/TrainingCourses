@@ -12,8 +12,10 @@
     "@formkit/auto-animate": "^0.8.2",
     "@formkit/tempo": "^0.1.2",
     "@popperjs/core": "^2.11.8",
+    "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.8.4",
     "pluralize-ru": "^1.0.1",
+    "quill": "^2.0.3",
     "v-calendar": "^3.1.2",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"

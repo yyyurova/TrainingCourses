@@ -109,10 +109,11 @@ const handleSubmit = async () => {
 
 const signInWithGoogle = async () => {
     try {
-        const urls = await getLoginUrls();
-        googleUrl.value = urls.google_url;
+        googleUrl.value = await getLoginUrls();
+        // googleUrl.value = urls.google_url;
+        console.log(googleUrl.value)
         if (googleUrl.value) {
-            window.location.href = googleUrl.value;
+            window.location.href = googleUrl.value.google_url;
         }
     } catch (error) {
         console.error('Ошибка при получении URL для входа:', error);

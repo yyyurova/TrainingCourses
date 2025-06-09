@@ -1,222 +1,287 @@
 <template>
-    <Card class="no-hover text">
-        <div class="editor-content" v-html="content" contenteditable="true" @input="handleInput"
-            @mouseup="updateSelection" @keyup="updateSelection"></div>
-        <div class="text-settings">
-            <div class="format-toolbar">
-                <input type="file" ref="fileInput" hidden @change="handleFileUpload">
-
-                <button class="icon tool-button" @click.prevent="$refs.fileInput.click()">
-                    <img src="/icons/paperclip.svg" alt="Attach">
-                </button>
-                <button class="icon tool-button" :class="{ 'active': isBold }" @click.prevent="handleFormat('bold')">
-                    <img src="/icons/bold.svg" alt="B">
-                </button>
-                <button class="icon tool-button" :class="{ 'active': isItalic }"
-                    @click.prevent="handleFormat('italic')">
-                    <img src="/icons/italics.svg" alt="I">
-                </button>
-                <button class="icon tool-button" :class="{ 'active': isUnderline }"
-                    @click.prevent="handleFormat('underline')">
-                    <img src="/icons/underline.svg" alt="U">
-                </button>
-                <button class="icon tool-button" :class="{ 'active': isCode }" @click.prevent="handleFormat('code')">
-                    <img src="/icons/code.svg" alt="Code">
-                </button>
-                <button class="icon tool-button" :class="{ 'active': isUnorderedList }"
-                    @click.prevent="handleFormat('insertUnorderedList')">
-                    <img src="/icons/ulist.svg" alt="UL">
-                </button>
-                <button class="icon tool-button" :class="{ 'active': isOrderedList }"
-                    @click.prevent="handleFormat('insertOrderedList')">
-                    <img src="/icons/olist.svg" alt="OL">
-                </button>
-                <button class="icon tool-button" @click.prevent="handleFormat('justifyLeft')"
-                    :class="{ 'active': isAlignLeft }">
-                    <img src="/icons/align-left.svg" alt="Left">
-                </button>
-                <button class="icon tool-button" @click.prevent="handleFormat('justifyCenter')"
-                    :class="{ 'active': isAlignCenter }">
-                    <img src="/icons/align-center.svg" alt="Center">
-                </button>
-                <button class="icon tool-button" @click.prevent="handleFormat('justifyRight')"
-                    :class="{ 'active': isAlignRight }">
-                    <img src="/icons/align-right.svg" alt="Right">
-                </button>
-            </div>
-        </div>
+    <Card class="no-hover">
+        <div ref="editor" class="quill-editor"></div>
     </Card>
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue';
+import { ref, onMounted, watch, onUnmounted } from 'vue';
 import Card from '@/components/Card.vue';
+import Quill from 'quill';
+import 'quill/dist/quill.snow.css';
+
+const isMounted = ref(true);
+
+onUnmounted(() => {
+    isMounted.value = false;
+});
+
+// Инициализация кастомных иконок
+const initializeIcons = () => {
+    const icons = Quill.import('ui/icons');
+    icons['bold'] = '<img src="/icons/bold.svg" alt="Ж" class="ql-icon">';
+    icons['italic'] = '<img src="/icons/italics.svg" alt="К" class="ql-icon">';
+    icons['underline'] = '<img src="/icons/underline.svg" alt="Ч" class="ql-icon">';
+    icons['code'] = '<img src="/icons/code.svg" alt="Код" class="ql-icon">';
+    icons['list']['bullet'] = '<img src="/icons/ulist.svg" alt="Марк.список" class="ql-icon">';
+    icons['list']['ordered'] = '<img src="/icons/olist.svg" alt="Нум.список" class="ql-icon">';
+    icons['align'][''] = '<img src="/icons/align-left.svg" alt="По левому краю" class="ql-icon">';
+    icons['align']['center'] = '<img src="/icons/align-center.svg" alt="По центру" class="ql-icon">';
+    icons['align']['right'] = '<img src="/icons/align-right.svg" alt="По правому краю" class="ql-icon">';
+    icons['image'] = '<img src="/icons/paperclip.svg" alt="Вставить изображение" class="ql-icon">';
+    icons['link'] = '<img src="/icons/link.svg" alt="Добавить ссылку" class="ql-icon">';
+};
+
+// Регистрация модуля ссылок
+const LinkBlot = Quill.import('formats/link');
+class CustomLink extends LinkBlot {
+    static create(value) {
+        const node = super.create(value);
+        node.setAttribute('target', '_blank');
+        node.setAttribute('rel', 'noopener noreferrer');
+        return node;
+    }
+}
+Quill.register(CustomLink, true);
 
 const props = defineProps({
     content: {
         type: String,
-        reqiured: false
+        default: ''
+    },
+    modelValue: {
+        type: String,
+        default: ''
     }
-})
+});
+
 const emit = defineEmits(['update:modelValue']);
-const fileInput = ref(null);
 
-const isBold = ref(false);
-const isItalic = ref(false);
-const isUnderline = ref(false);
-const isCode = ref(false);
-const isUnorderedList = ref(false);
-const isOrderedList = ref(false);
-const isAlignLeft = ref(false);
-const isAlignCenter = ref(false);
-const isAlignRight = ref(false);
+const editor = ref(null);
+const quill = ref(null);
 
-const handleFormat = (command, value = null) => {
-    const editor = document.querySelector('.editor-content');
-    editor.focus();
+onMounted(() => {
+    initializeIcons();
 
-    if (command === 'code') {
-        const selection = window.getSelection();
-        if (selection.rangeCount === 0) return;
-
-        const range = selection.getRangeAt(0);
-        if (!range.collapsed) {
-            const codeElement = document.createElement('code');
-            try {
-                range.surroundContents(codeElement);
-            } catch (e) {
-                console.error('Невозможно применить форматирование кода');
+    quill.value = new Quill(editor.value, {
+        modules: {
+            toolbar: {
+                container: [
+                    'image',
+                    'bold', 'italic', 'underline', 'code', 'link',
+                    { 'list': 'ordered' }, { 'list': 'bullet' },
+                    { 'align': '' }, { 'align': 'center' }, { 'align': 'right' }
+                ],
+                handlers: {
+                    image: imageHandler,
+                    link: linkHandler
+                }
+            },
+            clipboard: {
+                matchVisual: false
             }
-        }
-    } else {
-        document.execCommand(command, false, value);
+        },
+        theme: 'snow',
+        placeholder: 'Введите текст...',
+        formats: ['bold', 'italic', 'underline', 'code', 'list', 'align', 'link', 'image']
+    });
+
+    // Инициализация содержимого
+    if (props.modelValue) {
+        quill.value.root.innerHTML = props.modelValue;
+    } else if (props.content) {
+        quill.value.root.innerHTML = props.content;
     }
 
-    nextTick(() => {
-        updateSelection();
+    // Обработчик изменений
+    quill.value.on('text-change', () => {
+        const html = quill.value.root.innerHTML;
+        emit('update:modelValue', html === '<p><br></p>' ? '' : html);
+    });
+});
+
+const imageHandler = () => {
+    if (!isMounted.value) return Promise.resolve();
+    return new Promise((resolve) => {
+        // Проверка на существование Quill
+        if (!quill.value) return resolve();
+
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = async () => {
+            const file = input.files[0];
+            if (!file) return;
+
+            try {
+                // Получаем позицию курсора (с флагом для последнего выделения)
+                let range = quill.value.getSelection(true);
+
+                // Если нет выделения - используем конец редактора
+                if (!range) {
+                    range = { index: quill.value.getLength(), length: 0 };
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    // Дополнительная проверка перед вставкой
+                    if (quill.value) {
+                        quill.value.insertEmbed(range.index, 'image', e.target.result, Quill.sources.USER);
+                        quill.value.setSelection(range.index + 1, 0);
+                    }
+                    resolve();
+                };
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Ошибка при вставке изображения:', error);
+                resolve();
+            }
+        };
     });
 };
 
-const updateSelection = () => {
-    const selection = window.getSelection();
-    if (selection.rangeCount === 0) return;
+// Обработчик ссылок
+const linkHandler = () => {
+    if (!isMounted.value) return;
+    // Проверка на существование Quill
+    if (!quill.value) return;
 
-    isBold.value = document.queryCommandState('bold');
-    isItalic.value = document.queryCommandState('italic');
-    isUnderline.value = document.queryCommandState('underline');
-    isUnorderedList.value = document.queryCommandState('insertUnorderedList');
-    isOrderedList.value = document.queryCommandState('insertOrderedList');
-    isCode.value = checkCodeFormat();
+    // Получаем текущее выделение (без флага)
+    let range = quill.value.getSelection();
 
-    isAlignLeft.value = document.queryCommandState('justifyLeft');
-    isAlignCenter.value = document.queryCommandState('justifyCenter');
-    isAlignRight.value = document.queryCommandState('justifyRight');
-};
+    // Если нет выделения - используем конец редактора
+    if (!range) {
+        range = { index: quill.value.getLength(), length: 0 };
+    }
 
-const checkCodeFormat = () => {
-    const selection = window.getSelection();
-    if (selection.rangeCount === 0) return false;
-    const range = selection.getRangeAt(0);
-    let node = range.commonAncestorContainer;
+    if (range.length > 0) {
+        // Текст выделен
+        const text = quill.value.getText(range.index, range.length);
+        const preview = text.length > 20 ? text.substring(0, 20) + '...' : text;
+        const currentLink = quill.value.getFormat(range.index, range.length).link;
 
-    while (node !== null) {
-        if (node.nodeName === 'CODE' || node.nodeName === 'PRE') {
-            return true;
+        let url = prompt('Введите URL для ссылки:', currentLink || 'https://');
+        if (!url) return;
+
+        if (!/^https?:\/\//i.test(url)) {
+            url = 'https://' + url;
         }
-        node = node.parentNode;
+
+        quill.value.formatText(range.index, range.length, 'link', url);
+    } else {
+        // Текст не выделен
+        const url = prompt('Введите URL для ссылки:', 'https://');
+        if (!url) return;
+
+        const text = prompt('Введите текст ссылки:', url);
+        if (!text) return;
+
+        const normalizedUrl = /^https?:\/\//i.test(url) ? url : 'https://' + url;
+        const index = range.index;
+
+        quill.value.insertText(index, text, 'link', normalizedUrl);
+        quill.value.setSelection(index + text.length, 0);
     }
-    return false;
 };
 
-const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = document.createElement('img');
-            img.src = event.target.result;
-            document.execCommand('insertHTML', false, img.outerHTML);
-        };
-        reader.readAsDataURL(file);
+watch(() => props.modelValue, (newValue) => {
+    if (newValue !== quill.value.root.innerHTML) {
+        quill.value.root.innerHTML = newValue;
     }
-};
+});
 
-const handleInput = (e) => {
-    emit('update:modelValue', e.target.innerHTML);
-};
+watch(() => props.content, (newValue) => {
+    if (newValue && newValue !== quill.value.root.innerHTML) {
+        quill.value.root.innerHTML = newValue;
+    }
+});
 </script>
 
+<style lang="scss">
+.ql-toolbar.ql-snow {
+    width: 100%;
+    order: 2;
+    border: none !important;
+    border-top: 1px solid #D9D9D9 !important;
+    padding: 10px !important;
+
+    .ql-formats {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+
+        button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px !important;
+            cursor: pointer !important;
+            border-radius: 4px !important;
+
+            &:hover {
+                background: #E9F2FF !important;
+            }
+
+            &.ql-active {
+                background-color: #E9F2FF !important;
+            }
+
+            .ql-icon {
+                width: 22px;
+                height: 22px;
+            }
+        }
+    }
+}
+
+.ql-container.ql-snow {
+    border: none !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+}
+
+.ql-editor {
+    padding: 15px !important;
+    min-height: 200px !important;
+
+    &::before {
+        font-style: normal !important;
+    }
+
+    ul,
+    ol {
+        padding-left: 20px !important;
+        margin: 0 !important;
+    }
+
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    a {
+        color: #0066cc;
+        text-decoration: underline;
+    }
+}
+</style>
+
 <style scoped lang="scss">
-.card.text {
+.card {
     width: 100%;
     padding: 0;
     height: 100%;
     max-height: 400px;
 
-    .editor-content {
+    .quill-editor {
         width: 100%;
-        max-width: 100%;
+        height: 100%;
         min-height: 200px;
-        padding: 15px;
-        border-radius: 4px;
-        outline: none;
-        overflow-y: auto;
-
-        &:focus {
-            border-color: #513DEB;
-        }
-
-        ul,
-        ol {
-            padding-left: 20px;
-            margin: 0 !important;
-        }
-
-        :deep(img) {
-            max-width: 100%;
-        }
-    }
-
-    .text-settings {
-        width: 100%;
-        border-top: 1px solid #D9D9D9;
-        padding: 10px;
-
-        .format-toolbar {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            padding: 8px 16px;
-
-            .tool-button {
-                background: none;
-                border: none;
-                padding: 4px;
-                cursor: pointer;
-                border-radius: 4px;
-
-                &:hover {
-                    background: #E9F2FF;
-                }
-
-                &.active {
-                    background-color: #E9F2FF;
-                }
-
-                img {
-                    width: 20px;
-                    height: 20px;
-                }
-            }
-
-            .divider {
-                width: 1px;
-                height: 24px;
-                background: #D9D9D9;
-                margin: 0 8px;
-            }
-        }
     }
 }
 </style>
