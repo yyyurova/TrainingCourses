@@ -6,7 +6,7 @@
             <h3>Студенты</h3>
 
             <div class="students">
-                <Student v-for="student in students" :student="student" :key="student.id" />
+                <Student v-for="student in students" :student="student" :key="student.id" @goToWorks="goToWorks" />
             </div>
         </div>
         <Loading v-else-if="isLoading" />
@@ -49,10 +49,13 @@ const goToTasks = () => {
     router.push(`/courses/${courseId}/tasks`)
 }
 
+const goToWorks = (id) => {
+    router.push(`/courses/${courseId}/works/${id}`)
+}
+
 const fetchStudents = async () => {
     try {
         isLoading.value = true;
-
 
         students.value = await getPracticants(route.params.courseId);
         const tasks = await getTasksByCourse(route.params.courseId);
@@ -84,10 +87,11 @@ const fetchStudents = async () => {
                     tasks: tasksByStudentId.get(student.id) || []
                 };
             });
+
             students.value = students.value.filter(student =>
                 student.tasks.length > 0 &&
-                student.tasks.every(task => task.mark !== null)
-            )
+                student.tasks.some(task => task.mark !== null)
+            );
         }
     } catch (err) {
         console.error('Ошибка при загрузке студентов:', err);

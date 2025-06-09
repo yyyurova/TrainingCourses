@@ -72,3 +72,9 @@ const fetchMaterial = async () => {
 
 onMounted(fetchMaterial)
 </script>
+
+<style scoped>
+.modules {
+    margin-bottom: 30px;
+}
+</style>

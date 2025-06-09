@@ -90,3 +90,13 @@ export const completeTask = async (taskId, userId, mark) => {
         return [];
     }
 };
+
+export const cancelTask = async (taskId, userId) => {
+    try {
+        const response = await client.post(`${ENDPOINTS.TASK}/${taskId}/user/${userId}/cancel`)
+        return response.data.data
+    } catch (error) {
+        console.log(error)
+        return [];
+    }
+};

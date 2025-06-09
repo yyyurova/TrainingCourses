@@ -11,7 +11,7 @@
         </button>
         <div class="action" v-if="showAction" ref="actionMenu">
             <ul class="list">
-                <li class="element" @click.stop="$emit('actionWithPracticant', practicant.id)">
+                <li class="element" @click.stop="$emit('actionWithPracticant', taskId, practicant.id)">
                     <p class="label">{{ action }}</p>
                 </li>
             </ul>
@@ -49,6 +49,7 @@ const handleClickOutside = (event) => {
         showAction.value = false;
     }
 };
+
 const updateMark = async () => {
     emit('updateMark',
         props.taskId, props.practicant.id, Number(mark.value),

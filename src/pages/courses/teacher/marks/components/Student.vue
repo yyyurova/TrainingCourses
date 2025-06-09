@@ -8,7 +8,6 @@
                 <img src="/icons/arrow.svg" :class="isOpen ? 'arrow-down' : 'arrow-right'" alt="">
             </button>
         </div>
-        <!-- :class="{ open: isOpen }" -->
         <div class="table-container" v-if="isOpen">
             <table>
                 <thead>
@@ -19,7 +18,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(task, index) in student.tasks" :key="index">
+                    <tr v-for="(task, index) in student.tasks" :key="index" @click="goToWorks(task.taskId)">
                         <td class="title">{{ truncateText(task.name, 70) }}</td>
                         <td class="deadline">{{ format(task.until, 'medium') }}</td>
                         <td class="mark">
@@ -45,6 +44,14 @@ const isOpen = ref(false)
 const props = defineProps({
     student: Object,
 });
+
+props.student.tasks = props.student.tasks.filter(t => t.mark)
+
+const emit = defineEmits(['goToWorks'])
+
+const goToWorks = (taskId) => {
+    emit('goToWorks', taskId)
+}
 
 const truncateText = (text, maxLength) => {
     if (!text) return '';

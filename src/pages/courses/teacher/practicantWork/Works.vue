@@ -25,8 +25,8 @@
                     <h3>Сдано</h3>
                     <PracticantRow v-for="practicant in done" :key="practicant.id" :practicant="practicant"
                         :task-id="task.id" @click="selectPracticant(practicant)" :is-select="practicant.isSelect"
-                        action="Отменить" @update-mark="updateMark" />
-                    <!-- @action-with-practicant="cancelTask" -->
+                        action="Отменить" @update-mark="updateMark" @action-with-practicant="cancelTask" />
+
                 </div>
 
                 <div class="status" v-if="cancelled.length > 0">
@@ -62,7 +62,7 @@ import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { format } from '@formkit/tempo';
-import { getTask, completeTask } from '@/api/modules/tasks.api';
+import { getTask, completeTask, cancelTask as apiCancelTask } from '@/api/modules/tasks.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Card from '@/components/Card.vue';
@@ -110,29 +110,37 @@ const selectAllPracticants = () => {
     })
 }
 
-// const cancelTask = async (id) => {
-//     try {
-//         if (!task.value.cancelled.includes(id)) {
-//             task.value.cancelled.push(id);
-//             updateTaskStatuse();
+const cancelTask = async (taskId, userId) => {
+    try {
+        await apiCancelTask(taskId, userId);
+        // Обновляем статус практиканта локально
+        const practicant = allPracticants.value.find(p => p.id === userId);
+        if (practicant) {
+            practicant.cancelled = 1;
+            practicant.done = 0;
+            practicant.mark = null;
+        }
+        updateTaskStatuse(); // Обновляем распределение по статусам
+    } catch (err) {
+        console.error("Ошибка при отмене задания:", err);
+    }
+};
 
-//             const updatedCourse = {
-//                 ...course.value,
-//                 tasks: course.value.tasks.map(t =>
-//                     t.id === task.value.id ? task.value : t
-//                 )
-//             };
+const updateTaskStatuse = () => {
+    assigned.value = [];
+    cancelled.value = [];
+    done.value = [];
 
-//             await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${course.value.id}`, {
-//                 tasks: updatedCourse.tasks
-//             });
-//         }
-//     } catch (err) {
-//         console.error("Ошибка при отмене задания:", err);
-//         task.value.cancelled = task.value.cancelled.filter(c => c !== id);
-//         updateTaskStatuse();
-//     }
-// }
+    allPracticants.value.forEach(pr => {
+        if (pr.cancelled === 1) {
+            cancelled.value.push(pr);
+        } else if (pr.done === 1 && pr.mark !== null) {
+            done.value.push(pr);
+        } else {
+            assigned.value.push(pr);
+        }
+    });
+};
 
 // const assignTask = async (id) => {
 //     try {
@@ -171,25 +179,9 @@ const fetchTask = async () => {
     updateTaskStatuse()
 }
 
-const updateTaskStatuse = () => {
-    assigned.value = []
-    cancelled.value = []
-    done.value = []
-
-    allPracticants.value.map(pr => {
-        if (pr.mark === null || pr.mark === 0) {
-            assigned.value.push(pr)
-        } else if (pr.done === 1) {
-            done.value.push(pr)
-        }
-        // else if (task.value.cancelled.includes(pr.id)) {
-        //     cancelled.value.push(pr)
-        // }
-    })
-}
-
 onMounted(async () => {
     await fetchTask()
+    // console.log(task.value)
 })
 </script>
 
