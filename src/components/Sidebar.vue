@@ -43,7 +43,7 @@
             </template>
         </div>
         <div class="user" @click="showUserActions = !showUserActions">
-            <img v-if="user.avatar" class="avatar" :src="user.avatar" alt="User-Avatar">
+            <img v-if="user.image" class="avatar" :src="user.image" alt="User-Avatar">
             <AvatarLetter v-else :name="user.name" />
             <span>{{ user.name }}</span>
             <button class="icon">
@@ -62,13 +62,15 @@
         </div>
     </aside>
 
+    <Popup v-if="showPopup" :text="popupText" :is-success="isSuccess" />
+
     <ConfirmDelete v-if="showConfirmExit" right-button-text="Выйти" question="Выйти из профиля?"
         text="Вы потеряете доступ к функционалу сервиса." @cancel="closeModal" @confirm="exitFromProfile" />
     <EditUser v-if="showEditModal" @cancel="closeModal" @save="saveUserChanges" />
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted, provide } from 'vue';
+import { ref, watch, computed, onMounted, provide, inject, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { getCourses as studentCoursesApi } from '@/api/modules/courses.api';
@@ -83,6 +85,7 @@ import { editProfile } from '@/api/modules/profile.api';
 import ConfirmDelete from './modals/ConfirmDelete.vue';
 import EditUser from './modals/EditUser.vue';
 import AvatarLetter from './AvatarLetter.vue';
+import Popup from './Popup.vue';
 
 const props = defineProps({
     isMobile: Boolean,
@@ -97,12 +100,16 @@ const emit = defineEmits(['close']);
 const route = useRoute();
 const router = useRouter();
 const isCoursesListOpen = ref(false);
-const courses = ref([]);
+const courses = inject('courses')
 const showUserActions = ref(false);
 const showConfirmExit = ref(false);
 const showEditModal = ref(false);
 const user = ref({ role: getCurrentUser().role, name: getCurrentUser().name })
 const loadedCourses = ref(false);
+
+const showPopup = ref(false)
+const popupText = ref('')
+const isSuccess = ref(true)
 
 const isCoursesRoute = computed(() => route.path.startsWith('/courses'));
 
@@ -220,30 +227,50 @@ const openEditModal = () => {
 };
 
 const saveUserChanges = async (changes) => {
-    if (changes.name) {
-        user.value.name = changes.name;
-        const resp = await editProfile(changes.name)
-        localStorage.removeItem('user')
+    try {
+        closeModal()
+        const resp = await editProfile(changes.name, changes.avatar);
+        console.log(resp)
+        isSuccess.value = true
+        popupText.value = 'Изменения сохранены'
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 4000);
+
+        user.value.name = resp.data.name;
+        user.value.avatar = resp.data.avatar
+        if (resp.data.avatar) {
+            user.value.avatar = resp.data.avatar;
+        }
+
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
         localStorage.setItem('user', JSON.stringify({
-            id: resp.data.id,
+            ...currentUser,
             name: resp.data.name,
-            role: resp.data.role,
-            // email: resp.data.data.email,
+            avatar: resp.data.avatar || currentUser.avatar
         }));
 
+    } catch (error) {
+        console.error('Ошибка при сохранении профиля:', error);
+        isSuccess.value = false
+        popupText.value = 'Не удалось сохранить изменения'
+        showPopup.value = true
+        setTimeout(() => {
+            showPopup.value = false
+        }, 4000);
     }
-    if (changes.avatar) user.value.avatar = changes.avatar;
 };
 
-const fetchCourses = async () => {
-    if (user.value.role === 'admin') {
-        courses.value = await adminCoursesApi()
-    } else if (user.value.role === 'user') {
-        courses.value = await studentCoursesApi()
-    } else {
-        courses.value = await curatorCoursesApi()
-    }
-}
+// const fetchCourses = async () => {
+//     if (user.value.role === 'admin') {
+//         courses.value = await adminCoursesApi()
+//     } else if (user.value.role === 'user') {
+//         courses.value = await studentCoursesApi()
+//     } else {
+//         courses.value = await curatorCoursesApi()
+//     }
+// }
 
 const openList = () => {
     isCoursesListOpen.value = !isCoursesListOpen.value;
@@ -276,10 +303,11 @@ const getCourseLink = (course) => {
 watch(() => route.path, async (newPath) => {
     if (newPath.startsWith('/courses')) {
         if (newPath.startsWith('/courses/')) isCoursesListOpen.value = true;
-        if (!loadedCourses.value) {
-            await fetchCourses();
-            loadedCourses.value = true;
-        }
+        // if (!loadedCourses.value) {
+        //     // await fetchCourses();
+
+        //     loadedCourses.value = true;
+        // }
     }
 }, { immediate: true });
 
@@ -393,7 +421,8 @@ provide('user', user)
             opacity: 0;
 
             &.active:not(.sidebar) {
-                max-height: 500px;
+                max-height: 800px;
+                // overflow-y: auto;
                 opacity: 1;
                 margin-top: 10px;
             }

@@ -49,9 +49,18 @@ const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
+    if (!file.type.match('image.*')) {
+        alert('Пожалуйста, выберите изображение');
+        return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+        alert('Изображение должно быть меньше 2MB');
+        return;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
-        avatarBase64.value = e.target.result;
         avatarPreview.value = e.target.result;
     };
     reader.readAsDataURL(file);
@@ -76,12 +85,11 @@ const save = () => {
     }
 
     const userData = {
-        name: userName.value,
-        avatar: avatarBase64.value || '/image.png',
+        name: userName.value.trim(),
+        avatar: fileInput.value?.files[0] || null
     };
 
     emit('save', userData);
-    emit('cancel')
 };
 </script>
 

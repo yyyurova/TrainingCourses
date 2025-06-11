@@ -34,7 +34,7 @@ import Card from '@/components/Card.vue';
 const emit = defineEmits(['cancel', 'create']);
 
 const courseName = ref('');
-const courseImageBase64 = ref(null);
+const courseImageFile = ref(null); // Теперь храним File объект вместо base64
 const courseImagePreview = ref('/avatar.png');
 const fileInput = ref(null);
 const nameError = ref(false);
@@ -47,16 +47,18 @@ const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
+    courseImageFile.value = file; // Сохраняем файл
+
+    // Создаем превью
     const reader = new FileReader();
     reader.onload = (e) => {
-        courseImageBase64.value = e.target.result;
         courseImagePreview.value = e.target.result;
     };
     reader.readAsDataURL(file);
 };
 
 const removeImage = () => {
-    courseImageBase64.value = null;
+    courseImageFile.value = null;
     courseImagePreview.value = '/avatar.png';
     if (fileInput.value) fileInput.value.value = '';
 };
@@ -75,13 +77,14 @@ const create = () => {
 
     const courseData = {
         title: courseName.value,
-        // photo: courseImageBase64.value || null,
+        photo: courseImageFile.value,
     };
 
     emit('create', courseData);
     cancel();
 };
 </script>
+
 <style scoped lang="scss">
 .card {
     width: 100%;

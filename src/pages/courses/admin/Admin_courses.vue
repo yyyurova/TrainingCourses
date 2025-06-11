@@ -27,7 +27,7 @@
 
         <EditCourse v-if="showEditCourseModal" @cancel="closeModal" @edit="editCourse" :course="selectedCourse" />
 
-        <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" />
+        <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :is-success="isSuccess" />
 
         <Loading v-if="isLoading" />
 
@@ -38,7 +38,6 @@
 </template>
 
 <script setup>
-import axios from "axios";
 import { useRouter } from "vue-router";
 import { inject, onMounted, provide, ref } from "vue";
 import { getCourses, deleteCourse as apiDeleteCourse, editCourse as apiEditCourse, createCourse as apiCreateCourse } from "@/api/modules/adminCourses.api";
@@ -63,6 +62,7 @@ const router = useRouter()
 
 const showPopup = ref(false)
 const popupText = ref('')
+const isSuccess = ref(true)
 
 const selectedCourse = ref(null)
 
@@ -101,18 +101,19 @@ const openDeleteModal = (course) => {
 const deleteCourse = async () => {
     if (!selectedCourse.value) return
     try {
-
+        closeModal()
         await apiDeleteCourse(selectedCourse.value.id)
         courses.value = courses.value.filter(c => c.id !== selectedCourse.value.id)
-        showConfirmDeleteModal.value = false
         popupText.value = 'Курс удален'
         showPopup.value = true
+        isSuccess.value = true
         setTimeout(() => {
             showPopup.value = false
         }, 5000)
     } catch (error) {
         console.error('Error deleting course:', error)
         closeModal()
+        isSuccess.value = false
         popupText.value = 'Ошибка при удалении курса'
         showPopup.value = true
         setTimeout(() => {
@@ -126,11 +127,14 @@ const createCourse = async (course) => {
 
     try {
         closeModal()
+        // console.log(course.photo)
         const data = await apiCreateCourse({
             title: course.title,
-            // photo: course.photo || null
+            photo: course.photo || null
         })
-        router.push(`/course-fill-content/${data.data.data.id}`)
+
+        console.log(data)
+        router.push(`/course-fill-content/${data.data.id}`)
     }
     catch (err) {
         console.log(err)
@@ -140,26 +144,36 @@ const createCourse = async (course) => {
 const editCourse = async (updatedCourse) => {
     if (!updatedCourse || !selectedCourse.value) return;
     try {
-        courses.value = courses.value.filter(c => c.id !== selectedCourse.value.id)
-        await apiEditCourse(selectedCourse.value.id, {
-            title: updatedCourse.title,
-            photo: updatedCourse.imageUrl
-        })
-        courses.value.push({
-            ...selectedCourse.value, title: updatedCourse.title,
-            photo: updatedCourse.imageUrl
-        })
-        courses.value.sort(c => -c.id)
         closeModal();
+
+        const response = await apiEditCourse(updatedCourse.id, {
+            title: updatedCourse.title,
+            photo: updatedCourse.photo
+        });
+
+        const index = courses.value.findIndex(c => c.id === updatedCourse.id);
+        if (index !== -1) {
+            courses.value[index] = {
+                ...courses.value[index],
+                title: updatedCourse.title,
+                photo: response.data.photo || courses.value[index].photo
+            };
+        }
+        isSuccess.value = true
         popupText.value = 'Изменения сохранены';
         showPopup.value = true;
         setTimeout(() => {
             showPopup.value = false;
         }, 5000);
-
-        // await fetchCourses();
     } catch (err) {
+
         console.error('Error updating course:', err);
+        isSuccess.value = false
+        popupText.value = 'Не удалось сохранить изменения';
+        showPopup.value = true;
+        setTimeout(() => {
+            showPopup.value = false;
+        }, 5000);
     }
 };
 
@@ -167,7 +181,7 @@ const editCourse = async (updatedCourse) => {
 //     await fetchCourses()
 // })
 
-// provide('courses', courses)
+provide('courses', courses)
 </script>
 
 <style scoped lang="scss">

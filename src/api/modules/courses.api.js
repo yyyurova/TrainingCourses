@@ -15,5 +15,14 @@ export const getCourses = async () => {
     try {
         const response = await client.get(`${ENDPOINTS.COURSES}`)
         return response.data.data
-    } catch (error) { return [] }
+    } catch (error) { console.log(error); return [] }
 }
+
+export const getCourseActivity = async (courseId) => {
+    try {
+        const response = await client.get(`${ENDPOINTS.COURSES}/${courseId}/activity`)
+        return response.data.data
+    } catch (error) {
+        return [];
+    }
+};

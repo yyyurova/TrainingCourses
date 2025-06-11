@@ -8,12 +8,13 @@
         </div>
 
         <div class="course-info">
-            <img v-if="course.avatar" :src="course.avatar" alt="">
+            <img v-if="course.photo" :src="course.photo" alt="">
             <AvatarLetter v-else :name="course.title" />
             <p class="course-name">{{ course.title }}</p>
         </div>
 
-        <button class="blue wide" @click="publishCourse">Опубликовать курс</button>
+        <button :title="course.published === 1 ? 'Курс уже опубликован' : ''" :disabled="course.published === 1"
+            class="blue wide" @click="publishCourse">Опубликовать курс</button>
         <RouterLink to="/courses">
             <button class="transparent wide">
                 <img class="arrow-left" src="/icons/arrow.svg" alt="">
@@ -63,7 +64,7 @@ import { useRouter } from 'vue-router';
 import { logout } from '@/utils/auth';
 import { resetRoleRoutes } from '@/router';
 import { editProfile } from '@/api/modules/profile.api';
-import { editCourse } from '@/api/modules/adminCourses.api';
+import { editCourse, pulichCourse } from '@/api/modules/adminCourses.api';
 
 import EditUser from '@/components/modals/EditUser.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
@@ -97,8 +98,8 @@ const closePopup = () => {
 const publishCourse = async () => {
     try {
         closeModal();
-        await editCourse(course.value.id, { title: course.value.title, published: true })
-
+        const data = await pulichCourse(course.value.id, { title: course.value.title, published: true })
+        console.log(data)
         router.push('/courses')
         popupText.value = 'Курс успешно опубликован';
         showPopup.value = true;
@@ -252,6 +253,11 @@ onMounted(() => {
 
     button.wide {
         height: 46px;
+
+        &:disabled {
+            background-color: #EBEBEB;
+            color: #969696;
+        }
     }
 
     h1 {

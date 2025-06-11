@@ -84,14 +84,16 @@ export const studentRoutes = [
         component: CourseCompletion,
         meta: {
             title: 'Прохождение курса'
-        }
-    },
-    {
-        path: '/courseCompletion/:courseId/:moduleIndex?/:pageIndex?',
-        name: 'CourseCompletion',
-        component: CourseCompletion,
-        meta: {
-            title: 'Прохождение курса'
-        }
+        },
+        children: [
+            {
+                path: 'module/:moduleId/page/:pageId',
+                name: 'CourseCompletionPage',
+                component: CourseCompletion,
+                meta: {
+                    title: 'Прохождение курса'
+                }
+            }
+        ]
     }
 ]

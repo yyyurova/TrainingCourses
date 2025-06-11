@@ -5,7 +5,7 @@
                 <h2>Редактировать курс</h2>
                 <div class="form-group">
                     <Card class="no-hover">
-                        <img :src="courseImagePreview || '/image.png'" alt="Course image">
+                        <img :src="courseImagePreview || '/avatar.png'" alt="Course image">
                         <div class="modal-buttons">
                             <button class="transparent" type="button" @click="triggerFileInput">Загрузить</button>
                             <button class="transparent" type="button" @click="removeImage">Удалить</button>
@@ -40,17 +40,16 @@ const props = defineProps({
     }
 });
 
-
 const courseName = ref(props.course.title);
-const courseImageBase64 = ref(null);
+const courseImageFile = ref(null); // Храним File объект
 const courseImagePreview = ref(props.course.photo);
 const fileInput = ref(null);
 const nameError = ref(false);
 
 watch(() => props.course, (newVal) => {
     courseName.value = newVal.title;
-    courseImagePreview.value = newVal.phoyo;
-    courseImageBase64.value = null;
+    courseImagePreview.value = newVal.photo;
+    courseImageFile.value = null;
     if (fileInput.value) fileInput.value.value = '';
 }, { immediate: true });
 
@@ -62,16 +61,17 @@ const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
+    courseImageFile.value = file;
+
     const reader = new FileReader();
     reader.onload = (e) => {
-        courseImageBase64.value = e.target.result;
         courseImagePreview.value = e.target.result;
     };
     reader.readAsDataURL(file);
 };
 
 const removeImage = () => {
-    courseImageBase64.value = null;
+    courseImageFile.value = null;
     courseImagePreview.value = '/avatar.png';
     if (fileInput.value) fileInput.value.value = '';
 };
@@ -89,8 +89,9 @@ const save = () => {
     const courseData = {
         id: props.course.id,
         title: courseName.value,
-        photo: courseImageBase64.value || courseImagePreview.value
+        photo: courseImageFile.value
     };
+
     emit('edit', courseData);
 };
 </script>

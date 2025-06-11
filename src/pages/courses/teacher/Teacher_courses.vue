@@ -49,6 +49,7 @@ const goToCourse = (course) => {
 }
 
 provide('selectedCourse', selectedCourse)
+provide('courses', courses)
 </script>
 
 <style scoped lang="scss">

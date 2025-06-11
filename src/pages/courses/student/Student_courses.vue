@@ -36,7 +36,7 @@ const isLoading = inject('isLoading')
 const continueStudy = (id) => {
     router.push(`/courseCompletion/${id}`)
 }
-
+provide('courses', courses)
 // onMounted(async () => {
 //     await fetchCourses()
 // })

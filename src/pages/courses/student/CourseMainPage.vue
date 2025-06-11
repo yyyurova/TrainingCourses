@@ -46,8 +46,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { mockUser } from '@/mocks/user';
-import { getUser } from '@/api/modules/adminUsers.api';
-import { getCourse } from '@/api/modules/courses.api';
+import { getCourse, getCourseActivity } from '@/api/modules/courses.api';
 
 import Loading from '@/components/Loading.vue';
 import Layout from '@/layouts/Layout.vue';
@@ -79,6 +78,9 @@ const fetchCourse = async (id) => {
         isLoading.value = true;
         course.value = await getCourse(id);
         teacherName.value = course.value.curator_name
+
+        const data = await getCourseActivity(course.value.id)
+        console.log(data)
     } catch (error) {
         console.error('Ошибка загрузки курса:', error);
     } finally {
