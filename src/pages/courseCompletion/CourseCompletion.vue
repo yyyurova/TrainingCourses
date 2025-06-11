@@ -246,7 +246,6 @@ const nextPage = () => {
     if (!module.value.pages[currentPageIndex.value].completed) {
         module.value.pages[currentPageIndex.value].completed = true;
     }
-    // console.log(moduleIndex.value, material.value.length)
     if (moduleIndex.value === material.value.length - 1 && currentPageIndex.value >= module.value.pages.length - 1) {
         completeCourse()
         return

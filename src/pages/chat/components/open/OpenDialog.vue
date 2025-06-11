@@ -216,7 +216,7 @@ const addToExistingChat = async (members) => {
         closeModal()
         const memberIds = members.map(m => m.id);
 
-        await addMembers(memberIds);
+        await addMembers(selectedChat.value.id, memberIds);
 
         const response = await getChat(selectedChat.value.id);
         selectedChat.value = response;
@@ -228,6 +228,7 @@ const addToExistingChat = async (members) => {
 
 watch(selectedChat, async (newChat) => {
     await fetchMessages()
+    await fetchMembers()
 }, { immediate: true })
 
 onMounted(async () => {

@@ -42,7 +42,6 @@ const navbarItems = [
 
 onMounted(async () => {
     await fetchCurrentTasks()
-    console.log(tasks.value)
 })
 </script>
 

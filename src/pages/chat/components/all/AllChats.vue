@@ -63,6 +63,8 @@ const createChat = inject('createChat')
 
 const deleteChatInjection = inject('deleteChat')
 
+const addMembers = inject('addMembers')
+
 const closeModal = () => {
     if (showConfirmDeleteModal.value) { showConfirmDeleteModal.value = false }
     if (showCreateGroupModal.value) { showCreateGroupModal.value = false }
@@ -75,10 +77,9 @@ const openCreateGroupModal = () => {
 
 const openChooseMembersModal = async (newChat) => {
     try {
-        // Создаем чат и сохраняем результат
-        createdChat.value = await createChat(newChat);
         showCreateGroupModal.value = false;
         showChooseMembersModal.value = true;
+        createdChat.value = await createChat(newChat);
     } catch (error) {
         console.error("Ошибка при создании чата", error);
     }
@@ -88,15 +89,10 @@ const addMembersToNewChat = async (members) => {
     if (!createdChat.value) return;
 
     try {
-        // Преобразуем в массив ID пользователей
+        closeModal()
         const memberIds = members.map(m => m.id);
-
-        // Добавляем участников в созданный чат
-        await addMembersToChat(createdChat.value.id, memberIds);
-
-        // Обновляем данные чата
-        // await fetchChats();
-        openDialog(createdChat.value);
+        await addMembers(createdChat.value.id, memberIds)
+        emit('openDialog', createdChat.value)
     } catch (error) {
         console.error("Ошибка добавления участников", error);
     } finally {

@@ -173,7 +173,6 @@ const fetchTask = async () => {
 
 onMounted(async () => {
     await fetchTask()
-    // console.log(task.value)
 })
 </script>
 

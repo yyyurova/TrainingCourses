@@ -58,12 +58,10 @@ function linkHandler() {
     const range = this.quill.getSelection();
     const linkUrl = prompt("Введите URL ссылки:");
     if (linkUrl) {
-        // Если пользователь не выделил текст - запрашиваем заголовок ссылки
         if (range.length === 0) {
             const linkText = prompt("Введите текст ссылки:");
             this.quill.insertText(range.index, linkText, 'link', linkUrl);
         } else {
-            // Если есть выделенный текст, применяем к нему формат link
             this.quill.format('link', linkUrl);
         }
     }
@@ -76,13 +74,11 @@ onMounted(() => {
         modules: {
             toolbar: {
                 container: [
-                    // Здесь можно задать порядок иконок в тулбаре.
                     'image',
                     'bold', 'italic', 'underline', 'code', 'link',
                     { 'list': 'ordered' }, { 'list': 'bullet' },
                     { 'align': '' }, { 'align': 'center' }, { 'align': 'right' }
                 ],
-                // Регистрируем наши кастомные обработчики
                 handlers: {
                     image: imageHandler,
                     link: linkHandler
@@ -93,7 +89,6 @@ onMounted(() => {
         placeholder: 'Введите текст...',
     });
 
-    // Загрузка исходного содержимого
     if (props.modelValue) {
         quill.value.root.innerHTML = props.modelValue;
     } else if (props.content) {

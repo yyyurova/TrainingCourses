@@ -111,7 +111,6 @@ const signInWithGoogle = async () => {
     try {
         googleUrl.value = await getLoginUrls();
         // googleUrl.value = urls.google_url;
-        console.log(googleUrl.value)
         if (googleUrl.value) {
             window.location.href = googleUrl.value.google_url;
         }

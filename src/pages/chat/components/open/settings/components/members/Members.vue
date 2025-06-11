@@ -13,7 +13,7 @@
                 placeholder="Поиск участников">
         </Card>
 
-        <div class="members-in-group" v-if="filteredMembers.length > 0">
+        <div class="members-in-group" v-if="filteredMembers && filteredMembers.length > 0">
             <MemberCard v-for="member in filteredMembers" :key="member.id" :member="member"
                 @delete="openDeleteMemberModal(member)" />
         </div>
@@ -33,7 +33,6 @@
 
 <script setup>
 import { inject, ref, computed, onMounted, provide } from 'vue';
-import axios from 'axios';
 import { deleteMember as apiDeleteMember } from '@/api/modules/chat.api';
 
 import MemberCard from './MemberCard.vue';

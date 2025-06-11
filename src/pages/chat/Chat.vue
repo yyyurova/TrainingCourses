@@ -12,7 +12,6 @@
 </template>
 
 <script setup>
-import axios from 'axios';
 import { provide, ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -128,10 +127,10 @@ const deleteChat = async (id) => {
 
 const createChat = async (newChat) => {
     try {
-        // Создаем чат с названием, типом и аватаркой (если есть)
         const createdChat = await apiCreateChat(newChat);
-        await fetchChats(); // Обновляем список чатов
+        selectedChat.value = createdChat
 
+        await fetchChats();
         return createdChat;
     } catch (err) {
         console.error('Ошибка создания чата:', err);
@@ -150,9 +149,9 @@ const editChat = async (chatData) => {
     }
 };
 
-const addMembers = async (newMembers) => {
+const addMembers = async (chatId, newMembers) => {
     try {
-        await addMembersToChat(selectedChat.value.id, newMembers)
+        await addMembersToChat(chatId, newMembers)
         await fetchChats()
     } catch (err) {
         console.error('Ошибка при добавлении участников:', err);

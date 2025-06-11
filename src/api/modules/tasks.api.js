@@ -103,7 +103,6 @@ export const cancelTask = async (taskId, userId) => {
 
 export const assignTask = async (taskId, userId) => {
     try {
-        console.log(taskId, userId)
         const response = await client.post(`${ENDPOINTS.TASK}/${taskId}/user/${userId}/uncancel`)
         return response.data.data
     } catch (error) {
