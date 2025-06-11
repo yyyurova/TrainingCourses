@@ -17,7 +17,8 @@
             <div class="dropdown">
                 <div v-for="member in filteredMembers" :key="member.id" class="item">
                     <input type="checkbox" :checked="isSelected(member)" @click="toggleMember(member)">
-                    <img src="/icons/Avatar.svg" :alt="member.name">
+                    <img v-if="member.avatar" :src="member.avatar" :alt="member.name">
+                    <AvatarLetter v-else :name="member.name" />
                     <span>{{ member.name }}</span>
                 </div>
             </div>
@@ -39,11 +40,12 @@
 </template>
 
 <script setup>
-import axios from 'axios';
 import { ref, computed, inject, onMounted } from 'vue';
 import { getUsers } from '@/api/modules/users.api';
+import { getUserId } from '@/utils/auth';
 
 import Card from '@/components/Card.vue';
+import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const emit = defineEmits(['cancel', 'add']);
 
@@ -51,7 +53,7 @@ const props = defineProps({
     rightButtonText: String,
     members: {
         type: Array,
-        reqiured: false
+        required: false
     }
 })
 
@@ -66,7 +68,10 @@ const selectedMembers = ref([]);
 const addMembers = inject('addMembers')
 
 const availableUsers = computed(() => {
-    if (!props.members || props.members.length === 0) return allUsers.value
+    const currentUserId = getUserId();
+    allUsers.value = allUsers.value.filter(user => user.id !== currentUserId)
+    if (!props.members || props.members.length === 0) return allUsers.value;
+
     return allUsers.value.filter(user =>
         !props.members.some(member => member.id === user.id)
     );

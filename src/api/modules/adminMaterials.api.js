@@ -122,8 +122,8 @@ export const getVariants = async (questionId) => {
 
 export const createVariant = async (questionId, title, is_right) => {
     try {
-        const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/question/variant/${questionId}`, { title: title, is_right: is_right ? 1 : 0 });
-        return response.data;
+        const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/question/variant/${questionId}`, { title: title, is_right: is_right });
+        return response.data.data;
     } catch (error) {
         console.error('Полная ошибка:', error);
     }
@@ -135,5 +135,13 @@ export const updateVariant = async (questionId, variantId, title, is_right) => {
         return response.data;
     } catch (error) {
         console.error('Полная ошибка:', error);
+    }
+};
+
+export const deleteVariant = async (questionId, variantId) => {
+    try {
+        await client.delete(`${ENDPOINTS.ADMIN_MODULE}/page/question/variant/${questionId}/${variantId}`);
+    } catch (error) {
+        console.error('Ошибка удаления варианта:', error);
     }
 };

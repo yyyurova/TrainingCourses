@@ -3,8 +3,8 @@
     <FillCourseMaterialsLayout v-else>
         <Card class="no-hover fill-material" v-if="material && currentModule">
             <h1>Заполнение учебных материалов для курса</h1>
+
             <Card class="no-hover page-name">
-                <!-- <p>{{ currentPage.title }}</p> -->
                 <input type="text" v-model="pageName">
             </Card>
 
@@ -18,10 +18,9 @@
                     v-for="(page, index) in currentModule.pages" :key="index">
                 </span>
             </div>
-            <!-- <TextEditor v-if="currentPage.type === 1" /> -->
-            <!-- <QuillEditor v-if="currentPage.type === 1" v-model:content="currentPageContent" :options="editorOptions"
-                contentType="html" /> -->
+
             <TextEditorCard v-if="currentPage.type === 1" :content="currentPageContent" v-model="currentPageContent" />
+
             <div class="video" v-else-if="currentPage.type === 2">
                 <div class="radio-inputs">
                     <label class="radio">
@@ -57,45 +56,62 @@
             </div>
 
             <div class="quiz" v-if="currentPage.type === 3">
-                <button class="blue" @click="addAnswer">
+                <button class="blue" @click="addNewQuestion">
                     Добавить вопрос
                     <img src="/icons/plus.svg" alt="">
                 </button>
 
-                <div class="fill-question">
-                    <p>Условие<span class="required">*</span></p>
-                    <TextEditorCard v-model="quizData.question" :content="currentPage.question" />
+                <div class="question-list">
+                    <div class="question-item" v-for="(question, qIndex) in quizData.questions" :key="qIndex">
+                        <div class="question-header">
+                            <h4>Вопрос {{ qIndex + 1 }}</h4>
+                            <button class="icon" @click="removeQuestion(qIndex)" v-if="quizData.questions.length > 1">
+                                <img src="/icons/x.svg" alt="">
+                            </button>
+                        </div>
 
-                    <h4>Настройка</h4>
-                    <p>Количество правильных ответов:</p>
-                    <div class="radio-inputs">
-                        <label class="radio">
-                            <input type="radio" name="radio" v-model="quizData.quantity" value="several">
-                            <span class="name">
-                                Несколько
-                                <img src="/icons/checkbox.svg" alt="">
-                            </span>
-                        </label>
-                        <label class="radio">
-                            <input type="radio" name="radio" v-model="quizData.quantity" value="one">
-                            <span class="name">
-                                Один
-                                <img src="/icons/radio.svg" alt="">
-                            </span>
-                        </label>
+                        <div class="fill-question">
+                            <p>Заголовок<span class="required">*</span></p>
+                            <input type="text" v-model="question.title">
+                            <p>Описание</p>
+                            <TextEditorCard v-model="question.description" />
+
+                            <h4>Настройка</h4>
+                            <p>Количество правильных ответов:</p>
+                            <div class="radio-inputs">
+                                <label class="radio">
+                                    <input type="radio" name="radio" :value="'several-' + qIndex"
+                                        v-model="question.answerType">
+                                    <span class="name">
+                                        Несколько
+                                        <img src="/icons/checkbox.svg" alt="">
+                                    </span>
+                                </label>
+                                <label class="radio">
+                                    <input type="radio" name="radio" :value="'one-' + qIndex"
+                                        v-model="question.answerType">
+                                    <span class="name">
+                                        Один
+                                        <img src="/icons/radio.svg" alt="">
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div class="answers">
+                                <Answer v-for="(option, index) in question.options" :key="index"
+                                    :input-type="question.answerType.startsWith('one') ? 'one' : 'several'"
+                                    :option="option.title" :index="index" :is-correct="option.is_right === 1"
+                                    @remove="() => removeAnswer(qIndex, index)"
+                                    @update:option="(val) => updateOption(qIndex, index, val)"
+                                    @update:correct="(data) => updateCorrectAnswers(qIndex, data)" />
+                            </div>
+
+                            <button class="transparent border" @click="() => addAnswer(qIndex)">
+                                Добавить вариант ответа
+                                <img src="/icons/plus-black.svg" alt="">
+                            </button>
+                        </div>
                     </div>
-
-                    <div class="answers">
-                        <Answer v-for="(option, index) in quizData.options" :key="index" :input-type="quizData.quantity"
-                            :option="option.text" :index="index" :is-correct="option.is_right === 1"
-                            @remove="removeAnswer" @update:option="updateOption(index, $event)"
-                            @update:correct="updateCorrectAnswers" />
-                    </div>
-
-                    <button class="transparent border" @click="addAnswer">
-                        Добавить вариант ответа
-                        <img src="/icons/plus-black.svg" alt="">
-                    </button>
                 </div>
             </div>
         </Card>
@@ -121,7 +137,8 @@ import {
     getQuestionsForPage,
     getVariants,
     createVariant,
-    updateVariant
+    updateVariant,
+    deleteVariant
 } from '@/api/modules/adminMaterials.api';
 
 import TextEditorCard from '@/components/TextEditorCard.vue';
@@ -148,10 +165,7 @@ const fileInput = ref(null);
 const selectedWay = ref('upload');
 
 const quizData = ref({
-    question: '',
-    options: [],
-    correct: [],
-    quantity: 'several'
+    questions: []
 });
 
 const pageName = ref('')
@@ -263,12 +277,15 @@ const loadPageContent = async () => {
     await loadPageQuestion(currentPage.value.id);
 
     if (currentPage.value.type === 1) {
+        // Текстовая страница
         currentPageContent.value = currentQuestion.value?.description || '';
     }
-
     else if (currentPage.value.type === 2) {
+        // Видео страница
         try {
-            const videoData = currentQuestion.value?.description ? JSON.parse(currentQuestion.value.description) : {};
+            const videoData = currentQuestion.value?.description
+                ? JSON.parse(currentQuestion.value.description)
+                : {};
             selectedWay.value = videoData.selectedWay || 'upload';
             videoLink.value = videoData.link || '';
             uploadedFiles.value = videoData.files || [];
@@ -279,44 +296,35 @@ const loadPageContent = async () => {
         }
     }
     else if (currentPage.value.type === 3) {
+        // Тестовая страница
         try {
-            if (currentQuestion.value) {
-                const variants = await getVariants(currentQuestion.value.id);
-                const uniqueVariants = variants.reduce((acc, variant) => {
-                    if (!acc.some(v => v.id === variant.id)) {
-                        acc.push(variant);
-                    }
-                    return acc;
-                }, []);
+            const questions = await getQuestionsForPage(currentPage.value.id);
+            quizData.value.questions = await Promise.all(questions.map(async (q) => {
+                const variants = await getVariants(q.id);
+                const desc = q.description ? JSON.parse(q.description) : {};
 
-                quizData.value = {
-                    question: currentQuestion.value.title || '',
-                    options: uniqueVariants.map(v => ({
+                return {
+                    id: q.id,
+                    title: q.title,
+                    description: q.description,
+                    answerType: desc.answerType || 'several',
+                    options: variants.map(v => ({
                         id: v.id,
-                        text: v.title,
+                        title: v.title,
                         is_right: v.is_right
                     })),
-                    correct: uniqueVariants
-                        .map((v, index) => v.is_right ? index : -1)
-                        .filter(index => index !== -1),
-                    quantity: JSON.parse(currentQuestion.value.description)?.quantity || 'several'
+                    correctAnswers: variants
+                        .filter(v => v.is_right === 1)
+                        .map(v => variants.findIndex(opt => opt.id === v.id))
                 };
-            } else {
-                quizData.value = {
-                    question: '',
-                    options: [],
-                    correct: [],
-                    quantity: 'several'
-                };
+            }));
+
+            if (quizData.value.questions.length === 0) {
+                addNewQuestion();
             }
         } catch (err) {
-            console.error("Ошибка загрузки вариантов ответов:", err);
-            quizData.value = {
-                question: '',
-                options: [],
-                correct: [],
-                quantity: 'several'
-            };
+            console.error("Ошибка загрузки теста:", err);
+            addNewQuestion();
         }
     }
 };
@@ -326,74 +334,128 @@ const saveCourse = async () => {
         closeModal();
         if (!currentPage.value) return;
 
-        let description = '';
-        const title = currentPage.value.title;
-
-        if (title !== pageName.value) {
-            await updatePage(currentModule.value.id, currentPage.value.id, pageName.value, currentPage.value.type)
+        // Сохраняем название страницы
+        if (currentPage.value.title !== pageName.value) {
+            await updatePage(currentModule.value.id, currentPage.value.id, pageName.value, currentPage.value.type);
         }
 
-        switch (currentPage.value.type) {
-            case 1:
-                description = currentPageContent.value;
-                break;
-            case 2:
-                description = JSON.stringify({
-                    // selectedWay: selectedWay.value,
-                    link: selectedWay.value === 'other' ? videoLink.value : '',
-                    files: uploadedFiles.value
+        // Обработка разных типов страниц
+        if (currentPage.value.type === 1) {
+            // Текстовая страница
+            const description = currentPageContent.value;
+            if (currentQuestion.value?.id) {
+                await updateQuestion(
+                    currentPage.value.id,
+                    currentQuestion.value.id,
+                    pageName.value,
+                    description
+                );
+            } else {
+                await createQuestion(
+                    currentPage.value.id,
+                    pageName.value,
+                    description
+                );
+            }
+        }
+        else if (currentPage.value.type === 2) {
+            // Видео страница
+            const videoData = {
+                selectedWay: selectedWay.value,
+                link: videoLink.value,
+                files: uploadedFiles.value
+            };
+            const description = JSON.stringify(videoData);
+
+            if (currentQuestion.value?.id) {
+                await updateQuestion(
+                    currentPage.value.id,
+                    currentQuestion.value.id,
+                    pageName.value,
+                    description
+                );
+            } else {
+                await createQuestion(
+                    currentPage.value.id,
+                    pageName.value,
+                    description
+                );
+            }
+        }
+        else if (currentPage.value.type === 3) {
+            // Тестовая страница
+            for (const question of quizData.value.questions) {
+                const description = JSON.stringify({
+                    answerType: question.answerType.replace(/-.*$/, '') // Удаляем суффикс с индексом
                 });
-                break;
-            case 3:
-                description = JSON.stringify({
-                    question: quizData.value.question,
-                    quantity: quizData.value.quantity
-                });
-                break;
-        }
 
-        let question;
-        if (currentQuestion.value) {
-            question = await updateQuestion(
-                currentPage.value.id,
-                currentQuestion.value.id,
-                quizData.value.question || title,
-                description
-            );
-        } else {
-            question = await createQuestion(
-                currentPage.value.id,
-                quizData.value.question || title,
-                description
-            );
-            currentQuestion.value = question;
-        }
-
-        if (currentPage.value.type === 3 && currentQuestion.value) {
-            const currentVariants = await getVariants(currentQuestion.value.id);
-
-            for (const option of quizData.value.options) {
-                if (option.id) {
-                    await updateVariant(
-                        currentQuestion.value.id,
-                        option.id,
-                        option.text,
-                        quizData.value.correct.includes(quizData.value.options.indexOf(option)))
+                let questionId;
+                if (question.id) {
+                    // Обновляем существующий вопрос
+                    await updateQuestion(
+                        currentPage.value.id,
+                        question.id,
+                        question.title,
+                        description
+                    );
+                    questionId = question.id;
                 } else {
-                    const newVariant = await createVariant(
-                        currentQuestion.value.id,
-                        option.text,
-                        quizData.value.correct.includes(quizData.value.options.indexOf(option)))
-                    option.id = newVariant.id;
+                    // Создаем новый вопрос
+                    const newQuestion = await createQuestion(
+                        currentPage.value.id,
+                        question.title,
+                        description
+                    );
+                    questionId = newQuestion.id;
+                    question.id = questionId;
+                }
+
+                // Получаем текущие варианты
+                const currentVariants = await getVariants(questionId);
+                const currentVariantIds = currentVariants.map(v => v.id);
+
+                // Обрабатываем варианты
+                for (const option of question.options) {
+                    try {
+                        if (option.id) {
+                            // Обновляем существующий вариант
+                            await updateVariant(
+                                questionId,
+                                option.id,
+                                option.title,
+                                option.is_right ? 1 : 0
+                            );
+                            // Удаляем ID из списка для проверки на удаление
+                            const index = currentVariantIds.indexOf(option.id);
+                            if (index !== -1) {
+                                currentVariantIds.splice(index, 1);
+                            }
+                        } else {
+                            // Создаем новый вариант
+                            const newVariant = await createVariant(
+                                questionId,
+                                option.title,
+                                option.is_right ? 1 : 0
+                            );
+                            option.id = newVariant.id;
+                        }
+                    } catch (err) {
+                        console.error("Ошибка при сохранении варианта:", err);
+                    }
+                }
+
+                // Удаляем варианты, которых больше нет
+                for (const variantId of currentVariantIds) {
+                    try {
+                        await deleteVariant(questionId, variantId);
+                    } catch (err) {
+                        console.error("Ошибка при удалении варианта:", err);
+                    }
                 }
             }
-
-            const currentVariantIds = currentVariants.map(v => v.id);
-            const newVariantIds = quizData.value.options.map(o => o.id).filter(id => id !== null);
-            const variantsToDelete = currentVariantIds.filter(id => !newVariantIds.includes(id));
-
         }
-        await fetchMaterial()
+
+        await fetchMaterial();
 
         popupText.value = 'Изменения успешно сохранены';
         showPopup.value = true;
@@ -405,48 +467,71 @@ const saveCourse = async () => {
 
     } catch (err) {
         console.error('Ошибка сохранения:', err);
-        isSuccess.value = false
+        isSuccess.value = false;
         popupText.value = 'Ошибка при сохранении: ' + (err.message || err);
         showPopup.value = true;
         setTimeout(() => {
-            showPopup.value = false
+            showPopup.value = false;
         }, 5000);
     }
-}
+};
 
-const addAnswer = async () => {
-    quizData.value.options.push({
+const addNewQuestion = () => {
+    quizData.value.questions.push({
         id: null,
-        text: '',
-        is_right: false
+        title: '',
+        description: '',
+        answerType: 'several-' + quizData.value.questions.length,
+        options: [],
+        correctAnswers: []
     });
 };
 
-const updateOption = (index, value) => {
-    quizData.value.options[index].text = value;
+const removeQuestion = async (index) => {
+    const question = quizData.value.questions[index];
+    if (question.id) {
+        await deleteQuestion(currentPage.value.id, question.id);
+    }
+    quizData.value.questions.splice(index, 1);
 };
 
-const removeAnswer = async (index) => {
-    const option = quizData.value.options[index];
-    // Если вариант уже сохранен в БД, можно добавить его удаление
-    // await deleteVariant(option.id); // Нужно добавить соответствующий API метод
-
-    quizData.value.options.splice(index, 1);
-    quizData.value.correct = quizData.value.correct
-        .filter(correctIndex => correctIndex !== index)
-        .map(correctIndex => correctIndex > index ? correctIndex - 1 : correctIndex);
+const addAnswer = (qIndex) => {
+    quizData.value.questions[qIndex].options.push({
+        id: null,
+        title: '',
+        is_right: 0
+    });
 };
 
-const updateCorrectAnswers = ({ index, isChecked }) => {
-    if (quizData.value.quantity === 'several') {
-        const pos = quizData.value.correct.indexOf(index);
-        if (isChecked && pos === -1) {
-            quizData.value.correct.push(index);
-        } else if (!isChecked && pos !== -1) {
-            quizData.value.correct.splice(pos, 1);
-        }
+const updateOption = (qIndex, aIndex, value) => {
+    quizData.value.questions[qIndex].options[aIndex].title = value;
+};
+
+const removeAnswer = async (qIndex, aIndex) => {
+    const option = quizData.value.questions[qIndex].options[aIndex];
+    if (option.id) {
+        await deleteVariant(quizData.value.questions[qIndex].id, option.id);
+    }
+    quizData.value.questions[qIndex].options.splice(aIndex, 1);
+    // Обновляем индексы правильных ответов
+    quizData.value.questions[qIndex].correctAnswers =
+        quizData.value.questions[qIndex].correctAnswers
+            .filter(i => i !== aIndex)
+            .map(i => i > aIndex ? i - 1 : i);
+};
+
+const updateCorrectAnswers = (qIndex, { index, isChecked }) => {
+    const question = quizData.value.questions[qIndex];
+    const isSingle = question.answerType.startsWith('one');
+
+    if (isSingle) {
+        // Для одного правильного ответа
+        question.options.forEach((opt, idx) => {
+            opt.is_right = idx === index && isChecked ? 1 : 0;
+        });
     } else {
-        quizData.value.correct = isChecked ? [index] : [];
+        // Для нескольких правильных ответов
+        question.options[index].is_right = isChecked ? 1 : 0;
     }
 };
 
@@ -660,6 +745,26 @@ provide('material', material);
         gap: 10px;
         width: 100%;
 
+        .question-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .question-item {
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
 
         .fill-question {
             display: flex;

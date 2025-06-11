@@ -134,6 +134,7 @@ const loadPageContent = async () => {
                 quizPassed.value[index] = false;
             });
         }
+        console.log(currentPageData.value)
     } catch (error) {
         console.error('Ошибка загрузки страницы:', error);
     } finally {

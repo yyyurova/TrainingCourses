@@ -227,6 +227,7 @@ const addToExistingChat = async (members) => {
 };
 
 watch(selectedChat, async (newChat) => {
+    if (!selectedChat.value) { return }
     await fetchMessages()
     await fetchMembers()
 }, { immediate: true })

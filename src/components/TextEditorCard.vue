@@ -193,6 +193,7 @@ watch(() => props.content, (newValue) => {
     padding: 0;
     height: 100%;
     max-height: 400px;
+    background-color: #ffffff;
 
     .quill-editor {
         width: 100%;

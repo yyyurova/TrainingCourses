@@ -33,7 +33,7 @@
 
 <script setup>
 import { inject, ref, computed, onMounted, provide } from 'vue';
-import { deleteMember as apiDeleteMember } from '@/api/modules/chat.api';
+import { deleteMember as apiDeleteMember, getChat } from '@/api/modules/chat.api';
 
 import MemberCard from './MemberCard.vue';
 import Card from '@/components/Card.vue';
@@ -74,7 +74,7 @@ const addToExistingChat = async (members) => {
         closeModal()
         const memberIds = members.map(m => m.id);
 
-        await addMembers(memberIds);
+        await addMembers(chat.value.id, memberIds);
 
         const response = await getChat(chat.value.id);
         chat.value = response;
