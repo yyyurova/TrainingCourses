@@ -10,18 +10,18 @@
         </button>
 
         <div class="navigation" v-if="material">
-            <div v-for="(module, moduleIndex) in material" :key="moduleIndex" class="chapter">
-                <div class="chapter-header" @click="toggleChapter(moduleIndex)">
-                    <span>{{ moduleIndex + 1 + '. ' + module.title }}</span>
-                    <img src="/icons/arrow.svg" class="arrow-up" :class="{ 'arrow-down': openModules[moduleIndex] }"
+            <div v-for="module in material" :key="module.id" class="chapter">
+                <div class="chapter-header" @click="toggleChapter(module.id)">
+                    <span>{{ getModuleNumber(module) + '. ' + module.title }}</span>
+                    <img src="/icons/arrow.svg" class="arrow-up" :class="{ 'arrow-down': openModules[module.id] }"
                         alt="">
                 </div>
 
-                <div class="steps" v-if="module.pages" v-show="openModules[moduleIndex]">
-                    <RouterLink v-for="(page, pageIndex) in module.pages" :key="pageIndex" class="step-link"
-                        :to="getPageRoute(moduleIndex, pageIndex)" active-class="active-step">
+                <div class="steps" v-if="module.pages" v-show="openModules[module.id]">
+                    <RouterLink v-for="page in module.pages" :key="page.id" class="step-link"
+                        :to="getPageRoute(module.id, page.id)" active-class="active-step">
                         <div class="step-content">
-                            {{ moduleIndex + 1 + '.' + (pageIndex + 1) + ' ' + page.title }}
+                            {{ getModuleNumber(module) + '.' + getPageNumber(module, page) + ' ' + page.title }}
                         </div>
                     </RouterLink>
                 </div>
@@ -43,26 +43,36 @@ const openModules = ref({})
 
 const initOpenModules = () => {
     if (!material.value) return
-    material.value.forEach((_, index) => {
-        openModules.value[index] = index === 0
+    material.value.forEach(module => {
+        openModules.value[module.id] = material.value.indexOf(module) === 0
     })
 }
 
-const getPageRoute = (moduleIndex, pageIndex) => {
+const getModuleNumber = (module) => {
+    if (!material.value) return 0
+    return material.value.indexOf(module) + 1
+}
+
+const getPageNumber = (module, page) => {
+    if (!module.pages) return 0
+    return module.pages.indexOf(page) + 1
+}
+
+const getPageRoute = (moduleId, pageId) => {
     return {
-        name: 'CourseCompletion',
+        name: 'CourseCompletionPage',
         params: {
             courseId: route.params.courseId,
-            moduleIndex: moduleIndex,
-            pageIndex: pageIndex
+            moduleId: moduleId,
+            pageId: pageId
         }
     }
 }
 
-const toggleChapter = (index) => {
+const toggleChapter = (moduleId) => {
     openModules.value = {
         ...openModules.value,
-        [index]: !openModules.value[index]
+        [moduleId]: !openModules.value[moduleId]
     }
 }
 
@@ -70,20 +80,20 @@ const goBack = () => {
     router.push('/courses')
 }
 
-const currentModuleIndex = computed(() => {
-    return parseInt(route.params.moduleIndex) || 0
+const currentModuleId = computed(() => {
+    return route.params.moduleId
 })
 
 watch(
-    () => [material.value, currentModuleIndex.value],
+    () => [material.value, currentModuleId.value],
     () => {
-        if (material.value && currentModuleIndex.value !== undefined) {
+        if (material.value && currentModuleId.value) {
             // Закрываем все модули
             Object.keys(openModules.value).forEach(key => {
                 openModules.value[key] = false
             })
             // Открываем текущий модуль
-            openModules.value[currentModuleIndex.value] = true
+            openModules.value[currentModuleId.value] = true
         }
     },
     { immediate: true }

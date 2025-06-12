@@ -8,7 +8,7 @@
             <h1 class="chapterName">
                 {{ currentModule.title }}
                 <span class="score">{{ completedPages + " из " + currentModule.pages.length + " шагов пройдено"
-                    }}</span>
+                }}</span>
             </h1>
             <div class="squares-score">
                 <span class="square" :class="page.completed ? 'filled' : ''" v-for="page in currentModule.pages"
@@ -51,6 +51,7 @@
                 </button>
             </div>
         </Card>
+        <Loading v-if="loading" />
     </CourseCompletionLayout>
 </template>
 
@@ -65,6 +66,7 @@ import CourseCompletionLayout from '@/layouts/CourseCompletionLayout.vue';
 import Card from '@/components/Card.vue';
 import EndOfModule from './components/EndOfModule.vue';
 import EndOfCourse from './components/EndOfCourse.vue';
+import Loading from '@/components/Loading.vue';
 
 const material = ref(null);
 const router = useRouter();
@@ -76,17 +78,51 @@ const courseId = route.params.courseId;
 const endOfModule = ref(false);
 const endOfCourse = ref(false);
 const loading = ref(false);
-
 const currentPageData = ref(null);
+
 const selectedAnswers = ref({});
 const quizChecked = ref({});
 const quizPassed = ref({});
 const quizWasChecked = ref(false);
+const quizzesCompleted = ref({});
 
-// Текущие ID модуля и страницы
-const currentModuleId = ref(route.params.moduleId || null);
-const currentPageId = ref(route.params.pageId || null);
+const currentModuleId = ref(null);
+const currentPageId = ref(null);
 
+const currentModule = computed(() => {
+    return material.value?.find(m => m.id === currentModuleId.value) || null;
+});
+
+const currentPageIndex = computed(() => {
+    return currentModule.value?.pages?.findIndex(p => p.id === currentPageId.value) ?? -1;
+});
+
+const isLastPage = computed(() => {
+    return currentPageIndex.value === currentModule.value?.pages?.length - 1;
+});
+
+const isLastModule = computed(() => {
+    const index = material.value?.findIndex(m => m.id === currentModuleId.value) ?? -1;
+    return index === material.value?.length - 1;
+});
+
+const completedPages = computed(() => {
+    return currentModule.value?.pages?.filter(page => page.completed).length || 0;
+});
+
+const hasQuizzes = computed(() => {
+    return currentPageData.value?.questions?.some(q => q.variants?.length > 0);
+});
+
+const allQuizzesPassed = computed(() => {
+    return currentPageData.value?.questions?.every((question, index) => {
+        return !question.variants?.length || quizzesCompleted.value[index] === true;
+    }) ?? true;
+});
+
+const hasSelectedAnswers = computed(() => {
+    return Object.values(selectedAnswers.value).some(answers => answers.length > 0);
+});
 const resetQuizState = () => {
     selectedAnswers.value = {};
     quizChecked.value = {};
@@ -94,108 +130,68 @@ const resetQuizState = () => {
     quizWasChecked.value = false;
 };
 
-// Текущий модуль
-const currentModule = computed(() => {
-    if (!material.value) return null;
-    return material.value.find(m => m.id === currentModuleId.value);
-});
-
-// Индекс текущей страницы в модуле
-const currentPageIndex = computed(() => {
-    if (!currentModule.value) return -1;
-    return currentModule.value.pages.findIndex(p => p.id === currentPageId.value);
-});
-
-// Это последняя страница в модуле?
-const isLastPage = computed(() => {
-    if (!currentModule.value) return false;
-    return currentPageIndex.value === currentModule.value.pages.length - 1;
-});
-
-// Это последний модуль в курсе?
-const isLastModule = computed(() => {
-    if (!material.value) return false;
-    const currentIndex = material.value.findIndex(m => m.id === currentModuleId.value);
-    return currentIndex === material.value.length - 1;
-});
-
-// Количество пройденных страниц
-const completedPages = computed(() => {
-    return currentModule.value?.pages.filter(page => page.completed).length || 0;
-});
-
-// Есть ли тесты на текущей странице
-const hasQuizzes = computed(() => {
-    return currentPageData.value?.questions?.some(q => q.variants?.length > 0);
-});
-
-// Все ли тесты пройдены
-const allQuizzesPassed = computed(() => {
-    if (!currentPageData.value?.questions) return true;
-    return currentPageData.value.questions.every((question, index) => {
-        if (!question.variants || question.variants.length === 0) return true;
-        return quizzesCompleted.value[index] === true;
-    });
-});
-
-// Есть ли выбранные ответы
-const hasSelectedAnswers = computed(() => {
-    return Object.values(selectedAnswers.value).some(answers => answers.length > 0);
-});
-
-const quizzesCompleted = ref({});
+const formatTextContent = (text) => {
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`(.*?)`/g, '<code>$1</code>')
+        .replace(/\n/g, '<br>');
+};
 
 const fetchMaterial = async () => {
     try {
-        course.value = await getCourse(courseId);
-        activity.value = await getCourseActivity(courseId);
-        material.value = await getModules(courseId);
+        loading.value = true;
+        [course.value, activity.value, material.value] = await Promise.all([
+            getCourse(courseId),
+            getCourseActivity(courseId),
+            getModules(courseId)
+        ]);
 
-        if (material.value?.length > 0) {
-            // Если в URL нет параметров, но есть активность - используем её
-            if (!currentModuleId.value && activity.value?.course_module_id) {
-                currentModuleId.value = activity.value.course_module_id;
-                currentPageId.value = activity.value.course_module_page_id;
-            }
+        if (!material.value?.length) return;
 
-            // Если все еще нет модуля - берем первый модуль
-            if (!currentModuleId.value) {
-                currentModuleId.value = material.value[0].id;
-            }
+        currentModuleId.value = route.params.moduleId || activity.value?.course_module_id || material.value[0].id;
 
-            // Если нет страницы - берем первую страницу модуля
-            if (!currentPageId.value) {
-                const module = material.value.find(m => m.id === currentModuleId.value);
-                if (module?.pages?.length) {
-                    currentPageId.value = module.pages[0].id;
-                }
-            }
-
-            // Обновляем URL, если нужно
-            if (currentModuleId.value && currentPageId.value) {
-                const expectedPath = `/courseCompletion/${courseId}/module/${currentModuleId.value}/page/${currentPageId.value}`;
-                if (route.path !== expectedPath) {
-                    router.push(expectedPath);
-                } else {
-                    loadPageContent();
-                }
-            }
+        const targetModule = material.value.find(m => m.id === currentModuleId.value);
+        if (!targetModule) {
+            currentModuleId.value = material.value[0].id;
+            currentPageId.value = material.value[0].pages[0]?.id;
+            return;
         }
-    } catch (err) {
-        console.error('Ошибка загрузки данных:', err);
+
+        currentPageId.value = route.params.pageId || activity.value?.course_module_page_id || targetModule.pages[0]?.id;
+
+        if (!currentPageId.value && targetModule.pages?.length) {
+            currentPageId.value = targetModule.pages[0].id;
+        }
+
+        if (route.params.moduleId !== currentModuleId.value || route.params.pageId !== currentPageId.value) {
+            router.push({
+                name: 'CourseCompletionPage',
+                params: {
+                    courseId,
+                    moduleId: currentModuleId.value,
+                    pageId: currentPageId.value
+                }
+            });
+        } else {
+            await loadPageContent();
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+    } finally {
+        loading.value = false;
     }
 };
 
 const loadPageContent = async () => {
     if (!currentModuleId.value || !currentPageId.value) return;
 
-    loading.value = true;
-    resetQuizState();
-
     try {
+        loading.value = true;
+        resetQuizState();
         currentPageData.value = await getModulePage(currentModuleId.value, currentPageId.value);
 
-        if (currentPageData.value.questions) {
+        if (currentPageData.value?.questions) {
             currentPageData.value.questions.forEach((_, index) => {
                 selectedAnswers.value[index] = [];
                 quizChecked.value[index] = false;
@@ -207,6 +203,37 @@ const loadPageContent = async () => {
     } finally {
         loading.value = false;
     }
+};
+
+const goToPage = (pageId) => {
+    if (!currentModuleId.value || !pageId) return;
+    router.push({
+        name: 'CourseCompletionPage',
+        params: {
+            courseId,
+            moduleId: currentModuleId.value,
+            pageId
+        }
+    });
+};
+
+const nextPage = async () => {
+    if (!currentModule.value || currentPageIndex.value === -1) return;
+
+    currentModule.value.pages[currentPageIndex.value].completed = true;
+
+    if (isLastPage.value && isLastModule.value) {
+        completeCourse();
+        return;
+    }
+
+    if (isLastPage.value) {
+        completeModule();
+        return;
+    }
+
+    const nextPageId = currentModule.value.pages[currentPageIndex.value + 1].id;
+    goToPage(nextPageId);
 };
 
 const goToNextModule = () => {
@@ -221,36 +248,16 @@ const goToNextModule = () => {
         if (nextPageId) {
             currentModuleId.value = nextModule.id;
             currentPageId.value = nextPageId;
-            router.push(`/courseCompletion/${courseId}/module/${nextModule.id}/page/${nextPageId}`);
+            router.push({
+                name: 'CourseCompletionPage',
+                params: {
+                    courseId,
+                    moduleId: nextModule.id,
+                    pageId: nextPageId
+                }
+            });
         }
     }
-};
-
-const goToPage = (pageId) => {
-    if (!currentModuleId.value) return;
-    currentPageId.value = pageId;
-    router.push(`/courseCompletion/${courseId}/module/${currentModuleId.value}/page/${pageId}`);
-};
-
-const nextPage = () => {
-    if (!currentModule.value || currentPageIndex.value === -1) return;
-
-    // Помечаем страницу как завершенную
-    currentModule.value.pages[currentPageIndex.value].completed = true;
-
-    if (isLastPage.value && isLastModule.value) {
-        completeCourse();
-        return;
-    }
-
-    if (isLastPage.value) {
-        completeModule();
-        return;
-    }
-
-    // Переходим на следующую страницу
-    const nextPageId = currentModule.value.pages[currentPageIndex.value + 1].id;
-    goToPage(nextPageId);
 };
 
 const completeModule = () => {
@@ -261,28 +268,16 @@ const completeCourse = () => {
     endOfCourse.value = true;
 };
 
-const formatTextContent = (text) => {
-    return text
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/`(.*?)`/g, '<code>$1</code>')
-        .replace(/\n/g, '<br>');
-};
-
 const checkQuiz = async () => {
     try {
-        if (!currentPageData.value?.questions?.length) {
-            console.warn('Нет вопросов для проверки');
-            return;
-        }
+        if (!currentPageData.value?.questions?.length) return;
 
         const answersToSend = [];
-        let allQuizzesPassed = true;
+        let allCorrect = true;
         quizWasChecked.value = true;
 
         currentPageData.value.questions.forEach((question, qIndex) => {
             quizChecked.value[qIndex] = true;
-            quizPassed.value[qIndex] = false;
 
             if (!question.variants?.length) {
                 quizPassed.value[qIndex] = true;
@@ -301,10 +296,7 @@ const checkQuiz = async () => {
 
             quizPassed.value[qIndex] = isCorrect;
             quizzesCompleted.value[qIndex] = isCorrect;
-
-            if (!isCorrect) {
-                allQuizzesPassed = false;
-            }
+            allCorrect = allCorrect && isCorrect;
 
             userAnswers.forEach(variantId => {
                 answersToSend.push({
@@ -315,40 +307,39 @@ const checkQuiz = async () => {
             });
         });
 
-        if (answersToSend.length > 0) {
+        if (answersToSend.length) {
             await sendAnswer({
                 answers: answersToSend,
-                is_completed: allQuizzesPassed
+                is_completed: allCorrect
             });
         }
 
-        if (allQuizzesPassed) {
+        if (allCorrect && currentModule.value) {
             currentModule.value.pages[currentPageIndex.value].completed = true;
         }
 
-        return allQuizzesPassed;
+        return allCorrect;
     } catch (error) {
         console.error('Ошибка при проверке теста:', error);
         throw error;
     }
 };
 
-// Отслеживаем изменения параметров маршрута
-watch(() => route.params.moduleId, (newModuleId) => {
-    if (newModuleId && newModuleId !== currentModuleId.value) {
-        currentModuleId.value = newModuleId;
+watch(() => route.params.moduleId, (newId) => {
+    if (newId && newId !== currentModuleId.value) {
+        currentModuleId.value = newId;
     }
 });
 
-watch(() => route.params.pageId, (newPageId) => {
-    if (newPageId && newPageId !== currentPageId.value) {
-        currentPageId.value = newPageId;
+watch(() => route.params.pageId, (newId) => {
+    if (newId && newId !== currentPageId.value) {
+        currentPageId.value = Number(newId);
         loadPageContent();
+        console.log(currentModuleId.value, currentPageId.value, currentPageData.value)
     }
 });
 
 onMounted(fetchMaterial);
-
 provide('material', material);
 provide('course', course);
 </script>
