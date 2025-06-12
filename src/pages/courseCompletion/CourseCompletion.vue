@@ -58,7 +58,8 @@
 <script setup>
 import { computed, onMounted, ref, watch, provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getCourse, getCourseActivity } from '@/api/modules/courses.api';
+import { getCourseActivity } from '@/api/modules/activity.api';
+import { getCourse } from '@/api/modules/courses.api';
 import { getModules, getModulePage } from '@/api/modules/studentMaterials.api';
 import { sendAnswer } from '@/api/modules/studentAnswers.api';
 

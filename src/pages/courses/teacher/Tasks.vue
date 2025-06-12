@@ -12,7 +12,7 @@
                 <TaskCard v-for="task in tasks" :task="task" :key="task.id" @click="goToWorks(task.id)"
                     @delete="openDeleteModal(task)" @edit="openEditModal(task)" />
             </div>
-            <div class="no-items" v-if="tasks.length === 0">
+            <div class="no-items" v-if="tasks.length === 0 && !isLoading">
                 <h2>В этом курсе пока нет заданий</h2>
             </div>
         </div>

@@ -9,7 +9,7 @@
         </Card>
         <div v-if="practicants && practicants.length > 0 && !isLoading" class="practicants">
             <Card v-for="practicant in practicants" :key="practicant.id" @click="openTasks(practicant)">
-                <img v-if="practicant.avatar" :src="practicant.avatar" alt="">
+                <img v-if="practicant.image" :src="practicant.image" alt="">
                 <AvatarLetter v-else :name="practicant.name" />
                 {{ practicant.name }}
             </Card>
@@ -69,6 +69,11 @@ const fetchPracticants = async () => {
 }
 
 const openTasks = (practicant) => {
+    localStorage.setItem('practicantName', practicant.name)
+    if (practicant.image) {
+        localStorage.setItem('practicantImage', practicant.image)
+    }
+
     router.push({
         path: `/courses/${course.value.id}/practicants/${practicant.id}`,
         params: { practicantId: practicant.id }

@@ -1,5 +1,6 @@
 <template>
     <div class="all">
+
         <div class="top">
             <h1>Чаты</h1>
             <button class="blue" @click="openCreateGroupModal">Создать группу
@@ -13,22 +14,32 @@
                     placeholder="Поиск участников">
             </Card>
         </div>
+
         <Loading v-if="isLoading" />
-        <div class="dialogs" v-if="chats.length > 0">
-            <!-- <DialogCard v-for="chat in chats" :key="chat.id" :chat="chat" /> -->
+
+        <div class="dialogs" v-else-if="chats.length > 0">
             <component :class="chat.choosen ? 'choosen' : ''" @click="() => emit('openDialog', chat)"
                 v-for="chat in chats" @delete="openConfirmDeleteModal(chat)" :key="chat.id"
                 :is="chat.is_group === 1 ? GroupDialogCard : DialogCard" :chat="chat" />
         </div>
+
+        <div class="no-items" v-else-if="nameInput.trim() !== '' && chats.length === 0">
+            <p>Нет результатов по запросу</p>
+        </div>
+
         <div class="no-items" v-else>
             <p>У вас пока нет ни одного чата.</p>
         </div>
+
         <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить чат?"
             text="Удалённую переписку нельзя будет восстановить" right-button-text="Удалить" @confirm="deleteChat"
             @cancel="closeModal" />
+
         <CreateChatModalVue v-if="showCreateGroupModal" @cancel="closeModal" @next="openChooseMembersModal" />
+
         <AddUserModal v-if="showChooseMembersModal" @cancel="closeModal" @add="addMembersToNewChat"
             right-button-text="Создать" />
+
     </div>
 </template>
 

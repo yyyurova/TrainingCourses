@@ -227,7 +227,6 @@ const saveUserChanges = async (changes) => {
     try {
         closeModal()
         const resp = await editProfile(changes.name, changes.avatar);
-        console.log(resp)
         isSuccess.value = true
         popupText.value = 'Изменения сохранены'
         showPopup.value = true

@@ -1,3 +1,36 @@
+<script setup>
+import { computed, ref } from 'vue';
+import { format } from '@formkit/tempo';
+import { checkOverdueDeadline } from '@/utils/utils';
+import AvatarLetter from '@/components/AvatarLetter.vue';
+
+const isOpen = ref(false);
+const props = defineProps({
+    student: Object,
+});
+
+const emit = defineEmits(['goToWorks']);
+
+// Используем computed вместо мутации пропса
+const filteredTasks = computed(() =>
+    props.student.tasks.filter(t => t.mark !== null)
+);
+
+const goToWorks = (taskId, event) => {
+    event.stopPropagation();
+    emit('goToWorks', taskId);
+};
+
+const toggleInfo = () => {
+    isOpen.value = !isOpen.value;
+    console.log('Toggled:', isOpen.value, 'Tasks:', filteredTasks.value); // Отладка
+};
+
+const truncateText = (text, maxLength) => {
+    return text?.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+};
+</script>
+
 <template>
     <div class="student" @click="toggleInfo">
         <div class="row">
@@ -8,7 +41,8 @@
                 <img src="/icons/arrow.svg" :class="isOpen ? 'arrow-down' : 'arrow-right'" alt="">
             </button>
         </div>
-        <div class="table-container" v-if="isOpen">
+        <!-- Используем filteredTasks и добавляем класс для анимации -->
+        <div :class="['table-container', { open: isOpen }]" v-if="isOpen">
             <table>
                 <thead>
                     <tr>
@@ -18,7 +52,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(task, index) in student.tasks" :key="index" @click="goToWorks(task.taskId)">
+                    <tr v-for="(task, index) in filteredTasks" :key="index" @click="goToWorks(task.taskId, $event)">
                         <td class="title">{{ truncateText(task.name, 70) }}</td>
                         <td class="deadline">{{ format(task.until, 'medium') }}</td>
                         <td class="mark">
@@ -31,39 +65,6 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { format } from '@formkit/tempo';
-import { checkOverdueDeadline } from '@/utils/utils';
-import { ref } from 'vue';
-
-import AvatarLetter from '@/components/AvatarLetter.vue';
-
-const isOpen = ref(false)
-
-const props = defineProps({
-    student: Object,
-});
-
-
-props.student.tasks = props.student.tasks.filter(t => t.mark)
-console.log(props.student.tasks)
-
-const emit = defineEmits(['goToWorks'])
-
-const goToWorks = (taskId) => {
-    emit('goToWorks', taskId)
-}
-
-const truncateText = (text, maxLength) => {
-    if (!text) return '';
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-};
-
-const toggleInfo = () => {
-    isOpen.value = !isOpen.value
-}
-</script>
 
 <style scoped lang="scss">
 .student {

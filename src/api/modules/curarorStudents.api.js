@@ -9,3 +9,12 @@ export const getPracticants = async (courseId) => {
         console.error('Полная ошибка:', error);
     }
 };
+
+export const getPracticantTasks = async (courseId, userId) => {
+    try {
+        const response = await client.get(`${ENDPOINTS.TASK}/user/${userId}/course/${courseId}`);
+        return response.data.data;
+    } catch (error) {
+        console.error('Полная ошибка:', error);
+    }
+};

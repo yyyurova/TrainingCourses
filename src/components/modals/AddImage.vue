@@ -17,14 +17,20 @@
                         </svg>
                     </div>
                     <div class="text">
-                        <span>Нажмите чтобы загрузить файл</span>
+                        <span v-if="!selectedFile">Нажмите чтобы загрузить файл</span>
+                        <span v-else>{{ selectedFile.name }}</span>
                     </div>
-                    <input type="file" id="file" accept="image/*">
+                    <input type="file" id="file" accept="image/*" @change="handleFileUpload">
                 </label>
+
+                <div class="form-group" v-if="imageUrl">
+                    <label>Или укажите URL изображения</label>
+                    <input v-model="imageUrl" type="url" placeholder="https://example.com/image.jpg">
+                </div>
 
                 <div class="modal-buttons">
                     <button type="button" class="transparent" @click="$emit('cancel')">Отмена</button>
-                    <button type="button" class="blue">Вставить</button>
+                    <button type="button" class="blue" @click="insertImage">Вставить</button>
                 </div>
             </div>
         </div>
@@ -32,7 +38,35 @@
 </template>
 
 <script setup>
-defineEmits(['cancel'])
+import { ref } from 'vue';
+
+const emit = defineEmits(['cancel', 'insert']);
+
+const selectedFile = ref(null);
+const imageUrl = ref('');
+const imageData = ref(null);
+
+const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    selectedFile.value = file;
+    imageUrl.value = '';
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        imageData.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+};
+
+const insertImage = () => {
+    if (!imageData.value && !imageUrl.value.trim()) {
+        console.warn("Выберите файл или введите URL");
+        return;
+    }
+    emit('insert', imageData.value || imageUrl.value.trim());
+};
 </script>
 
 <style scoped lang="scss">
@@ -76,5 +110,11 @@ defineEmits(['cancel'])
     input {
         display: none;
     }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 </style>

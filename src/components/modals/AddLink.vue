@@ -9,11 +9,13 @@
                 </div>
                 <div class="form-group">
                     <label>Текст ссылки</label>
-                    <input v-model="linkText" type="text" autocomplete="off" required placeholder="Текст ссылки">
+                    <input v-model="linkText" type="text" autocomplete="off" placeholder="Текст ссылки">
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="transparent" @click="$emit('cancel')">Отмена</button>
-                    <button type="button" class="blue">Вставить</button>
+                    <button type="button" class="blue" @click="insertLink" :disabled="!linkUrl">
+                        Вставить
+                    </button>
                 </div>
             </div>
         </div>
@@ -23,8 +25,33 @@
 <script setup>
 import { ref } from 'vue';
 
-defineEmits(['cancel'])
+const emit = defineEmits(['cancel', 'insert']);
 
-const linkUrl = ref('')
-const linkText = ref('')
+const linkUrl = ref('');
+const linkText = ref('');
+
+const insertLink = () => {
+    if (!linkUrl.value.trim()) {
+        console.warn("URL не может быть пустым");
+        return;
+    }
+    emit('insert', {
+        url: linkUrl.value.trim(),
+        text: linkText.value.trim() || linkUrl.value.trim()
+    });
+};
 </script>
+
+<style scoped lang="scss">
+.modal__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+</style>

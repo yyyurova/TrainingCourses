@@ -2,7 +2,7 @@
     <!-- <Layout :on-create-task="openCreateTaskModal"> -->
     <Layout>
         <div v-if="practicant" class="header">
-            <img v-if="practicant.avatar" :src="practicant.avatar" alt="">
+            <img v-if="practicant.image" :src="practicant.image" alt="">
             <AvatarLetter v-else :name="practicant.name" />
             <h1>{{ practicant.name }}</h1>
         </div>
@@ -12,15 +12,15 @@
             <option value="done">Сдано</option>
         </select>
 
-        <div class="tasks" v-if="tasks.length > 0 && !isLoading">
+        <div class="tasks" v-if="tasks && tasks.length > 0 && !isLoading">
             <TaskCard v-for="task in tasks" :key="task.id" :task="task" @delete="openDeleteModal(task)"
                 :practicantId="route.params.practicantId" @edit="openEditModal(task)" />
         </div>
+
         <Loading v-if="isLoading" />
-        <div v-if="nothingFoundMessage && tasks.length === 0 && !isLoading" class="no-items">
-            <h2> {{ nothingFoundMessage }}</h2>
+        <div v-if="tasks.length === 0 && !isLoading" class="no-items">
+            <p>У практиканта нет заданий</p>
         </div>
-        <!-- <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" @create="createTask" :users="allPraricants" /> -->
         <Popup v-if="showPopup" :text="popupText" :is-success="isSuccess" @close-popup="closePopup" />
         <ConfirmDelete v-if="showDeleteModal" @confirm="deleteTask(taskToDelete.id)" @cancel="closeModal"
             question="Удалить задание?" right-button-text="Удалить"
@@ -31,47 +31,42 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import axios from 'axios';
 import { useRoute } from 'vue-router';
 import { checkOverdueDeadline } from '@/utils/utils';
-import { mockUser } from '@/mocks/user';
-import { getUser } from '@/api/modules/adminUsers.api';
+import { deleteTask as apiDeleteTask, updateTask } from '@/api/modules/tasks.api';
+import { getPracticantTasks } from '@/api/modules/curarorStudents.api';
 
 import Layout from '@/layouts/Layout.vue';
 import TaskCard from '../components/TaskCard.vue';
 import Loading from '@/components/Loading.vue';
 import AvatarLetter from '@/components/AvatarLetter.vue';
-// import CreateTask from '../components/modals/CreateTask.vue';
 import Popup from '@/components/Popup.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 import EditTask from '../components/modals/EditTask.vue';
 
 const course = ref(null)
 const practicant = ref(null)
-const allPraricants = ref([])
 const tasks = ref([])
 const taskFilter = ref(null)
 const originalTasks = ref([])
 
 const nothingFoundMessage = ref('')
 
-const showEditModal = ref(false)
-const taskToEdit = ref(null)
-
 const showPopup = ref(false)
 const popupText = ref('')
 const isSuccess = ref(true)
+
+const showEditModal = ref(false)
+const taskToEdit = ref(null)
 
 const showDeleteModal = ref(false)
 const taskToDelete = ref(null)
 
 const isLoading = ref(false)
-// const showCreateTaskModal = ref(false)
 
 const route = useRoute()
 
 const closeModal = () => {
-    // if (showCreateTaskModal.value) { showCreateTaskModal.value = false }
     if (showDeleteModal.value) { showDeleteModal.value = false }
     if (showEditModal.value) { showEditModal.value = false }
 }
@@ -86,10 +81,6 @@ const closePopup = () => {
     popupText.value = ''
 }
 
-// const openCreateTaskModal = () => {
-//     showCreateTaskModal.value = true
-// }
-
 const openDeleteModal = (task) => {
     showDeleteModal.value = true
     taskToDelete.value = task
@@ -98,107 +89,51 @@ const openDeleteModal = (task) => {
 const fetchData = async () => {
     try {
         isLoading.value = true
-        const courseData = localStorage.getItem('course')
-        course.value = courseData ? JSON.parse(courseData) : null
 
-        if (!course.value) {
-            console.error('Course not found in localStorage')
-            return
+        practicant.value = { name: localStorage.getItem('practicantName'), image: localStorage.getItem('practicantImage') }
+        tasks.value = await getPracticantTasks(route.params.courseId, route.params.practicantId)
+        console.log(tasks.value)
+
+        if (tasks.value && tasks.value.students) {
+            practicant.value = tasks.value[0].students.find(s => s.id == route.params.practicantId)
         }
-
-        practicant.value = await getUser(route.params.practicantId)
-
-        tasks.value = course.value.tasks.filter(task =>
-            Array.isArray(task.assignedTo) && task.assignedTo.includes(practicant.value.id)
-        )
-        originalTasks.value = tasks.value
-
-        if (tasks.value.length === 0) {
-            nothingFoundMessage.value = 'У данного учащегося нет заданий.'
-        }
-
     }
     finally {
         isLoading.value = false
     }
 }
 
-const deleteTask = async (taskId) => {
+const deleteTask = async (id) => {
     try {
-        isLoading.value = true;
-        closeModal();
-
-        const courseData = localStorage.getItem('course');
-        const currentCourse = courseData ? JSON.parse(courseData) : null;
-
-        if (!currentCourse) {
-            throw new Error('Course not found');
-        }
-
-        const taskIndex = currentCourse.tasks.findIndex(t => t.id === taskId);
-        if (taskIndex === -1) {
-            throw new Error('Task not found');
-        }
-
-        const studentId = Number(route.params.practicantId);
-        currentCourse.tasks[taskIndex].assignedTo = currentCourse.tasks[taskIndex].assignedTo.filter(id => id !== studentId);
-
-        if (currentCourse.tasks[taskIndex].marks && currentCourse.tasks[taskIndex].marks[studentId]) {
-            delete currentCourse.tasks[taskIndex].marks[studentId];
-        }
-
-        if (currentCourse.tasks[taskIndex].assignedTo.length === 0) {
-            currentCourse.tasks = currentCourse.tasks.filter(t => t.id !== taskId);
-        }
-
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${currentCourse.id}`, {
-            tasks: currentCourse.tasks
-        });
-
-        if (tasks.value.length === 0) {
-            nothingFoundMessage.value = 'У данного учащегося нет заданий.'
-        }
-
-        localStorage.setItem('course', JSON.stringify(currentCourse));
-        await fetchData();
-
-        popupText.value = 'Задание удалено';
-        showPopup.value = true;
+        isLoading.value = true
+        closeModal()
+        await apiDeleteTask(id)
+        await fetchData()
+        popupText.value = 'Задание удалено'
+        showPopup.value = true
         setTimeout(() => {
-            showPopup.value = false;
-        }, 5000);
+            showPopup.value = false
+        }, 5000)
     }
     catch (err) {
-        console.error(err);
-        popupText.value = 'Не удалось удалить задание';
-        showPopup.value = true;
-        isSuccess.value = false;
+        console.log(err)
+        await fetchData()
+        popupText.value = 'Не удалось удалить задание'
+        showPopup.value = true
+        isSuccess.value = false
         setTimeout(() => {
-            showPopup.value = false;
-        }, 5000);
+            showPopup.value = false
+        }, 5000)
     }
-    finally {
-        isLoading.value = false;
-    }
+    finally { isLoading.value = false }
 }
 
 const editTask = async (updatedTask) => {
     try {
         isLoading.value = true;
         closeModal();
-
-        const { data: courses } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses?teacher=${mockUser.id}`);
-        const course = courses[0];
-
-        const updatedTasks = course.tasks.map(task =>
-            task.id === updatedTask.id ? updatedTask : task
-        );
-
-        await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${course.id}`, {
-            tasks: updatedTasks
-        });
-
-        tasks.value = updatedTasks;
+        await updateTask(updatedTask.id, updatedTask)
+        await fetchData()
 
         popupText.value = 'Задание успешно изменено';
         showPopup.value = true;
@@ -291,20 +226,20 @@ const filterTasks = () => {
     }
 }
 
-const fetchPracticants = async () => {
-    try {
+// const fetchPracticants = async () => {
+//     try {
 
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users?role=student`);
-        allPraricants.value = data
-    } catch (err) { console.log(err) }
-    finally {
-        isLoading.value = false
-    }
-}
+//         const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users?role=student`);
+//         allPraricants.value = data
+//     } catch (err) { console.log(err) }
+//     finally {
+//         isLoading.value = false
+//     }
+// }
 
 onMounted(async () => {
     await fetchData()
-    await fetchPracticants()
+    // await fetchPracticants()
 })
 </script>
 

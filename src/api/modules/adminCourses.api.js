@@ -28,7 +28,6 @@ export const deleteCourse = async (courseId) => {
 
 export const editCourse = async (courseId, updatedCourse) => {
     try {
-        console.log(updatedCourse)
         const formData = new FormData();
 
         formData.append('title', updatedCourse.title);
@@ -40,7 +39,6 @@ export const editCourse = async (courseId, updatedCourse) => {
         } else {
             formData.append('photo', '');
         }
-        console.log(formData)
         const response = await client.post(`${ENDPOINTS.ADMIN_COURSE}/${courseId}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
@@ -71,7 +69,6 @@ export const createCourse = async (newCourse) => {
         if (newCourse.photo) {
             formData.append('photo', newCourse.photo);
         }
-        console.log(formData)
         const response = await client.post(`${ENDPOINTS.ADMIN_COURSE}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'

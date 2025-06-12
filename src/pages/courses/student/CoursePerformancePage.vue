@@ -3,30 +3,64 @@
         <h1>Успеваемость</h1>
         <Navbar :elements="navbarItems" />
         <div v-if="!isLoading">
-            <h3>Тесты</h3>
-            <div class="success">
-                <div class="row">
-                    <Card class="center no-hover">
-                        <p class="label">Количество тестов</p>
-                        <p class="number">{{ mockUser.tests.all }}</p>
-                    </Card>
+            <div class="tests">
+                <h3>Тесты</h3>
+                <div class="success">
+                    <div class="row">
+                        <Card class="center no-hover">
+                            <p class="label">Количество тестов</p>
+                            <p class="number">{{ mockUser.tests.all }}</p>
+                        </Card>
+                    </div>
+                    <div class="row">
+                        <Card class="no-hover">
+                            <p class="label">Процент пройденных тестов</p>
+                            <p class="number">{{ passedTests }}%</p>
+                            <p class="period">За последние 4 недели</p>
+                        </Card>
+                        <Card class="no-hover">
+                            <p class="label">Процент не пройденных тестов</p>
+                            <p class="number">{{ failedTests }}%</p>
+                            <p class="period">За последние 4 недели</p>
+                        </Card>
+                        <Card class="no-hover">
+                            <p class="label">Средний балл за тесты</p>
+                            <p class="number">{{ mockUser.tests.averageMark }}</p>
+                            <p class="period">За последние 4 недели</p>
+                        </Card>
+                    </div>
                 </div>
-                <div class="row">
-                    <Card class="no-hover">
-                        <p class="label">Процент пройденных тестов</p>
-                        <p class="number">{{ passedTests }}%</p>
-                        <p class="period">За последние 4 недели</p>
-                    </Card>
-                    <Card class="no-hover">
-                        <p class="label">Процент не пройденных тестов</p>
-                        <p class="number">{{ failedTests }}%</p>
-                        <p class="period">За последние 4 недели</p>
-                    </Card>
-                    <Card class="no-hover">
-                        <p class="label">Средний балл за тесты</p>
-                        <p class="number">{{ mockUser.tests.averageMark }}</p>
-                        <p class="period">За последние 4 недели</p>
-                    </Card>
+            </div>
+
+            <div class="hometasks" v-if="tasksStatistics">
+                <h3>Домашние задания</h3>
+                <div class="success">
+                    <div class="row">
+                        <Card class="center no-hover">
+                            <p class="label">Количество домашних заданий</p>
+                            <p class="number">{{ tasksStatistics.tasks }}</p>
+                        </Card>
+                    </div>
+                    <div class="row">
+                        <Card class="no-hover">
+                            <p class="label">Процент сделанных домашних заданий</p>
+                            <p class="number">{{ tasksStatistics.done !== 0 ? tasksStatistics.tasks /
+                                tasksStatistics.done *
+                                100 : 0 }}%</p>
+                            <p class="period">За последние 4 недели</p>
+                        </Card>
+                        <Card class="no-hover">
+                            <p class="label">Процент не сделанных домашних заданий</p>
+                            <p class="number">{{ tasksStatistics.not_done !== 0 ?
+                                tasksStatistics.tasks / tasksStatistics.not_done * 100 : 0 }}%</p>
+                            <p class="period">За последние 4 недели</p>
+                        </Card>
+                        <Card class="no-hover">
+                            <p class="label">Средний балл</p>
+                            <p class="number">{{ tasksStatistics.averageMark || 0 }}</p>
+                            <p class="period">За последние 4 недели</p>
+                        </Card>
+                    </div>
                 </div>
             </div>
         </div>
@@ -36,10 +70,10 @@
 
 <script setup>
 import { onMounted, ref, computed, watch } from 'vue';
-import axios from 'axios';
 import { useRoute } from 'vue-router';
 import { mockUser } from '@/mocks/user';
 import { getCourse } from '@/api/modules/courses.api';
+import { getTasksStatistics } from '@/api/modules/activity.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
@@ -47,6 +81,8 @@ import Loading from '@/components/Loading.vue';
 import Card from '@/components/Card.vue';
 
 const course = ref(null)
+const tasksStatistics = ref(null)
+
 const route = useRoute();
 const isLoading = ref(false)
 
@@ -66,6 +102,9 @@ const fetchCourse = async (id) => {
     try {
         isLoading.value = true;
         course.value = await getCourse(id);
+
+        tasksStatistics.value = await getTasksStatistics(course.value.id)
+        console.log(tasksStatistics.value)
     } finally {
         isLoading.value = false;
     }
@@ -90,6 +129,10 @@ h3 {
     font-size: 24px;
     line-height: 28px;
     letter-spacing: 1px;
+}
+
+.hometasks {
+    margin-bottom: 20px;
 }
 
 .success {
