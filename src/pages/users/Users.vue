@@ -19,7 +19,7 @@
         <ConfirmDelete v-if="showConfirmModal" :question="modalConfig.question" :text="modalConfig.text"
             :rightButtonText="modalConfig.rightButtonText" @confirm="modalConfig.onConfirm" @cancel="closeModal" />
 
-        <SelectRole v-if="showSelectModal" @save="approveUser" @cancel="closeModal" />
+        <SelectRole v-if="showSelectModal" @save="selectRole" @cancel="closeModal" />
 
         <CreateUser v-if="showCreateModal" @cancel="closeModal" @create="handleCreateUser" />
 
@@ -196,7 +196,7 @@ const openApproveModal = (user) => {
     showSelectModal.value = true;
 };
 
-const approveUser = async (role) => {
+const selectRole = async (role) => {
     if (!selectedUser.value || !role) return;
     closeModal();
     try {

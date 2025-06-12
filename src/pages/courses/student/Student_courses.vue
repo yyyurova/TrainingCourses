@@ -1,9 +1,12 @@
 <template>
-    <router-view v-if="$route.params.courseId" /> <!-- Рендерим страницу курса -->
+    <router-view v-if="$route.params.courseId" />
     <div v-else>
         <Layout>
-            <h1>Курсы</h1>
-            <div class="courses">
+            <h1 v-if="courses && courses.length > 0">Курсы</h1>
+            <div v-if="!isLoading && courses.length === 0" class="no-items">
+                <p> У вас нет доступных курсов</p>
+            </div>
+            <div class="courses" v-if="courses && courses.length > 0">
                 <Card v-for="course in courses" :key="course.id">
                     <div class="top">
                         <img v-if="course.photo" class="avatar" :src="course.photo" alt="avatar">
@@ -43,6 +46,13 @@ provide('courses', courses)
 </script>
 
 <style scoped lang="scss">
+.no-items {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 100px);
+}
+
 .courses {
     display: flex;
     gap: 10px;

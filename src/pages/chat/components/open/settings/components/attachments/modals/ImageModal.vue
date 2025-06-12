@@ -2,6 +2,7 @@
     <div class="modal" @click.self="$emit('close')">
         <SVGPreview v-if="image.type === 'svg'" :content="image.svgContent" />
         <img v-else :src="image.url" :alt="image.fileName" class="modal-image">
+        <button class="icon" @click="$emit('close')"><img src="/icons/x.svg" alt=""></button>
     </div>
 </template>
 
@@ -36,6 +37,12 @@ defineEmits(['close'])
         max-width: 80%;
         max-height: 80%;
         object-fit: contain;
+    }
+
+    button.icon {
+        position: absolute;
+        right: 30px;
+        top: 30px;
     }
 }
 </style>

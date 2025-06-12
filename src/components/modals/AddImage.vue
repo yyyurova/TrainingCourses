@@ -23,13 +23,17 @@
                 </label>
 
                 <div class="modal-buttons">
-                    <button type="button" class="transparent">Отмена</button>
+                    <button type="button" class="transparent" @click="$emit('cancel')">Отмена</button>
                     <button type="button" class="blue">Вставить</button>
                 </div>
             </div>
         </div>
     </div>
 </template>
+
+<script setup>
+defineEmits(['cancel'])
+</script>
 
 <style scoped lang="scss">
 .custum-file-upload {

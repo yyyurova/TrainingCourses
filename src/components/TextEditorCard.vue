@@ -2,13 +2,19 @@
     <Card class="no-hover">
         <div ref="editor" class="quill-editor"></div>
     </Card>
+
+    <AddImage @cancel="closeModal" />
+    <AddLink @cancel="closeModal" />
 </template>
 
 <script setup>
 import { ref, onMounted, watch, onUnmounted } from 'vue';
-import Card from '@/components/Card.vue';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
+
+import Card from '@/components/Card.vue';
+import AddLink from './modals/AddLink.vue';
+import AddImage from './modals/AddImage.vue';
 
 const props = defineProps({
     content: {
@@ -21,7 +27,23 @@ const props = defineProps({
     }
 });
 
+const showAddLinkModal = ref(false)
+const showAddImageModal = ref(false)
+
 const emit = defineEmits(['update:modelValue']);
+
+const closeModal = () => {
+    if (showAddImageModal.value) { showAddImageModal.value = false }
+    if (showAddLinkModal.value) { showAddLinkModal.value = false }
+}
+
+const openAddLinkModal = () => {
+    showAddLinkModal.value = true
+}
+
+const openAddImageModal = () => {
+    showAddImageModal.value = true
+}
 
 const editor = ref(null);
 const quill = ref(null);
@@ -80,8 +102,8 @@ onMounted(() => {
                     { 'align': '' }, { 'align': 'center' }, { 'align': 'right' }
                 ],
                 handlers: {
-                    image: imageHandler,
-                    link: linkHandler
+                    image: openAddImageModal,
+                    link: openAddLinkModal
                 }
             }
         },

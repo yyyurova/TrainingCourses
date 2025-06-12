@@ -27,7 +27,6 @@ const fetchCurrentTasks = async () => {
         // const courses = await getCourses()
         tasks.value = await getTasks()
         tasks.value = tasks.value.filter(task => !checkOverdueDeadline(task.until))
-
     }
     finally {
         isLoading.value = false

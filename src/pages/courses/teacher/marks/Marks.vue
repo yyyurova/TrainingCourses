@@ -113,7 +113,7 @@ h3 {
 }
 
 .students {
-    width: 870px;
+    // width: 870px;
     margin: 10px 0;
     border-radius: 8px;
     border: 1px solid #D9D9D9;
