@@ -429,8 +429,10 @@ provide('user', user)
 
             .avatar {
                 width: 30px;
-                height: 30px;
                 border-radius: 4px;
+                height: auto;
+                max-height: 35px;
+                object-fit: cover;
             }
 
             .course-link {
@@ -479,7 +481,8 @@ provide('user', user)
 
         img.avatar {
             width: 36px;
-            height: 36px;
+            height: auto;
+            max-height: 36px;
             border-radius: 4px;
             object-fit: cover;
         }

@@ -318,7 +318,8 @@ onMounted(() => {
 
         img.avatar {
             width: 36px;
-            height: 36px;
+            height: auto;
+            max-height: 36px;
             border-radius: 4px;
             object-fit: cover;
         }

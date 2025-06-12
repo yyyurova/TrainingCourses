@@ -33,6 +33,8 @@ export const editCourse = async (courseId, updatedCourse) => {
 
         formData.append('title', updatedCourse.title);
 
+        formData.append('published', updatedCourse.published)
+
         if (updatedCourse.photo) {
             formData.append('photo', updatedCourse.photo);
         } else {

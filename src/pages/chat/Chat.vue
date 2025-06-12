@@ -137,6 +137,7 @@ const createChat = async (newChat) => {
         throw err;
     }
 };
+
 const editChat = async (chatData) => {
     try {
         await apiEditChat(
@@ -164,6 +165,7 @@ watch(() => route.params.chatId, (newChatId) => {
         if (chatToOpen) {
             openDialog(chatToOpen);
         }
+        console.log(selectedChat.value)
     } else {
         selectedChat.value = null;
     }

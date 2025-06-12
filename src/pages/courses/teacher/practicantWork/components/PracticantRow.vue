@@ -88,6 +88,8 @@ onMounted(() => {
     img.avatar {
         width: 35px;
         height: auto;
+        max-height: 35px;
+        object-fit: cover;
     }
 
     .action {

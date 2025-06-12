@@ -29,6 +29,7 @@
             <div class="spacer"></div>
             <Message v-for="(message, index) in messages" :key="index" :message="message" />
         </div>
+        <Loading v-else-if="isLoading" />
         <NoMessages v-else />
 
         <div v-if="attachedFiles.length > 0" class="files">
@@ -68,6 +69,7 @@ import FileCard from './components/FileCard.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 import AddUserModal from './components/modals/AddUserModal.vue';
 import AvatarLetter from '@/components/AvatarLetter.vue';
+import Loading from '@/components/Loading.vue';
 
 const emit = defineEmits(['openSettings', 'backToAllChats'])
 const deleteChat = inject('deleteChat')
@@ -84,11 +86,18 @@ const attachedFiles = ref([])
 const showConfirmDeleteModal = ref(false)
 const showAddModal = ref(false)
 
+const isLoading = ref(false)
+
 const fetchMessages = async () => {
-    messages.value = await getChatMessages(selectedChat.value.id)
-    messages.value.sort((a, b) =>
-        new Date(a.created_at) - new Date(b.created_at)
-    );
+    try {
+        isLoading.value = true
+        messages.value = await getChatMessages(selectedChat.value.id)
+        messages.value.sort((a, b) =>
+            new Date(a.created_at) - new Date(b.created_at)
+        );
+    } finally {
+        isLoading.value = false
+    }
 }
 
 const getAvatarUrl = (avatarPath) => {
@@ -98,7 +107,12 @@ const getAvatarUrl = (avatarPath) => {
 }
 
 const fetchMembers = async () => {
-    selectedChat.value.members = await getChatMembers(selectedChat.value.id)
+    try {
+        isLoading.value = true
+        selectedChat.value.members = await getChatMembers(selectedChat.value.id)
+    } finally {
+        isLoading.value = false
+    }
 }
 
 const closeModal = () => {
@@ -308,6 +322,10 @@ onMounted(async () => {
         .message {
             margin: 0;
         }
+    }
+
+    .loading-dots {
+        flex: 1;
     }
 
     .files {

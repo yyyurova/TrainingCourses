@@ -97,9 +97,9 @@ const fileUpload = () => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
             const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.jfif)$/i;
-
-            if (!allowedExtensions.exec(file.name)) {
-                limitMessage.value = 'Недопустимое расширение файлов'
+            console.log(selectedFile.name)
+            if (!allowedExtensions.exec(selectedFile.name)) {
+                limitMessage.value = 'Недопустимое расширение файла'
                 return;
             } else { limitMessage.value = '' }
 

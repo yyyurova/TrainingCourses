@@ -89,7 +89,8 @@ const save = () => {
     const courseData = {
         id: props.course.id,
         title: courseName.value,
-        photo: courseImageFile.value
+        photo: courseImageFile.value,
+        published: props.course.published
     };
 
     emit('edit', courseData);

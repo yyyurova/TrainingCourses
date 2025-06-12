@@ -1,6 +1,5 @@
 import client from "../http/client"
 import { ENDPOINTS } from "../constants/endpoints"
-import { useId } from "vue"
 
 export const getChats = async () => {
     try {
@@ -82,7 +81,7 @@ export const editChat = async (chatId, newChat) => {
         if (newChat.avatar) {
             formData.append('attachment', newChat.avatar);
         }
-        await client.put(`${ENDPOINTS.CHAT}/${chatId}`, formData, {
+        await client.post(`${ENDPOINTS.CHAT}/${chatId}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

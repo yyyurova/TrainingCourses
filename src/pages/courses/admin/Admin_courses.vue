@@ -148,7 +148,8 @@ const editCourse = async (updatedCourse) => {
 
         const response = await apiEditCourse(updatedCourse.id, {
             title: updatedCourse.title,
-            photo: updatedCourse.photo
+            photo: updatedCourse.photo,
+            published: updatedCourse.published
         });
 
         const index = courses.value.findIndex(c => c.id === updatedCourse.id);
@@ -217,9 +218,11 @@ button.blue {
             }
 
             .avatar {
-                width: 36px;
+                width: 35px;
                 height: auto;
+                max-height: 35px;
                 border-radius: 4px;
+                object-fit: cover;
             }
         }
     }

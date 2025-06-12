@@ -68,8 +68,10 @@ provide('courses', courses)
 
             .avatar {
                 border-radius: 4px;
-                width: 36px;
-                height: 36px
+                width: 35px;
+                height: auto;
+                max-height: 36px;
+                object-fit: cover;
             }
         }
 
