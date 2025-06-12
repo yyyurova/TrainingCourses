@@ -90,7 +90,7 @@ const currentModuleId = ref(null);
 const currentPageId = ref(null);
 
 const currentModule = computed(() => {
-    return material.value?.find(m => m.id === currentModuleId.value) || null;
+    return material.value?.find(m => Number(m.id) === Number(currentModuleId.value)) || null;
 });
 
 const currentPageIndex = computed(() => {
@@ -138,58 +138,31 @@ const formatTextContent = (text) => {
         .replace(/\n/g, '<br>');
 };
 
-const fetchMaterial = async () => {
-    try {
-        loading.value = true;
-        [course.value, activity.value, material.value] = await Promise.all([
-            getCourse(courseId),
-            getCourseActivity(courseId),
-            getModules(courseId)
-        ]);
-
-        if (!material.value?.length) return;
-
-        currentModuleId.value = route.params.moduleId || activity.value?.course_module_id || material.value[0].id;
-
-        const targetModule = material.value.find(m => m.id === currentModuleId.value);
-        if (!targetModule) {
-            currentModuleId.value = material.value[0].id;
-            currentPageId.value = material.value[0].pages[0]?.id;
-            return;
-        }
-
-        currentPageId.value = route.params.pageId || activity.value?.course_module_page_id || targetModule.pages[0]?.id;
-
-        if (!currentPageId.value && targetModule.pages?.length) {
-            currentPageId.value = targetModule.pages[0].id;
-        }
-
-        if (route.params.moduleId !== currentModuleId.value || route.params.pageId !== currentPageId.value) {
-            router.push({
-                name: 'CourseCompletionPage',
-                params: {
-                    courseId,
-                    moduleId: currentModuleId.value,
-                    pageId: currentPageId.value
-                }
-            });
-        } else {
-            await loadPageContent();
-        }
-    } catch (error) {
-        console.error('Ошибка загрузки данных:', error);
-    } finally {
-        loading.value = false;
-    }
-};
-
 const loadPageContent = async () => {
-    if (!currentModuleId.value || !currentPageId.value) return;
+    if (!currentModuleId.value || !currentPageId.value) {
+        console.error('Missing moduleId or pageId');
+        return;
+    }
 
     try {
         loading.value = true;
         resetQuizState();
-        currentPageData.value = await getModulePage(currentModuleId.value, currentPageId.value);
+        const pageData = await getModulePage(currentModuleId.value, currentPageId.value);
+
+        if (!pageData) {
+            console.error('Page data not found');
+            if (currentModule.value?.pages?.length) {
+                const firstPageId = currentModule.value.pages[0].id;
+                router.replace({
+                    params: {
+                        pageId: firstPageId
+                    }
+                });
+                return;
+            }
+        }
+
+        currentPageData.value = pageData;
 
         if (currentPageData.value?.questions) {
             currentPageData.value.questions.forEach((_, index) => {
@@ -200,6 +173,79 @@ const loadPageContent = async () => {
         }
     } catch (error) {
         console.error('Ошибка загрузки страницы:', error);
+        // Перенаправляем на первую страницу модуля в случае ошибки
+        if (currentModule.value?.pages?.length) {
+            const firstPageId = currentModule.value.pages[0].id;
+            router.replace({
+                params: {
+                    pageId: firstPageId
+                }
+            });
+        }
+    } finally {
+        loading.value = false;
+    }
+};
+
+const fetchMaterial = async () => {
+    try {
+        loading.value = true;
+
+        // Получаем базовые данные курса и материалов
+        const [courseResponse, modulesResponse] = await Promise.all([
+            getCourse(courseId),
+            getModules(courseId)
+        ]);
+        console.log(modulesResponse)
+        course.value = courseResponse;
+        material.value = modulesResponse;
+
+        // Пытаемся получить активность, но не блокируем загрузку если её нет
+        try {
+            activity.value = await getCourseActivity(courseId);
+        } catch (error) {
+            console.log('Activity not found, continuing without it');
+            activity.value = null;
+        }
+
+        // if (!material.value?.length) {
+        //     console.error('No materials found');
+        //     return;
+        // }
+
+        // Определяем текущий модуль - используем activity только если она есть
+        currentModuleId.value = route.params.moduleId ||
+            (activity.value?.course_module_id || material.value[0].id);
+
+        const targetModule = material.value.find(m => Number(m.id) === Number(currentModuleId.value));
+        if (!targetModule) {
+            console.error('Target module not found, falling back to first module');
+            currentModuleId.value = material.value[0].id;
+            currentPageId.value = material.value[0].pages[0]?.id;
+        } else {
+            // Определяем текущую страницу
+            currentPageId.value = route.params.pageId ||
+                (activity.value?.course_module_page_id || targetModule.pages[0]?.id);
+
+            if (!currentPageId.value && targetModule.pages?.length) {
+                currentPageId.value = targetModule.pages[0].id;
+            }
+        }
+
+        if (route.params.moduleId !== currentModuleId.value || route.params.pageId !== currentPageId.value) {
+            await router.replace({
+                name: 'CourseCompletionPage',
+                params: {
+                    courseId,
+                    moduleId: currentModuleId.value,
+                    pageId: currentPageId.value
+                }
+            });
+        }
+
+        await loadPageContent();
+    } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
     } finally {
         loading.value = false;
     }
@@ -325,21 +371,49 @@ const checkQuiz = async () => {
     }
 };
 
-watch(() => route.params.moduleId, (newId) => {
-    if (newId && newId !== currentModuleId.value) {
-        currentModuleId.value = newId;
+// watch(() => route.params.moduleId, (newId) => {
+//     if (newId && newId !== currentModuleId.value) {
+//         currentModuleId.value = newId;
+//     }
+// });
+
+// watch(() => route.params.pageId, async (newId) => {
+//     if (newId && newId !== currentPageId.value) {
+//         currentPageId.value = Number(newId);
+//         await loadPageContent();
+//         console.log(currentModuleId.value, currentPageId.value, currentPageData.value)
+//     }
+// });
+
+watch(() => route.params, async (newParams) => {
+    if (newParams.moduleId && Number(newParams.moduleId) !== Number(currentModuleId.value)) {
+        currentModuleId.value = Number(newParams.moduleId);
+        // При смене модуля сбрасываем pageId на первую страницу нового модуля
+        const newModule = material.value?.find(m => m.id === currentModuleId.value);
+        if (newModule?.pages?.length) {
+            currentPageId.value = newModule.pages[0].id;
+            await router.replace({
+                params: {
+                    pageId: currentPageId.value
+                }
+            });
+        }
+        console.log(currentPageData.value)
+    } else if (newParams.pageId && Number(newParams.pageId) !== Number(currentPageId.value)) {
+        currentPageId.value = Number(newParams.pageId);
+        await loadPageContent();
+        console.log(currentPageData.value)
     }
+}, { immediate: true, deep: true });
+
+onMounted(async () => {
+    await fetchMaterial();
 });
 
-watch(() => route.params.pageId, (newId) => {
-    if (newId && newId !== currentPageId.value) {
-        currentPageId.value = Number(newId);
-        loadPageContent();
-        console.log(currentModuleId.value, currentPageId.value, currentPageData.value)
-    }
+onMounted(async () => {
+    await fetchMaterial()
+    console.log(currentModuleId.value, currentModule.value, currentPageData.value)
 });
-
-onMounted(fetchMaterial);
 provide('material', material);
 provide('course', course);
 </script>

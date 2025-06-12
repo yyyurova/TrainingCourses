@@ -66,16 +66,13 @@
 
     <ConfirmDelete v-if="showConfirmExit" right-button-text="Выйти" question="Выйти из профиля?"
         text="Вы потеряете доступ к функционалу сервиса." @cancel="closeModal" @confirm="exitFromProfile" />
+
     <EditUser v-if="showEditModal" @cancel="closeModal" @save="saveUserChanges" />
 </template>
 
 <script setup>
 import { ref, watch, computed, onMounted, provide, inject, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-
-import { getCourses as studentCoursesApi } from '@/api/modules/courses.api';
-import { getCourses as adminCoursesApi } from '@/api/modules/adminCourses.api';
-import { getCourses as curatorCoursesApi } from '@/api/modules/curatorCourses.api';
 
 import { resetRoleRoutes } from '@/router';
 import { getCurrentUser } from '@/utils/auth';
@@ -104,7 +101,7 @@ const courses = inject('courses')
 const showUserActions = ref(false);
 const showConfirmExit = ref(false);
 const showEditModal = ref(false);
-const user = ref({ role: getCurrentUser().role, name: getCurrentUser().name })
+const user = ref({ role: getCurrentUser().role, name: getCurrentUser().name, image: getCurrentUser().image })
 const loadedCourses = ref(false);
 
 const showPopup = ref(false)
@@ -240,15 +237,15 @@ const saveUserChanges = async (changes) => {
 
         user.value.name = resp.data.name;
         user.value.avatar = resp.data.avatar
-        if (resp.data.avatar) {
-            user.value.avatar = resp.data.avatar;
+        if (resp.data.image) {
+            user.value.image = resp.data.image;
         }
 
         const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
         localStorage.setItem('user', JSON.stringify({
             ...currentUser,
             name: resp.data.name,
-            avatar: resp.data.avatar || currentUser.avatar
+            image: resp.data.image || currentUser.image
         }));
 
     } catch (error) {

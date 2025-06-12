@@ -82,6 +82,10 @@
         background-color: #f5f5f5;
         border-radius: 10px;
         text-align: center;
+
+        p {
+            word-break: break-word;
+        }
     }
 
     .modal-buttons {

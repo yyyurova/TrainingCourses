@@ -96,8 +96,9 @@ const handleSubmit = async () => {
             name: resp.data.data.name,
             role: resp.data.data.role,
             email: resp.data.data.email,
+            image: resp.data.data.image
         }));
-
+        console.log(localStorage.getItem('user'))
         addRoleRoutes(resp.data.data.role);
         await nextTick()
         router.push('/courses');

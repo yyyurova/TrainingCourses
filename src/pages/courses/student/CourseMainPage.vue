@@ -21,8 +21,8 @@
             </div>
             <h2>Активность</h2>
             <Card class="no-hover">
-                <VCalendar class="calendar" :attributes="calendarAttributes" :initial-page="currentPage" trim-weeks
-                    :masks="{ title: 'MMMM YYYY', weekdays: 'WW' }" borderless transparent locale="ru">
+                <VCalendar v-if="activity" class="calendar" :attributes="calendarAttributes" :initial-page="currentPage"
+                    trim-weeks :masks="{ title: 'MMMM YYYY', weekdays: 'WW' }" borderless transparent locale="ru">
                     <template #day-content="{ day }">
                         <div class="day-content">
                             <img v-if="isActiveDay(day)"
@@ -54,7 +54,10 @@ import Navbar from '@/components/Navbar.vue';
 import Card from '@/components/Card.vue';
 
 const route = useRoute();
+
 const course = ref(null);
+const activity = ref(null)
+
 const isLoading = ref(false);
 const teacherName = ref('');
 
@@ -79,8 +82,7 @@ const fetchCourse = async (id) => {
         course.value = await getCourse(id);
         teacherName.value = course.value.curator_name
 
-        const data = await getCourseActivity(course.value.id)
-        console.log(data)
+
     } catch (error) {
         console.error('Ошибка загрузки курса:', error);
     } finally {
@@ -88,10 +90,20 @@ const fetchCourse = async (id) => {
     }
 };
 
+const fetchCourseActivity = async () => {
+    try {
+        activity.value = await getCourseActivity(course.value.id)
+        console.log(activity.value)
+    } finally {
+        isLoading.value = false
+    }
+}
+
 const calendarAttributes = computed(() => [
     {
         key: 'activeDays',
-        dates: mockUser.activeDays.map(date => new Date(date)),
+        // dates: mockUser.activeDays.map(date => new Date(date)),
+        dates: new Date(activity.value.updated_at)
     },
     {
         key: 'today',
@@ -124,9 +136,10 @@ const currentPage = computed(() => {
     };
 });
 
-onMounted(() => {
+onMounted(async () => {
     if (route.params.courseId) {
-        fetchCourse(route.params.courseId);
+        await fetchCourse(route.params.courseId);
+        await fetchCourseActivity()
     }
 });
 

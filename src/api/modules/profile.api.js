@@ -15,7 +15,6 @@ export const editProfile = async (newName, avatarFile) => {
                 'Content-Type': 'multipart/form-data'
             }
         });
-
         return response.data;
     } catch (error) {
         console.error('Ошибка при редактировании профиля:', error);

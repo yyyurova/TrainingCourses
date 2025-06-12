@@ -45,7 +45,9 @@ const props = defineProps({
     student: Object,
 });
 
+
 props.student.tasks = props.student.tasks.filter(t => t.mark)
+console.log(props.student.tasks)
 
 const emit = defineEmits(['goToWorks'])
 

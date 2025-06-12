@@ -20,9 +20,14 @@ export const getCourses = async () => {
 
 export const getCourseActivity = async (courseId) => {
     try {
-        const response = await client.get(`${ENDPOINTS.COURSES}/${courseId}/activity`)
-        return response.data.data
+        const response = await client.get(`${ENDPOINTS.COURSES}/${courseId}/activity`);
+        return response.data.data;
     } catch (error) {
-        return [];
+        if (error.response && error.response.status === 404) {
+            // Если активности нет, возвращаем null или пустой объект
+            return null;
+        }
+        console.error('Error fetching course activity:', error);
+        return null;
     }
 };
