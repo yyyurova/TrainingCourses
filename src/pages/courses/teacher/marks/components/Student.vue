@@ -23,7 +23,6 @@ const goToWorks = (taskId, event) => {
 
 const toggleInfo = () => {
     isOpen.value = !isOpen.value;
-    console.log('Toggled:', isOpen.value, 'Tasks:', filteredTasks.value); // Отладка
 };
 
 const truncateText = (text, maxLength) => {

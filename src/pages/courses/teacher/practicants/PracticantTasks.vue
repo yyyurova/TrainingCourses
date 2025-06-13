@@ -1,5 +1,4 @@
 <template>
-    <!-- <Layout :on-create-task="openCreateTaskModal"> -->
     <Layout>
         <div v-if="practicant" class="header">
             <img v-if="practicant.image" :src="practicant.image" alt="">
@@ -18,8 +17,8 @@
         </div>
 
         <Loading v-if="isLoading" />
-        <div v-if="tasks.length === 0 && !isLoading" class="no-items">
-            <p>У практиканта нет заданий</p>
+        <div v-if="nothingFoundMessage && tasks.length === 0 && !isLoading" class="no-items">
+            <p>{{ nothingFoundMessage }}</p>
         </div>
         <Popup v-if="showPopup" :text="popupText" :is-success="isSuccess" @close-popup="closePopup" />
         <ConfirmDelete v-if="showDeleteModal" @confirm="deleteTask(taskToDelete.id)" @cancel="closeModal"
@@ -44,7 +43,6 @@ import Popup from '@/components/Popup.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 import EditTask from '../components/modals/EditTask.vue';
 
-const course = ref(null)
 const practicant = ref(null)
 const tasks = ref([])
 const taskFilter = ref(null)
@@ -92,8 +90,10 @@ const fetchData = async () => {
 
         practicant.value = { name: localStorage.getItem('practicantName'), image: localStorage.getItem('practicantImage') }
         tasks.value = await getPracticantTasks(route.params.courseId, route.params.practicantId)
-        console.log(tasks.value)
-
+        originalTasks.value = tasks.value
+        // if (tasks.value?.length === 0) {
+        //     nothingFoundMessage.value = 'У данного учащегося нет заданий.'
+        // }
         if (tasks.value && tasks.value.students) {
             practicant.value = tasks.value[0].students.find(s => s.id == route.params.practicantId)
         }
@@ -154,48 +154,6 @@ const editTask = async (updatedTask) => {
     }
 };
 
-// const createTask = async (task) => {
-//     try {
-//         isLoading.value = true
-//         closeModal()
-
-//         const { data: courses } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/courses?teacher=${mockUser.id}`);
-//         const course = courses[0]
-
-//         const newId = Math.max(...course.tasks.map(t => t.id), 0) + 1
-
-//         const newTask = {
-//             id: newId,
-//             ...task
-//         }
-
-//         const updatedTasks = [...course.tasks, newTask]
-
-//         await axios.patch(`https://c1a9f09250b13f61.mokky.dev/courses/${course.id}`, {
-//             tasks: updatedTasks
-//         })
-
-//         tasks.value = updatedTasks
-
-//         popupText.value = 'Задание успешно создано'
-//         showPopup.value = true
-//         isSuccess.value = true
-//         setTimeout(() => {
-//             showPopup.value = false
-//         }, 5000)
-//     } catch (err) {
-//         console.log(err)
-//         popupText.value = 'Не удалось создать задание'
-//         showPopup.value = true
-//         isSuccess.value = false
-//         setTimeout(() => {
-//             showPopup.value = false
-//         }, 5000)
-//     } finally {
-//         isLoading.value = false
-//     }
-// }
-
 const filterTasks = () => {
     switch (taskFilter.value.value) {
         case 'all':
@@ -207,7 +165,7 @@ const filterTasks = () => {
             break
         case 'overdue':
             nothingFoundMessage.value = ''
-            tasks.value = originalTasks.value.filter(task => checkOverdueDeadline(task.deadline))
+            tasks.value = originalTasks.value.filter(task => checkOverdueDeadline(task.until))
             if (tasks.value.length === 0) {
                 nothingFoundMessage.value = 'Этот учащийся не просрочил ни одного задания'
             }

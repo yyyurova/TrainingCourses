@@ -71,7 +71,6 @@ const create = () => {
         until: (new Date(deadline.value).toISOString()),
         users: assignedTo
     }
-    console.log(task)
     emit('create', task)
 }
 

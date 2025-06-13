@@ -18,16 +18,15 @@
                 </div>
             </Card>
         </div>
-        <div class="no-tasks" v-else-if="tasks && tasks.length === 0">
+        <div class="no-tasks" v-else-if="tasks && tasks.length === 0 && !isLoading">
             <h2>Домашних заданий нет</h2>
             <p>Здесь будут появляться домашние задания от вашего куратора</p>
         </div>
-        <Loading v-else />
+        <Loading v-else-if="isLoading" />
     </Layout>
 </template>
 
 <script setup>
-import axios from 'axios';
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { format } from '@formkit/tempo';
@@ -59,7 +58,7 @@ const navbarItems = computed(() => {
 
 const fetchCourse = async () => {
     try {
-        isLoading.value = false
+        isLoading.value = true
         course.value = await getCourse(route.params.courseId)
     }
     finally {

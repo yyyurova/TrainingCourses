@@ -99,7 +99,6 @@ const publishCourse = async () => {
     try {
         closeModal();
         const data = await pulichCourse(course.value.id, { title: course.value.title, published: true })
-        console.log(data)
         router.push('/courses')
         popupText.value = 'Курс успешно опубликован';
         showPopup.value = true;

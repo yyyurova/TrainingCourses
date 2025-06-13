@@ -62,7 +62,7 @@ const fetchMaterial = async () => {
         );
 
         material.value = modulesWithDetailedPages;
-        console.log(material.value)
+        (material.value)
     } catch (err) {
         console.error('Ошибка загрузки данных:', err);
     } finally {

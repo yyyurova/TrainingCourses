@@ -94,7 +94,6 @@ const fetchCourse = async (id) => {
 const fetchCourseActivity = async () => {
     try {
         activity.value = await getCourseActivity(course.value.id)
-        console.log(activity.value)
     } finally {
         isLoading.value = false
     }

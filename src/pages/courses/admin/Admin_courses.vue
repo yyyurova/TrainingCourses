@@ -127,13 +127,11 @@ const createCourse = async (course) => {
 
     try {
         closeModal()
-        // console.log(course.photo)
         const data = await apiCreateCourse({
             title: course.title,
             photo: course.photo || null
         })
 
-        console.log(data)
         router.push(`/course-fill-content/${data.data.id}`)
     }
     catch (err) {

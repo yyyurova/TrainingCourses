@@ -82,7 +82,6 @@ const fetchCourse = async () => {
     try {
         isLoading.value = true
         course.value = await getCourse(route.params.courseId);
-        console.log(course.value)
 
         const modules = await getModules(route.params.courseId);
         modules.sort((a, b) => a.id - b.id);

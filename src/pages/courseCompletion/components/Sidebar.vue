@@ -9,7 +9,7 @@
             Вернуться к курсу
         </button>
 
-        <div class="navigation" v-if="material">
+        <div class="navigation" v-if="material && activity">
             <div v-for="module in material" :key="module.id" class="chapter">
                 <div class="chapter-header" @click="toggleChapter(module.id)">
                     <span>{{ getModuleNumber(module) + '. ' + module.title }}</span>
@@ -20,7 +20,7 @@
                 <div class="steps" v-if="module.pages" v-show="openModules[module.id]">
                     <RouterLink v-for="page in module.pages" :key="page.id" class="step-link"
                         :to="getPageRoute(module.id, page.id)" active-class="active-step">
-                        <div class="step-content">
+                        <div class="step-content" :class="page.id < activity.course_module_page_id ? 'done' : ''">
                             {{ getModuleNumber(module) + '.' + getPageNumber(module, page) + ' ' + page.title }}
                         </div>
                     </RouterLink>
@@ -36,8 +36,10 @@ import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
+
 const material = inject('material')
 const course = inject('course')
+const activity = inject('activity')
 
 const openModules = ref({})
 
@@ -99,7 +101,6 @@ watch(
     { immediate: true }
 )
 
-// Инициализация при монтировании
 onMounted(initOpenModules)
 </script>
 
@@ -180,6 +181,7 @@ onMounted(initOpenModules)
                 .step-link {
                     text-decoration: none;
                     color: inherit;
+                    padding: 5px;
 
                     .step-content {
                         padding: 10px 16px 10px 16px;
@@ -190,8 +192,14 @@ onMounted(initOpenModules)
                         line-height: 20px;
                         letter-spacing: 0px;
 
+                        &.done {
+                            background-color: #29a159;
+                            color: #fff;
+                        }
+
                         &:hover {
                             background-color: #E9F2FF;
+                            color: #292929;
                         }
                     }
                 }

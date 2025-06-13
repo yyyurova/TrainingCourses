@@ -111,7 +111,6 @@ const handleSearch = () => {
 
 provide('members', chat.members)
 
-onMounted(() => console.log(chat.value))
 </script>
 
 <style scoped lang="scss">

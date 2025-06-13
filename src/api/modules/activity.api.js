@@ -23,3 +23,13 @@ export const getCourseActivity = async (courseId) => {
         return null;
     }
 };
+
+export const getTestsStatistics = async (courseId) => {
+    try {
+        const response = await client.get(`${ENDPOINTS.PROFILE}/tasks/course/${courseId}`);
+        return response.data.data
+    } catch (error) {
+        console.error('Ошибка :', error);
+        return null;
+    }
+};

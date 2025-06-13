@@ -8,7 +8,7 @@
             <h1 class="chapterName">
                 {{ currentModule.title }}
                 <span class="score">{{ completedPages + " из " + currentModule.pages.length + " шагов пройдено"
-                }}</span>
+                    }}</span>
             </h1>
             <div class="squares-score">
                 <span class="square" :class="page.completed ? 'filled' : ''" v-for="page in currentModule.pages"
@@ -197,24 +197,11 @@ const fetchMaterial = async () => {
             getCourse(courseId),
             getModules(courseId)
         ]);
-        console.log(modulesResponse)
         course.value = courseResponse;
         material.value = modulesResponse;
 
-        // Пытаемся получить активность, но не блокируем загрузку если её нет
-        try {
-            activity.value = await getCourseActivity(courseId);
-        } catch (error) {
-            console.log('Activity not found, continuing without it');
-            activity.value = null;
-        }
+        await fetctActivity()
 
-        // if (!material.value?.length) {
-        //     console.error('No materials found');
-        //     return;
-        // }
-
-        // Определяем текущий модуль - используем activity только если она есть
         currentModuleId.value = route.params.moduleId ||
             (activity.value?.course_module_id || material.value[0].id);
 
@@ -224,7 +211,6 @@ const fetchMaterial = async () => {
             currentModuleId.value = material.value[0].id;
             currentPageId.value = material.value[0].pages[0]?.id;
         } else {
-            // Определяем текущую страницу
             currentPageId.value = route.params.pageId ||
                 (activity.value?.course_module_page_id || targetModule.pages[0]?.id);
 
@@ -251,6 +237,15 @@ const fetchMaterial = async () => {
         loading.value = false;
     }
 };
+
+const fetctActivity = async () => {
+    try {
+        activity.value = await getCourseActivity(courseId);
+    } catch (error) {
+        console.log('Activity not found, continuing without it');
+        activity.value = null;
+    }
+}
 
 const goToPage = (pageId) => {
     if (!currentModuleId.value || !pageId) return;
@@ -307,12 +302,14 @@ const goToNextModule = () => {
     }
 };
 
-const completeModule = () => {
+const completeModule = async () => {
     endOfModule.value = true;
+    await fetctActivity()
 };
 
-const completeCourse = () => {
+const completeCourse = async () => {
     endOfCourse.value = true;
+    await fetctActivity()
 };
 
 const checkQuiz = async () => {
@@ -372,24 +369,9 @@ const checkQuiz = async () => {
     }
 };
 
-// watch(() => route.params.moduleId, (newId) => {
-//     if (newId && newId !== currentModuleId.value) {
-//         currentModuleId.value = newId;
-//     }
-// });
-
-// watch(() => route.params.pageId, async (newId) => {
-//     if (newId && newId !== currentPageId.value) {
-//         currentPageId.value = Number(newId);
-//         await loadPageContent();
-//         console.log(currentModuleId.value, currentPageId.value, currentPageData.value)
-//     }
-// });
-
 watch(() => route.params, async (newParams) => {
     if (newParams.moduleId && Number(newParams.moduleId) !== Number(currentModuleId.value)) {
         currentModuleId.value = Number(newParams.moduleId);
-        // При смене модуля сбрасываем pageId на первую страницу нового модуля
         const newModule = material.value?.find(m => m.id === currentModuleId.value);
         if (newModule?.pages?.length) {
             currentPageId.value = newModule.pages[0].id;
@@ -399,24 +381,19 @@ watch(() => route.params, async (newParams) => {
                 }
             });
         }
-        console.log(currentPageData.value)
     } else if (newParams.pageId && Number(newParams.pageId) !== Number(currentPageId.value)) {
         currentPageId.value = Number(newParams.pageId);
         await loadPageContent();
-        console.log(currentPageData.value)
     }
 }, { immediate: true, deep: true });
 
 onMounted(async () => {
-    await fetchMaterial();
+    await fetchMaterial()
 });
 
-onMounted(async () => {
-    await fetchMaterial()
-    console.log(currentModuleId.value, currentModule.value, currentPageData.value)
-});
 provide('material', material);
 provide('course', course);
+provide('activity', activity)
 </script>
 
 <style scoped lang="scss">

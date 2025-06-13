@@ -165,7 +165,6 @@ watch(() => route.params.chatId, (newChatId) => {
         if (chatToOpen) {
             openDialog(chatToOpen);
         }
-        console.log(selectedChat.value)
     } else {
         selectedChat.value = null;
     }

@@ -9,23 +9,25 @@
                     <div class="row">
                         <Card class="center no-hover">
                             <p class="label">Количество тестов</p>
-                            <p class="number">{{ mockUser.tests.all }}</p>
+                            <!-- <p class="number">{{ testsStatiscics.tests }}</p> -->
                         </Card>
                     </div>
                     <div class="row">
                         <Card class="no-hover">
                             <p class="label">Процент пройденных тестов</p>
-                            <p class="number">{{ passedTests }}%</p>
+                            <!-- <p class="number">{{ testsStatiscics.doneTests !== 0 ? testsStatiscics.tests /
+                                testsStatiscics.doneTests * 100 : 0 }}%</p> -->
                             <p class="period">За последние 4 недели</p>
                         </Card>
                         <Card class="no-hover">
                             <p class="label">Процент не пройденных тестов</p>
-                            <p class="number">{{ failedTests }}%</p>
+                            <!-- <p class="number">{{ testsStatiscics.notDoneTests !== 0 ? testsStatiscics.tests /
+                                testsStatiscics.notDoneTests * 100 : 0 }}%</p> -->
                             <p class="period">За последние 4 недели</p>
                         </Card>
                         <Card class="no-hover">
                             <p class="label">Средний балл за тесты</p>
-                            <p class="number">{{ mockUser.tests.averageMark }}</p>
+                            <!-- <p class="number">{{ testsStatiscics.averageMark }}</p> -->
                             <p class="period">За последние 4 недели</p>
                         </Card>
                     </div>
@@ -57,7 +59,7 @@
                         </Card>
                         <Card class="no-hover">
                             <p class="label">Средний балл</p>
-                            <p class="number">{{ tasksStatistics.averageMark || 0 }}</p>
+                            <p class="number">{{ tasksStatistics.average_mark || 0 }}</p>
                             <p class="period">За последние 4 недели</p>
                         </Card>
                     </div>
@@ -73,7 +75,7 @@ import { onMounted, ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { mockUser } from '@/mocks/user';
 import { getCourse } from '@/api/modules/courses.api';
-import { getTasksStatistics } from '@/api/modules/activity.api';
+import { getTasksStatistics, getTestsStatistics } from '@/api/modules/activity.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
@@ -82,6 +84,7 @@ import Card from '@/components/Card.vue';
 
 const course = ref(null)
 const tasksStatistics = ref(null)
+const testsStatiscics = ref(null)
 
 const route = useRoute();
 const isLoading = ref(false)
@@ -105,6 +108,9 @@ const fetchCourse = async (id) => {
 
         tasksStatistics.value = await getTasksStatistics(course.value.id)
         console.log(tasksStatistics.value)
+
+        // testsStatiscics.value = await getTestsStatistics(course.value.id)
+        // console.log(testsStatiscics.value)
     } finally {
         isLoading.value = false;
     }
