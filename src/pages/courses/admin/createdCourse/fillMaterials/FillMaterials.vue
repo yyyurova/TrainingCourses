@@ -281,18 +281,19 @@ const loadPageContent = async () => {
         currentPageContent.value = currentQuestion.value?.description || '';
     }
     else if (currentPage.value.type === 2) {
-        // Видео страница
-        try {
-            const videoData = currentQuestion.value?.description
-                ? JSON.parse(currentQuestion.value.description)
-                : {};
-            selectedWay.value = videoData.selectedWay || 'upload';
-            videoLink.value = videoData.link || '';
-            uploadedFiles.value = videoData.files || [];
-        } catch {
-            selectedWay.value = 'upload';
-            videoLink.value = '';
-            uploadedFiles.value = [];
+        // Видео страница - очищаем старые данные
+        selectedWay.value = 'other';
+        videoLink.value = '';
+        uploadedFiles.value = [];
+
+        // Попытка извлечения ссылки из HTML
+        if (currentQuestion.value?.description) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(currentQuestion.value.description, 'text/html');
+            const iframe = doc.querySelector('iframe');
+            if (iframe) {
+                videoLink.value = iframe.src.replace('embed/', 'watch?v=');
+            }
         }
     }
     else if (currentPage.value.type === 3) {
@@ -353,12 +354,15 @@ const saveCourse = async () => {
         }
         else if (currentPage.value.type === 2) {
             // Видео страница
-            const videoData = {
-                selectedWay: selectedWay.value,
-                link: videoLink.value,
-                files: uploadedFiles.value
-            };
-            const description = JSON.stringify(videoData);
+            let description = '';
+
+            if (selectedWay.value === 'other' && videoLink.value) {
+                // Формируем iframe для внешнего видео
+                description = `<div class="video"><iframe src="${generateEmbedUrl(videoLink.value)}"></iframe></div>`;
+            } else if (uploadedFiles.value.length > 0) {
+                // description = `<div class="video">Видео: ${uploadedFiles.value[0].name}</div>`;
+                description = `<div class="video"><iframe src="${uploadedFiles.value[0].file}"></iframe></div>`;
+            }
 
             if (currentQuestion.value?.id) {
                 await updateQuestion(
@@ -456,6 +460,14 @@ const saveCourse = async () => {
             showPopup.value = false;
         }, 5000);
     }
+};
+
+const generateEmbedUrl = (url) => {
+    if (url.includes('youtube.com')) {
+        const videoId = url.split('v=')[1]?.split('&')[0];
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+    }
+    return url;
 };
 
 const addNewQuestion = () => {
@@ -563,8 +575,6 @@ onMounted(async () => {
         await fetchMaterial();
         await loadCurrentPage();
     }
-    console.log(currentPageContent.value)
-    console.log(quizData.value)
 });
 
 provide('course', course);

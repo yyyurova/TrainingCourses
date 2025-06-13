@@ -106,10 +106,8 @@ const fetchCourse = async (id) => {
         course.value = await getCourse(id);
 
         tasksStatistics.value = await getTasksStatistics(course.value.id)
-        console.log(tasksStatistics.value)
 
         testsStatiscics.value = await getTestsStatistics(course.value.id)
-        console.log(testsStatiscics.value)
     } finally {
         isLoading.value = false;
     }

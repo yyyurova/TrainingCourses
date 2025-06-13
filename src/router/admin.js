@@ -2,8 +2,8 @@ import Users from '../pages/users/Users.vue'
 import Classrooms from '@/pages/classrooms/Classrooms.vue'
 import Classroom from '@/pages/classrooms/classroom/Classroom.vue'
 import Courses from '@/pages/courses/Courses.vue'
-import FillContent from '@/pages/courses/admin/createdCourse/fillContent/FillContent.vue'
-import FillMaterials from '@/pages/courses/admin/createdCourse/fillMaterials/FillMaterials.vue'
+// import FillContent from '@/pages/courses/admin/createdCourse/fillContent/FillContent.vue'
+// import FillMaterials from '@/pages/courses/admin/createdCourse/fillMaterials/FillMaterials.vue'
 
 export const adminRoutes = [
     {
@@ -17,7 +17,7 @@ export const adminRoutes = [
     {
         path: '/course-fill-content/:courseId',
         name: 'FillContent',
-        component: FillContent,
+        component: () => import('@/pages/courses/admin/createdCourse/fillContent/FillContent.vue'),
         meta: {
             title: 'Содержание курса'
         },
@@ -25,7 +25,7 @@ export const adminRoutes = [
     {
         path: '/course-fill-materials/:courseId',
         name: 'FillMaterials',
-        component: FillMaterials,
+        component: () => import('@/pages/courses/admin/createdCourse/fillMaterials/FillMaterials.vue'),
         meta: {
             title: 'Материалы курса'
         },
@@ -33,12 +33,12 @@ export const adminRoutes = [
             {
                 path: 'module/:moduleId',
                 name: 'CourseModule',
-                component: FillMaterials,
+                component: () => import('@/pages/courses/admin/createdCourse/fillMaterials/FillMaterials.vue'),
                 children: [
                     {
                         path: 'page/:pageId',
                         name: 'CoursePage',
-                        component: FillMaterials,
+                        component: () => import('@/pages/courses/admin/createdCourse/fillMaterials/FillMaterials.vue'),
                         meta: { title: 'Шаг обучения' }
                     }
                 ]
@@ -48,7 +48,7 @@ export const adminRoutes = [
     {
         path: '/users',
         name: 'users',
-        component: Users,
+        component: () => import('@/pages/users/Users.vue'),
         meta: {
             title: 'Пользователи'
         },
@@ -56,14 +56,14 @@ export const adminRoutes = [
     {
         path: '/classrooms',
         name: 'Classrooms',
-        component: Classrooms,
+        component: () => import('@/pages/classrooms/Classrooms.vue'),
         meta: {
             title: 'Учебные классы'
         },
     },
     {
         path: '/classrooms/:classId',
-        component: Classroom,
+        component: () => import('@/pages/classrooms/classroom/Classroom.vue'),
         name: 'Classroom'
     },
 ]  

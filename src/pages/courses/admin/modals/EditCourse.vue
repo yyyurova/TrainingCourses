@@ -16,7 +16,8 @@
                 </div>
                 <div class="form-group">
                     <label>Название<span class="required">*</span></label>
-                    <input v-model="courseName" type="text" autocomplete="off" required :class="{ 'error': nameError }">
+                    <input @input="nameError = false" v-model="courseName" type="text" autocomplete="off" required
+                        :class="{ 'error': nameError }">
                 </div>
                 <div class="modal-buttons">
                     <button class="transparent" @click="cancel">Отмена</button>
@@ -118,5 +119,9 @@ const save = () => {
     display: flex;
     flex-direction: column;
     gap: 7px;
+
+    .error {
+        border: 1px solid red;
+    }
 }
 </style>

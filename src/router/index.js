@@ -46,32 +46,32 @@ const baseRoutes = [
 const chatRoute = {
     path: '/chat',
     name: 'Chat',
-    component: Chat,
+    component: () => import('@/pages/chat/Chat.vue'),
     meta: {
         title: 'Чат',
-        requiresAuth: true // Требует авторизации
+        requiresAuth: true
     },
     children: [
         {
             path: ':chatId',
             name: 'ChatDialog',
-            component: Chat,
+            component: () => import('@/pages/chat/Chat.vue'),
             props: true,
             children: [
                 {
                     path: 'members',
                     name: 'Members',
-                    component: Members,
+                    component: () => import('@/pages/chat/components/open/settings/components/members/Members.vue'),
                 },
                 {
                     path: 'docs',
                     name: 'Documents',
-                    component: Docs,
+                    component: () => import('@/pages/chat/components/open/settings/components/Docs.vue'),
                 },
                 {
                     path: 'attachments',
                     name: 'Attachments',
-                    component: Attachments,
+                    component: () => import('@/pages/chat/components/open/settings/components/attachments/Attachments.vue'),
                 }
             ]
         }

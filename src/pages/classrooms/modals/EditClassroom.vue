@@ -5,7 +5,8 @@
                 <h2>Редактировать учебный класс</h2>
                 <div class="form-group">
                     <label>Название<span class="required">*</span></label>
-                    <input v-model="classroomName" type="text" autocomplete="off" required>
+                    <input @input="errorName = false" v-model="classroomName" type="text" autocomplete="off" required
+                        :class="{ 'error': errorName }">
                 </div>
                 <div class="modal-buttons">
                     <button class="transparent" @click="cancel">Отмена</button>
@@ -28,6 +29,8 @@ const props = defineProps({
     }
 });
 
+const errorName = ref(false)
+
 const classroomName = ref(props.classroom.title);
 
 const cancel = () => {
@@ -35,6 +38,10 @@ const cancel = () => {
 };
 
 const save = () => {
+    if (classroomName.value.trim() === '') {
+        errorName.value = true
+        return
+    }
     const classroomData = {
         title: classroomName.value,
         id: props.classroom.id,
@@ -65,5 +72,9 @@ const save = () => {
     display: flex;
     flex-direction: column;
     gap: 7px;
+
+    .error {
+        border: 1px solid red;
+    }
 }
 </style>

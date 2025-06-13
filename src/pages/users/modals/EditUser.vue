@@ -6,21 +6,23 @@
 
                 <form>
                     <label for="userName">Имя и Фамилия<span class="required">*</span></label>
-                    <input v-model="form.name" type="text" autocomplete="off" id="userName">
+                    <input :class="{ 'error': error.name }" v-model="form.name" type="text" autocomplete="off"
+                        id="userName">
 
                     <label for="email">Электронная почта<span class="required">*</span></label>
-                    <input v-model="form.email" type="text" autocomplete="off" id="userEmail">
+                    <input :class="{ 'error': error.email }" v-model="form.email" type="text" autocomplete="off"
+                        id="userEmail">
 
                     <p>Роль<span class="required">*</span></p>
-                    <select v-model="form.role" id="userRole">
+                    <select :class="{ 'error': error.role }" v-model="form.role" id="userRole">
                         <option value="" disabled selected hidden>Выберите роль</option>
                         <option value="admin">Администратор</option>
-                        <option value="student">Студент</option>
+                        <option value="user">Студент</option>
                         <option value="curator">Преподаватель</option>
                     </select>
 
                     <p>Статус<span class="required">*</span></p>
-                    <select v-model="form.status" id="userStatus">
+                    <select :class="{ 'error': error.status }" v-model="form.status" id="userStatus">
                         <option value="approved">Доступ одобрен</option>
                         <option value="rejected">Доступ не одобрен</option>
                         <option value="pending">Новый пользователь</option>
@@ -50,6 +52,13 @@ const props = defineProps({
 
 const emit = defineEmits(['cancel', 'edit']);
 
+const error = ref({
+    name: false,
+    email: false,
+    role: false,
+    status: false
+})
+
 const form = ref({
     name: '',
     email: '',
@@ -63,24 +72,23 @@ const validate = () => {
     let isValid = true;
 
     if (!form.value.name.trim()) {
-        document.getElementById('userName').style.borderColor = 'red';
+        error.value.name = true
         isValid = false;
-    } else {
-        document.getElementById('userName').style.borderColor = '#E0E0E0';
     }
 
     if (!form.value.email.trim()) {
-        document.getElementById('userEmail').style.borderColor = 'red';
+        error.value.email = true
         isValid = false;
-    } else {
-        document.getElementById('userEmail').style.borderColor = '#E0E0E0';
     }
 
     if (!form.value.role) {
-        document.getElementById('userRole').style.borderColor = 'red';
+        error.value.role = true
         isValid = false;
-    } else {
-        document.getElementById('userRole').style.borderColor = '#E0E0E0';
+    }
+
+    if (!form.value.status) {
+        error.value.status = true
+        isValid = false;
     }
 
     return isValid;
@@ -89,7 +97,6 @@ const validate = () => {
 const save = () => {
     if (validate()) {
         emit('edit', form.value);
-        // showPopup.value = true
     }
 };
 
@@ -114,5 +121,9 @@ form {
     display: flex;
     flex-direction: column;
     gap: 8px;
+
+    .error {
+        border: 1px solid red !important;
+    }
 }
 </style>

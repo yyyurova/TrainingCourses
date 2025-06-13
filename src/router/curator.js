@@ -17,37 +17,37 @@ export const curatorRoutes = [
             {
                 path: ':courseId/practicants',
                 name: 'CoursePracticants',
-                component: Practicants,
+                component: () => import('@/pages/courses/teacher/practicants/Practicants.vue'),
                 meta: { title: 'Практиканты' },
             },
             {
                 path: ':courseId/practicants/:practicantId',
                 name: 'PracticantTasks',
-                component: PracticantTasks,
+                component: () => import('@/pages/courses/teacher/practicants/PracticantTasks.vue'),
                 meta: { title: 'Задания практиканта' },
             },
             {
                 path: ':courseId/tasks',
                 name: 'Tasks',
-                component: Tasks,
+                component: () => import('@/pages/courses/teacher/Tasks.vue'),
                 meta: { title: 'Задания' },
             },
             {
                 path: ':courseId/marks',
                 name: 'Marks',
-                component: Marks,
+                component: () => import('@/pages/courses/teacher/marks/Marks.vue'),
                 meta: { title: 'Оценки' },
             },
             {
                 path: ':courseId/content',
                 name: 'Content',
-                component: CourseContent,
+                component: () => import('@/pages/courses/teacher/courseContent/CourseContent.vue'),
                 meta: { title: 'Содержание курса' },
             },
             {
                 path: ':courseId/works/:taskId',
                 name: 'Works',
-                component: Works,
+                component: () => import('@/pages/courses/teacher/practicantWork/Works.vue'),
                 meta: { title: 'Работы' },
             },
         ]

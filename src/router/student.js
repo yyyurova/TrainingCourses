@@ -23,7 +23,7 @@ export const studentRoutes = [
             {
                 path: ':courseId/my-study',
                 name: 'CourseMain',
-                component: CourseMainPage,
+                component: () => import('@/pages/courses/student/CourseMainPage.vue'),
                 meta: {
                     title: 'Курс'
                 }
@@ -31,7 +31,7 @@ export const studentRoutes = [
             {
                 path: ':courseId/performance',
                 name: 'CoursePerfomance',
-                component: CoursePerfomancePage,
+                component: () => import('@/pages/courses/student/CoursePerformancePage.vue'),
                 meta: {
                     title: 'Курс'
                 }
@@ -39,7 +39,7 @@ export const studentRoutes = [
             {
                 path: ':courseId/tasks',
                 name: 'CourseTasks',
-                component: CourseTasksPage,
+                component: () => import('@/pages/courses/student/CourseTasksPage.vue'),
                 meta: {
                     title: 'Курс'
                 },
@@ -49,7 +49,7 @@ export const studentRoutes = [
     {
         path: '/tasks/:taskId',
         name: 'TaskPage',
-        component: TaskPage,
+        component: () => import('@/pages/courses/student/taskPage/TaskPage.vue'),
         meta: {
             title: 'Задание'
         }
@@ -57,7 +57,7 @@ export const studentRoutes = [
     {
         path: '/tasks/current',
         name: 'TasksCurrent',
-        component: StudentTasksAll,
+        component: () => import('@/pages/tasks/student/StudentTasksAll.vue'),
         meta: {
             title: 'Текущие задания'
         }
@@ -65,7 +65,7 @@ export const studentRoutes = [
     {
         path: '/tasks/overdue',
         name: 'TasksOverdue',
-        component: StudentTasksOverdue,
+        component: () => import('@/pages/tasks/student/StudentTasksOverdue.vue'),
         meta: {
             title: 'Просроченные задания'
         }
@@ -73,7 +73,7 @@ export const studentRoutes = [
     {
         path: '/tasks/done',
         name: 'TasksDone',
-        component: StudentTasksDone,
+        component: () => import('@/pages/tasks/student/StudentTasksDone.vue'),
         meta: {
             title: 'Выполненные задания'
         }
@@ -81,7 +81,7 @@ export const studentRoutes = [
     {
         path: '/courseCompletion/:courseId',
         name: 'CourseCompletion',
-        component: CourseCompletion,
+        component: () => import('@/pages/courseCompletion/CourseCompletion.vue'),
         meta: {
             title: 'Прохождение курса'
         },
@@ -89,7 +89,7 @@ export const studentRoutes = [
             {
                 path: 'module/:moduleId/page/:pageId',
                 name: 'CourseCompletionPage',
-                component: CourseCompletion,
+                component: () => import('@/pages/courseCompletion/CourseCompletion.vue'),
                 meta: {
                     title: 'Прохождение курса'
                 }

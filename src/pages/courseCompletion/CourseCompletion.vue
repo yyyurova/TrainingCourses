@@ -8,7 +8,7 @@
             <h1 class="chapterName">
                 {{ currentModule.title }}
                 <span class="score">{{ completedPages + " из " + currentModule.pages.length + " шагов пройдено"
-                }}</span>
+                    }}</span>
             </h1>
             <div class="squares-score">
                 <span class="square" :class="page.completed ? 'filled' : ''" v-for="page in currentModule.pages"
@@ -384,8 +384,6 @@ watch(() => route.params, async (newParams) => {
     } else if (newParams.pageId && Number(newParams.pageId) !== Number(currentPageId.value)) {
         currentPageId.value = Number(newParams.pageId);
         await loadPageContent();
-        console.log(currentPageData.value)
-        console.log()
     }
 }, { immediate: true, deep: true });
 
