@@ -8,7 +8,7 @@
             <h1 class="chapterName">
                 {{ currentModule.title }}
                 <span class="score">{{ completedPages + " из " + currentModule.pages.length + " шагов пройдено"
-                    }}</span>
+                }}</span>
             </h1>
             <div class="squares-score">
                 <span class="square" :class="page.completed ? 'filled' : ''" v-for="page in currentModule.pages"
@@ -24,8 +24,8 @@
                             <div v-if="question.description" v-html="formatTextContent(question.description)"></div>
                             <div class="options">
                                 <div v-for="(variant, vIndex) in question.variants" :key="vIndex">
-                                    <input type="checkbox" v-model="selectedAnswers[qIndex]" :value="variant.id"
-                                        :disabled="quizChecked[qIndex]">
+                                    <input :type="variant.answerType || 'checkbox'" v-model="selectedAnswers[qIndex]"
+                                        :value="variant.id" :disabled="quizChecked[qIndex]">
                                     {{ (vIndex + 1) + ') ' + variant.title }}
                                 </div>
                             </div>
@@ -358,9 +358,9 @@ const checkQuiz = async () => {
             });
         }
 
-        if (allCorrect && currentModule.value) {
-            currentModule.value.pages[currentPageIndex.value].completed = true;
-        }
+        // if (allCorrect && currentModule.value) {
+        //     currentModule.value.pages[currentPageIndex.value].completed = true;
+        // }
 
         return allCorrect;
     } catch (error) {
@@ -384,6 +384,8 @@ watch(() => route.params, async (newParams) => {
     } else if (newParams.pageId && Number(newParams.pageId) !== Number(currentPageId.value)) {
         currentPageId.value = Number(newParams.pageId);
         await loadPageContent();
+        console.log(currentPageData.value)
+        console.log()
     }
 }, { immediate: true, deep: true });
 

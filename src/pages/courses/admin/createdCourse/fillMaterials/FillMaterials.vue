@@ -82,12 +82,18 @@
                                 <label class="radio">
                                     <input type="radio" :name="'radio-' + qIndex" value="several"
                                         v-model="question.answerType">
-                                    <span class="name">Несколько</span>
+                                    <span class="name">
+                                        Несколько
+                                        <img src="/icons/checkbox.svg" alt="">
+                                    </span>
                                 </label>
                                 <label class="radio">
                                     <input type="radio" :name="'radio-' + qIndex" value="one"
                                         v-model="question.answerType">
-                                    <span class="name">Один</span>
+                                    <span class="name">
+                                        Один
+                                        <img src="/icons/radio.svg" alt="">
+                                    </span>
                                 </label>
                             </div>
 
@@ -294,15 +300,11 @@ const loadPageContent = async () => {
             const questions = await getQuestionsForPage(currentPage.value.id);
             quizData.value.questions = await Promise.all(questions.map(async (q) => {
                 const variants = await getVariants(q.id);
-
-                // Парсим настройки из description
-                const settings = q.description ? JSON.parse(q.description) : {};
-
                 return {
                     id: q.id,
                     title: q.title,
-                    description: settings.content || "", // HTML-контент
-                    answerType: settings.answerType || 'several',
+                    description: q.description || '', // Просто текст/HTML без JSON
+                    answerType: q.answer_type || 'several', // Предполагаем, что тип хранится отдельно
                     options: variants.map(v => ({
                         id: v.id,
                         title: v.title,
@@ -375,26 +377,22 @@ const saveCourse = async () => {
         }
         else if (currentPage.value.type === 3) {
             for (const question of quizData.value.questions) {
-                // Формируем JSON с контентом и настройками
-                const description = JSON.stringify({
-                    content: question.description, // HTML-контент
-                    answerType: question.answerType
-                });
                 let questionId;
+
+                // Сохраняем вопрос (без JSON в description)
                 if (question.id) {
                     await updateQuestion(
                         currentPage.value.id,
                         question.id,
                         question.title,
-                        description
+                        question.description // Просто текст/HTML
                     );
                     questionId = question.id;
                 } else {
-                    // Создаем новый вопрос
                     const newQuestion = await createQuestion(
                         currentPage.value.id,
                         question.title,
-                        description
+                        question.description // Просто текст/HTML
                     );
                     questionId = newQuestion.id;
                     question.id = questionId;
@@ -403,24 +401,20 @@ const saveCourse = async () => {
                 const currentVariants = await getVariants(questionId);
                 const currentVariantIds = currentVariants.map(v => v.id);
 
-                // Обрабатываем варианты
                 for (const option of question.options) {
                     try {
                         if (option.id) {
-                            // Обновляем существующий вариант
                             await updateVariant(
                                 questionId,
                                 option.id,
                                 option.title,
                                 option.is_right ? 1 : 0
                             );
-                            // Удаляем ID из списка для проверки на удаление
                             const index = currentVariantIds.indexOf(option.id);
                             if (index !== -1) {
                                 currentVariantIds.splice(index, 1);
                             }
                         } else {
-                            // Создаем новый вариант
                             const newVariant = await createVariant(
                                 questionId,
                                 option.title,
@@ -500,7 +494,6 @@ const removeAnswer = async (qIndex, aIndex) => {
         await deleteVariant(quizData.value.questions[qIndex].id, option.id);
     }
     quizData.value.questions[qIndex].options.splice(aIndex, 1);
-    // Обновляем индексы правильных ответов
     quizData.value.questions[qIndex].correctAnswers =
         quizData.value.questions[qIndex].correctAnswers
             .filter(i => i !== aIndex)
@@ -512,12 +505,10 @@ const updateCorrectAnswers = (qIndex, { index, isChecked }) => {
     const isSingle = question.answerType === 'one';
 
     if (isSingle && isChecked) {
-        // Сбрасываем другие ответы для типа "один"
         question.options.forEach((opt, i) => {
             opt.is_right = i === index ? 1 : 0;
         });
     } else {
-        // Для типа "несколько" просто обновляем
         question.options[index].is_right = isChecked ? 1 : 0;
     }
 };

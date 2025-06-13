@@ -97,7 +97,9 @@ const emit = defineEmits(['close']);
 const route = useRoute();
 const router = useRouter();
 const isCoursesListOpen = ref(false);
+
 const courses = inject('courses')
+
 const showUserActions = ref(false);
 const showConfirmExit = ref(false);
 const showEditModal = ref(false);
