@@ -33,3 +33,13 @@ export const getTestsStatistics = async (courseId) => {
         return null;
     }
 };
+
+export const getActiveDays = async (courseId) => {
+    try {
+        const response = await client.get(`${ENDPOINTS.COURSES}/${courseId}/calendar`);
+        return response.data.data
+    } catch (error) {
+        console.error('Ошибка :', error);
+        return null;
+    }
+};

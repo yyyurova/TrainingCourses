@@ -46,7 +46,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { mockUser } from '@/mocks/user';
-import { getCourseActivity } from '@/api/modules/activity.api';
+import { getActiveDays } from '@/api/modules/activity.api';
 import { getCourse } from '@/api/modules/courses.api';
 
 import Loading from '@/components/Loading.vue';
@@ -82,8 +82,6 @@ const fetchCourse = async (id) => {
         isLoading.value = true;
         course.value = await getCourse(id);
         teacherName.value = course.value.curator_name
-
-
     } catch (error) {
         console.error('Ошибка загрузки курса:', error);
     } finally {
@@ -93,7 +91,7 @@ const fetchCourse = async (id) => {
 
 const fetchCourseActivity = async () => {
     try {
-        activity.value = await getCourseActivity(course.value.id)
+        activity.value = await getActiveDays(course.value.id)
     } finally {
         isLoading.value = false
     }
@@ -103,7 +101,8 @@ const calendarAttributes = computed(() => [
     {
         key: 'activeDays',
         // dates: mockUser.activeDays.map(date => new Date(date)),
-        dates: new Date(activity.value.updated_at)
+        // dates: new Date(activity.value.updated_at)
+        dates: activity.value.map(a => new Date(a))
     },
     {
         key: 'today',
