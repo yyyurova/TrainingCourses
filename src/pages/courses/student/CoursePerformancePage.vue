@@ -5,29 +5,27 @@
         <div v-if="!isLoading">
             <div class="tests">
                 <h3>Тесты</h3>
-                <div class="success">
+                <div class="success" v-if="testsStatiscics">
                     <div class="row">
                         <Card class="center no-hover">
                             <p class="label">Количество тестов</p>
-                            <!-- <p class="number">{{ testsStatiscics.tests }}</p> -->
+                            <p class="number">{{ testsStatiscics.tests }}</p>
                         </Card>
                     </div>
                     <div class="row">
                         <Card class="no-hover">
                             <p class="label">Процент пройденных тестов</p>
-                            <!-- <p class="number">{{ testsStatiscics.doneTests !== 0 ? testsStatiscics.tests /
-                                testsStatiscics.doneTests * 100 : 0 }}%</p> -->
+                            <p class="number">{{ testsStatiscics.doneTests }}%</p>
                             <p class="period">За последние 4 недели</p>
                         </Card>
                         <Card class="no-hover">
                             <p class="label">Процент не пройденных тестов</p>
-                            <!-- <p class="number">{{ testsStatiscics.notDoneTests !== 0 ? testsStatiscics.tests /
-                                testsStatiscics.notDoneTests * 100 : 0 }}%</p> -->
+                            <p class="number">{{ testsStatiscics.notDoneTests }}%</p>
                             <p class="period">За последние 4 недели</p>
                         </Card>
                         <Card class="no-hover">
                             <p class="label">Средний балл за тесты</p>
-                            <!-- <p class="number">{{ testsStatiscics.averageMark }}</p> -->
+                            <p class="number">{{ testsStatiscics.averageMark }}</p>
                             <p class="period">За последние 4 недели</p>
                         </Card>
                     </div>
@@ -46,15 +44,16 @@
                     <div class="row">
                         <Card class="no-hover">
                             <p class="label">Процент сделанных домашних заданий</p>
-                            <p class="number">{{ tasksStatistics.done !== 0 ? tasksStatistics.tasks /
-                                tasksStatistics.done *
+                            <p class="number">{{ tasksStatistics.done !== 0 ? tasksStatistics.done /
+                                tasksStatistics.tasks
+                                *
                                 100 : 0 }}%</p>
                             <p class="period">За последние 4 недели</p>
                         </Card>
                         <Card class="no-hover">
                             <p class="label">Процент не сделанных домашних заданий</p>
                             <p class="number">{{ tasksStatistics.not_done !== 0 ?
-                                tasksStatistics.tasks / tasksStatistics.not_done * 100 : 0 }}%</p>
+                                tasksStatistics.not_done / tasksStatistics.tasks * 100 : 0 }}%</p>
                             <p class="period">За последние 4 недели</p>
                         </Card>
                         <Card class="no-hover">
@@ -109,8 +108,8 @@ const fetchCourse = async (id) => {
         tasksStatistics.value = await getTasksStatistics(course.value.id)
         console.log(tasksStatistics.value)
 
-        // testsStatiscics.value = await getTestsStatistics(course.value.id)
-        // console.log(testsStatiscics.value)
+        testsStatiscics.value = await getTestsStatistics(course.value.id)
+        console.log(testsStatiscics.value)
     } finally {
         isLoading.value = false;
     }

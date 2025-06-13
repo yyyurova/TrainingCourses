@@ -48,7 +48,7 @@
 
 <script setup>
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { register } from '@/api/modules/auth.api';
 
@@ -132,6 +132,10 @@ const handleSubmit = async () => {
         catch (err) { console.log(err) }
     }
 }
+
+onMounted(() => {
+    document.querySelector('input').focus()
+})
 </script>
 <style scoped lang="scss">
 .form {

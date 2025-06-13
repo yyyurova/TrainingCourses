@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { nextTick, ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { login, getLoginUrls } from '@/api/modules/auth.api';
 import { addRoleRoutes } from '@/router';
@@ -119,6 +119,10 @@ const signInWithGoogle = async () => {
         errors.value.google = 'Не удалось получить ссылку для входа';
     }
 };
+
+onMounted(() => {
+    document.querySelector('input').focus()
+})
 </script>
 
 <style scoped lang="scss">

@@ -80,20 +80,14 @@
                             <p>Количество правильных ответов:</p>
                             <div class="radio-inputs">
                                 <label class="radio">
-                                    <input type="radio" name="radio" :value="'several-' + qIndex"
+                                    <input type="radio" :name="'radio-' + qIndex" value="several"
                                         v-model="question.answerType">
-                                    <span class="name">
-                                        Несколько
-                                        <img src="/icons/checkbox.svg" alt="">
-                                    </span>
+                                    <span class="name">Несколько</span>
                                 </label>
                                 <label class="radio">
-                                    <input type="radio" name="radio" :value="'one-' + qIndex"
+                                    <input type="radio" :name="'radio-' + qIndex" value="one"
                                         v-model="question.answerType">
-                                    <span class="name">
-                                        Один
-                                        <img src="/icons/radio.svg" alt="">
-                                    </span>
+                                    <span class="name">Один</span>
                                 </label>
                             </div>
 
@@ -296,26 +290,24 @@ const loadPageContent = async () => {
         }
     }
     else if (currentPage.value.type === 3) {
-        // Тестовая страница
         try {
             const questions = await getQuestionsForPage(currentPage.value.id);
             quizData.value.questions = await Promise.all(questions.map(async (q) => {
                 const variants = await getVariants(q.id);
-                const desc = q.description ? JSON.parse(q.description) : {};
+
+                // Парсим настройки из description
+                const settings = q.description ? JSON.parse(q.description) : {};
 
                 return {
                     id: q.id,
                     title: q.title,
-                    description: q.description,
-                    answerType: desc.answerType || 'several',
+                    description: settings.content || "", // HTML-контент
+                    answerType: settings.answerType || 'several',
                     options: variants.map(v => ({
                         id: v.id,
                         title: v.title,
                         is_right: v.is_right
-                    })),
-                    correctAnswers: variants
-                        .filter(v => v.is_right === 1)
-                        .map(v => variants.findIndex(opt => opt.id === v.id))
+                    }))
                 };
             }));
 
@@ -324,6 +316,7 @@ const loadPageContent = async () => {
             }
         } catch (err) {
             console.error("Ошибка загрузки теста:", err);
+            quizData.value.questions = [];
             addNewQuestion();
         }
     }
@@ -334,12 +327,10 @@ const saveCourse = async () => {
         closeModal();
         if (!currentPage.value) return;
 
-        // Сохраняем название страницы
         if (currentPage.value.title !== pageName.value) {
             await updatePage(currentModule.value.id, currentPage.value.id, pageName.value, currentPage.value.type);
         }
 
-        // Обработка разных типов страниц
         if (currentPage.value.type === 1) {
             // Текстовая страница
             const description = currentPageContent.value;
@@ -383,15 +374,14 @@ const saveCourse = async () => {
             }
         }
         else if (currentPage.value.type === 3) {
-            // Тестовая страница
             for (const question of quizData.value.questions) {
+                // Формируем JSON с контентом и настройками
                 const description = JSON.stringify({
-                    answerType: question.answerType.replace(/-.*$/, '') // Удаляем суффикс с индексом
+                    content: question.description, // HTML-контент
+                    answerType: question.answerType
                 });
-
                 let questionId;
                 if (question.id) {
-                    // Обновляем существующий вопрос
                     await updateQuestion(
                         currentPage.value.id,
                         question.id,
@@ -410,7 +400,6 @@ const saveCourse = async () => {
                     question.id = questionId;
                 }
 
-                // Получаем текущие варианты
                 const currentVariants = await getVariants(questionId);
                 const currentVariantIds = currentVariants.map(v => v.id);
 
@@ -444,7 +433,6 @@ const saveCourse = async () => {
                     }
                 }
 
-                // Удаляем варианты, которых больше нет
                 for (const variantId of currentVariantIds) {
                     try {
                         await deleteVariant(questionId, variantId);
@@ -481,9 +469,8 @@ const addNewQuestion = () => {
         id: null,
         title: '',
         description: '',
-        answerType: 'several-' + quizData.value.questions.length,
+        answerType: 'several',
         options: [],
-        correctAnswers: []
     });
 };
 
@@ -522,15 +509,15 @@ const removeAnswer = async (qIndex, aIndex) => {
 
 const updateCorrectAnswers = (qIndex, { index, isChecked }) => {
     const question = quizData.value.questions[qIndex];
-    const isSingle = question.answerType.startsWith('one');
+    const isSingle = question.answerType === 'one';
 
-    if (isSingle) {
-        // Для одного правильного ответа
-        question.options.forEach((opt, idx) => {
-            opt.is_right = idx === index && isChecked ? 1 : 0;
+    if (isSingle && isChecked) {
+        // Сбрасываем другие ответы для типа "один"
+        question.options.forEach((opt, i) => {
+            opt.is_right = i === index ? 1 : 0;
         });
     } else {
-        // Для нескольких правильных ответов
+        // Для типа "несколько" просто обновляем
         question.options[index].is_right = isChecked ? 1 : 0;
     }
 };
@@ -585,6 +572,8 @@ onMounted(async () => {
         await fetchMaterial();
         await loadCurrentPage();
     }
+    console.log(currentPageContent.value)
+    console.log(quizData.value)
 });
 
 provide('course', course);
