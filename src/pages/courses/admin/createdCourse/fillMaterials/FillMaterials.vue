@@ -209,16 +209,25 @@ const handleFileUpload = (e) => {
     const files = e.target.files;
     if (!files.length) return;
 
-    const newFiles = Array.from(files).map(file => ({
-        id: Date.now(),
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        file: file
-    }));
+    const file = files[0];
+    const reader = new FileReader();
 
-    uploadedFiles.value = [...uploadedFiles.value, ...newFiles];
+    reader.onload = (event) => {
+        const fileObj = {
+            id: Date.now(),
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            base64: event.target.result // Сохраняем файл как base64
+        };
+
+        uploadedFiles.value = [fileObj];
+    };
+
+    reader.readAsDataURL(file);
+    e.target.value = '';
 };
+
 
 const removeFile = (index) => {
     uploadedFiles.value.splice(index, 1);
@@ -357,11 +366,27 @@ const saveCourse = async () => {
             let description = '';
 
             if (selectedWay.value === 'other' && videoLink.value) {
-                // Формируем iframe для внешнего видео
-                description = `<div class="video"><iframe src="${generateEmbedUrl(videoLink.value)}"></iframe></div>`;
-            } else if (uploadedFiles.value.length > 0) {
-                // description = `<div class="video">Видео: ${uploadedFiles.value[0].name}</div>`;
-                description = `<div class="video"><iframe src="${uploadedFiles.value[0].file}"></iframe></div>`;
+                const embedUrl = generateEmbedUrl(videoLink.value);
+
+                if (embedUrl) {
+                    description = `<div class="video"><iframe src="${embedUrl}"></iframe></div>`;
+                } else if (isSupportedVideoPlatform(videoLink.value)) {
+                    description = `<div class="video"><iframe src="${videoLink.value}"></iframe></div>`;
+                } else {
+                    description = `
+                        <div class="video">
+                            <p>Видео недоступно для встраивания</p>
+                            <a href="${videoLink.value}" target="_blank">Смотреть на сайте источника</a>
+                        </div>
+                    `;
+                }
+            } else if (currentPage.value.type === 2 && selectedWay.value === 'upload' && uploadedFiles.value.length) {
+                const file = uploadedFiles.value[0];
+                description = `<div class="video">
+                                    <video controls width="100%">
+                                        <source src="${file.base64}" type="${file.type}">
+                                    </video>
+                                </div>`;
             }
 
             if (currentQuestion.value?.id) {
@@ -463,11 +488,21 @@ const saveCourse = async () => {
 };
 
 const generateEmbedUrl = (url) => {
-    if (url.includes('youtube.com')) {
-        const videoId = url.split('v=')[1]?.split('&')[0];
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        const videoId = url.split('v=')[1]?.split('&')[0] || url.split('youtu.be/')[1]?.split('?')[0];
         return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
     }
-    return url;
+    return null; // Для неподдерживаемых платформ
+};
+
+const isSupportedVideoPlatform = (url) => {
+    const supported = [
+        'youtube.com',
+        'youtu.be',
+        'vimeo.com',
+        'dailymotion.com'
+    ];
+    return supported.some(domain => url.includes(domain));
 };
 
 const addNewQuestion = () => {

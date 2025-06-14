@@ -241,6 +241,8 @@ const fetchMaterial = async () => {
 const fetctActivity = async () => {
     try {
         activity.value = await getCourseActivity(courseId);
+
+        console.log(activity.value)
     } catch (error) {
         console.log('Activity not found, continuing without it');
         activity.value = null;

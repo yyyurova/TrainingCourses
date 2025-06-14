@@ -100,9 +100,7 @@ const fetchCourseActivity = async () => {
 const calendarAttributes = computed(() => [
     {
         key: 'activeDays',
-        // dates: mockUser.activeDays.map(date => new Date(date)),
-        // dates: new Date(activity.value.updated_at)
-        dates: activity.value.map(a => new Date(a))
+        dates: activity.value ? activity.value.map(date => new Date(date)) : [],
     },
     {
         key: 'today',
@@ -112,7 +110,9 @@ const calendarAttributes = computed(() => [
 ]);
 
 const isActiveDay = (day) => {
-    return mockUser.activeDays.some(activeDate => {
+    if (!activity.value) return false;
+
+    return activity.value.some(activeDate => {
         const activeDay = new Date(activeDate);
         return activeDay.getFullYear() === day.year &&
             activeDay.getMonth() + 1 === day.month &&

@@ -20,7 +20,10 @@
                 <div class="steps" v-if="module.pages" v-show="openModules[module.id]">
                     <RouterLink v-for="page in module.pages" :key="page.id" class="step-link"
                         :to="getPageRoute(module.id, page.id)" active-class="active-step">
-                        <div class="step-content" :class="page.id < activity.course_module_page_id ? 'done' : ''">
+                        <div class="step-content" :class="{
+                            'done': isPageDone(module.id, page.id),
+                            'active': isCurrentPage(module.id, page.id)
+                        }">
                             {{ getModuleNumber(module) + '.' + getPageNumber(module, page) + ' ' + page.title }}
                         </div>
                     </RouterLink>
@@ -42,6 +45,19 @@ const course = inject('course')
 const activity = inject('activity')
 
 const openModules = ref({})
+
+const completedPages = computed(() => {
+    if (!activity.value) return new Set();
+    return new Set(activity.value.map(item => item.course_module_page_id));
+});
+
+const isPageDone = (moduleId, pageId) => {
+    return completedPages.value.has(pageId);
+};
+
+const isCurrentPage = (moduleId, pageId) => {
+    return route.params.pageId == pageId;
+};
 
 const initOpenModules = () => {
     if (!material.value) return
@@ -191,6 +207,12 @@ onMounted(initOpenModules)
                         font-size: 16px;
                         line-height: 20px;
                         letter-spacing: 0px;
+                        color: #292929;
+
+                        &.active {
+                            background-color: #E9F2FF;
+                            color: #292929;
+                        }
 
                         &.done {
                             background-color: #29a159;

@@ -92,9 +92,9 @@ export const getQuestion = async (pageId, questionId) => {
     }
 };
 
-export const createQuestion = async (pageId, title, description) => {
+export const createQuestion = async (pageId, title, description, is_group) => {
     try {
-        const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}`, { title: title, description: description });
+        const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}`, { title: title, description: description, is_group: is_group });
         return response.data;
     } catch (error) {
         console.error('Полная ошибка:', error);
