@@ -96,6 +96,7 @@ export const createQuestion = async (pageId, title, description, is_group) => {
     try {
         console.log(pageId, title, description, is_group)
         const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}`, { title: title, description: description, is_group: is_group });
+        console.log(response)
         return response.data;
     } catch (error) {
         console.error('Полная ошибка:', error);
