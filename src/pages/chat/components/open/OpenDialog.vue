@@ -1,5 +1,5 @@
 <template>
-    <div class="open">
+    <div class="open" v-bind="$attrs">
         <div class="dialog-header">
             <div class="dialog-header__inner" :class="{ 'mobile-header': isMobile }"
                 @click="() => emit('openSettings')">
@@ -27,7 +27,7 @@
         </div>
         <div v-if="messages.length > 0" class="messages-in-chat">
             <div class="spacer"></div>
-            <Message v-for="(message, index) in messages" :key="index" :message="message" />
+            <Message v-for="message in messages" :key="message.id" :message="message" />
         </div>
         <Loading v-else-if="isLoading" />
         <NoMessages v-else />
@@ -60,7 +60,7 @@
 
 <script setup>
 import pluralize from 'pluralize-ru';
-import { inject, watch, ref, computed, onMounted } from 'vue';
+import { inject, watch, ref, computed, onMounted, nextTick } from 'vue';
 import { getChatMessages, getChat, getChatMembers, createMessage } from '@/api/modules/chat.api';
 
 import NoMessages from './components/NoMessages.vue';
@@ -77,6 +77,10 @@ const addMembers = inject('addMembers');
 
 defineProps({ isMobile: Boolean })
 
+defineOptions({
+    inheritAttrs: false
+})
+
 const selectedChat = inject('selectedChat')
 const input = ref(null)
 const limitMessage = ref('')
@@ -88,6 +92,13 @@ const showAddModal = ref(false)
 
 const isLoading = ref(false)
 
+const scrollToBottom = () => {
+    const messagesContainer = document.querySelector('.messages-in-chat');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+};
+
 const fetchMessages = async () => {
     try {
         isLoading.value = true
@@ -97,6 +108,7 @@ const fetchMessages = async () => {
         );
     } finally {
         isLoading.value = false
+        nextTick(() => { scrollToBottom() })
     }
 }
 
@@ -204,12 +216,9 @@ const sendMessage = async () => {
         attachedFiles.value = [];
         await fetchMessages();
 
-        setTimeout(() => {
-            const messagesContainer = document.querySelector('.messages-in-chat');
-            if (messagesContainer) {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
-        }, 50);
+        nextTick(() => {
+            scrollToBottom();
+        });
     } catch (error) {
         console.error('Ошибка отправки сообщения', error);
     }
@@ -242,6 +251,7 @@ const addToExistingChat = async (members) => {
 
 watch(selectedChat, async (newChat) => {
     if (!selectedChat.value) { return }
+    messages.value = []
     await fetchMessages()
     await fetchMembers()
 }, { immediate: true })
@@ -249,6 +259,7 @@ watch(selectedChat, async (newChat) => {
 onMounted(async () => {
     await fetchMembers()
     await fetchMessages()
+    // console.log(selectedChat.value)
 })
 </script>
 
@@ -318,6 +329,7 @@ onMounted(async () => {
         padding: 10px;
         gap: 10px;
         flex: 1;
+        scroll-behavior: smooth;
 
         .message {
             margin: 0;

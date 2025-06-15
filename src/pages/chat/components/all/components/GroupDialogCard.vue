@@ -23,7 +23,7 @@
                 </p>
                 <p class="date">{{ format(chat.latest_message.created_at, 'short') }}</p>
             </div>
-            <!-- <span v-if="chat.unread" class="circle">{{ chat.unread }}</span> -->
+            <span v-if="chat.unviewed" class="circle">{{ chat.unviewed }}</span>
         </div>
     </div>
 </template>

@@ -169,7 +169,6 @@ const fetchTask = async () => {
     task.value = await getTask(route.params.taskId)
     allPracticants.value = task.value.students
     updateTaskStatuse()
-    console.log(task.value)
 }
 
 onMounted(async () => {

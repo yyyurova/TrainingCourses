@@ -260,16 +260,6 @@ const saveUserChanges = async (changes) => {
     }
 };
 
-// const fetchCourses = async () => {
-//     if (user.value.role === 'admin') {
-//         courses.value = await adminCoursesApi()
-//     } else if (user.value.role === 'user') {
-//         courses.value = await studentCoursesApi()
-//     } else {
-//         courses.value = await curatorCoursesApi()
-//     }
-// }
-
 const openList = () => {
     isCoursesListOpen.value = !isCoursesListOpen.value;
 };
@@ -301,11 +291,6 @@ const getCourseLink = (course) => {
 watch(() => route.path, async (newPath) => {
     if (newPath.startsWith('/courses')) {
         if (newPath.startsWith('/courses/')) isCoursesListOpen.value = true;
-        // if (!loadedCourses.value) {
-        //     // await fetchCourses();
-
-        //     loadedCourses.value = true;
-        // }
     }
 }, { immediate: true });
 

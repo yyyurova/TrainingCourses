@@ -7,13 +7,13 @@
                 <p> У вас нет доступных курсов</p>
             </div>
             <div class="courses" v-if="courses && courses.length > 0">
-                <Card v-for="course in courses" :key="course.id">
+                <Card v-for="course in courses" :key="course.id" @click="goToCourse(course.id)">
                     <div class="top">
                         <img v-if="course.photo" class="avatar" :src="course.photo" alt="avatar">
                         <AvatarLetter v-else :name="course.title" />
                         <span class="name-of-course">{{ course.title }}</span>
                     </div>
-                    <button class="blue" @click="continueStudy(course.id)">Продолжить обучение</button>
+                    <button class="blue" @click.stop="continueStudy(course.id)">Продолжить обучение</button>
                 </Card>
             </div>
             <Loading v-if="isLoading" />
@@ -39,6 +39,11 @@ const isLoading = inject('isLoading')
 const continueStudy = (id) => {
     router.push(`/courseCompletion/${id}`)
 }
+
+const goToCourse = (id) => {
+    router.push(`/courses/${id}/my-study`)
+}
+
 provide('courses', courses)
 // onMounted(async () => {
 //     await fetchCourses()
@@ -61,6 +66,7 @@ provide('courses', courses)
 
     .card {
         .top {
+            cursor: pointer;
             width: 100%;
             display: flex;
             gap: 10px;

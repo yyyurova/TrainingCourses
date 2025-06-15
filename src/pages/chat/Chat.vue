@@ -51,6 +51,7 @@ const openDialog = (dialog) => {
         name: 'ChatDialog',
         params: { chatId: dialog.id }
     });
+    selectedChat.value.unviewed = 0
 }
 
 const goBackToChats = () => {
@@ -105,6 +106,7 @@ const fetchChats = async () => {
 
         chats.value = chatsWithUsers;
         originalChats.value = [...chatsWithUsers];
+        console.log(chats.value)
 
         if (route.params.chatId) {
             const chatToOpen = chatsWithUsers.find(chat => chat.id == route.params.chatId);

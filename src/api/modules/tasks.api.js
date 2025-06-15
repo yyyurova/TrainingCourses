@@ -114,7 +114,6 @@ export const assignTask = async (taskId, userId) => {
 export const sendTask = async (taskId, userId, files, links) => {
     try {
         const formData = new FormData();
-        console.log(taskId, userId, files, links)
         if (files !== null) {
             formData.append('file', files[0]);
         }
@@ -132,7 +131,6 @@ export const sendTask = async (taskId, userId, files, links) => {
                 }
             }
         );
-        console.log(response.data)
         return response.data;
     } catch (error) {
         console.error("Ошибка при отправке задания:", error);

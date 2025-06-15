@@ -44,7 +44,6 @@ import AvatarLetter from '@/components/AvatarLetter.vue';
 const props = defineProps({
     practicant: Object
 })
-console.log(props.practicant.files)
 const emit = defineEmits(['delete'])
 
 const files = props.practicant.files.filter(f => f.type !== 'link')

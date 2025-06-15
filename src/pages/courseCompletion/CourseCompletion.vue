@@ -26,8 +26,7 @@
                             <div class="options">
                                 <div v-for="(variant, vIndex) in question.variants" :key="vIndex">
                                     <input :type="question.is_group === 1 ? 'checkbox' : 'radio'"
-                                        v-model="selectedAnswers[qIndex]" :value="variant.id"
-                                        @change="console.log(selectedAnswers)">
+                                        v-model="selectedAnswers[qIndex]" :value="variant.id">
                                     {{ (vIndex + 1) + ') ' + variant.title }}
                                 </div>
                             </div>
@@ -152,7 +151,6 @@ const loadPageContent = async () => {
         loading.value = true;
         resetQuizState();
         const pageData = await getModulePage(currentModuleId.value, currentPageId.value);
-        console.log(pageData)
         if (!pageData) {
             console.error('Page data not found');
             if (currentModule.value?.pages?.length) {
@@ -212,7 +210,6 @@ const fetchMaterial = async () => {
                 return currentDate > latestDate ? current : latest;
             });
         }
-        console.log(latestActivity)
         // Устанавливаем текущий модуль и страницу
         currentModuleId.value = route.params.moduleId ||
             (latestActivity?.course_module_id || material.value[0].id);
@@ -253,8 +250,6 @@ const fetchMaterial = async () => {
 const fetctActivity = async () => {
     try {
         activity.value = await getCourseActivity(courseId);
-
-        console.log(activity.value)
     } catch (error) {
         console.log('Activity not found, continuing without it');
         activity.value = null;
@@ -367,7 +362,6 @@ const checkQuiz = async () => {
                 });
             });
         });
-        console.log("Selected answers:", selectedAnswers);
         if (answersToSend.length) {
             await sendAnswer({
                 answers: answersToSend,
@@ -396,7 +390,6 @@ watch(() => route.params, async (newParams) => {
     } else if (newParams.pageId && Number(newParams.pageId) !== Number(currentPageId.value)) {
         currentPageId.value = Number(newParams.pageId);
         await loadPageContent();
-        console.log(currentPageData.value)
     }
 }, { immediate: true, deep: true });
 

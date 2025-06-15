@@ -323,7 +323,6 @@ const loadPageContent = async () => {
                     }))
                 };
             }));
-            console.log(quizData.value)
             if (quizData.value.questions.length === 0) {
                 addNewQuestion();
             }
@@ -364,7 +363,6 @@ const saveCourse = async () => {
         }
         else if (currentPage.value.type === 3) {
             for (const question of quizData.value.questions) {
-                console.log('Сохранение вопроса:', question);
 
                 // 1. Сначала сохраняем сам вопрос
                 let questionId;
@@ -379,7 +377,6 @@ const saveCourse = async () => {
                             question.is_group
                         );
                         questionId = question.id;
-                        console.log('Вопрос обновлен:', response);
                     } else {
                         // Создаем новый вопрос
                         const response = await createQuestion(
@@ -393,7 +390,6 @@ const saveCourse = async () => {
                         if (response && response.data && response.data.id) {
                             questionId = response.data.id;
                             question.id = questionId; // Сохраняем ID в локальном состоянии
-                            console.log('Новый вопрос создан, ID:', questionId);
                         } else {
                             throw new Error('Не удалось создать вопрос: некорректный ответ от сервера');
                         }
@@ -407,7 +403,6 @@ const saveCourse = async () => {
                 let currentVariants = [];
                 try {
                     currentVariants = await getVariants(questionId);
-                    console.log('Текущие варианты:', currentVariants);
                 } catch (err) {
                     console.error("Ошибка при получении вариантов:", err);
                 }
@@ -425,7 +420,6 @@ const saveCourse = async () => {
                                 option.title,
                                 option.is_right ? 1 : 0
                             );
-                            console.log('Вариант обновлен:', option);
 
                             // Удаляем ID из списка текущих вариантов
                             const index = currentVariantIds.indexOf(option.id);
@@ -442,7 +436,6 @@ const saveCourse = async () => {
 
                             if (response && response.data && response.data.id) {
                                 option.id = response.data.id;
-                                console.log('Новый вариант создан, ID:', option.id);
                             }
                         }
                     } catch (err) {
@@ -454,7 +447,6 @@ const saveCourse = async () => {
                 for (const variantId of currentVariantIds) {
                     try {
                         await deleteVariant(questionId, variantId);
-                        console.log('Вариант удален:', variantId);
                     } catch (err) {
                         console.error("Ошибка при удалении варианта:", err);
                     }
