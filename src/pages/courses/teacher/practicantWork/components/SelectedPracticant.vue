@@ -25,8 +25,9 @@
             <Card v-for="file in files" :key="file.id" class="no-hover">
                 <img src="/icons/file.svg" alt="">
                 <div class="file__inner">
-                    <a :href="file.url">{{ file.url }}</a>
-                    <!-- <p>{{ format(new Date(), 'short') }} ({{ files[0].bytes }} B)</p> -->
+                    <a :href="file.url">{{ file.name }}</a>
+
+                    <p>{{ format(file.created_at, { date: 'short', time: 'short' }) }} ({{ file.size }} MB) </p>
                 </div>
             </Card>
         </div>
@@ -38,6 +39,9 @@
                     <a target="_blank" :href="link.url">{{ link.url }}</a>
                 </div>
             </Card>
+        </div>
+        <div class="no-items" v-if="links.length === 0 && files.length === 0">
+            <p>Этот практикант пока ничего не присылал</p>
         </div>
     </div>
 </template>
@@ -52,7 +56,7 @@ import AvatarLetter from '@/components/AvatarLetter.vue';
 const props = defineProps({
     practicant: Object
 })
-
+console.log(props.practicant.files)
 const emit = defineEmits(['delete'])
 
 const files = props.practicant.files
@@ -110,6 +114,11 @@ const deleteFromSelected = () => {
 
                 * {
                     word-break: break-all;
+                }
+
+                p {
+                    margin-top: 5px;
+                    color: #787878;
                 }
             }
         }

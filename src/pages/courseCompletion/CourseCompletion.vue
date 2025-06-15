@@ -8,7 +8,7 @@
             <h1 class="moduleName">
                 {{ currentModule.title }}
                 <span class="score">{{ completedPages + " из " + currentModule.pages.length + " шагов пройдено"
-                }}</span>
+                    }}</span>
             </h1>
             <h2 v-if="currentPageData" class="pageName">{{ currentPageData.title }}</h2>
             <div class="squares-score">
@@ -27,7 +27,7 @@
                                 <div v-for="(variant, vIndex) in question.variants" :key="vIndex">
                                     <input :type="question.is_group === 1 ? 'checkbox' : 'radio'"
                                         v-model="selectedAnswers[qIndex]" :value="variant.id"
-                                        :disabled="quizChecked[qIndex]" :name="'question-' + qIndex">
+                                        @change="console.log(selectedAnswers)">
                                     {{ (vIndex + 1) + ') ' + variant.title }}
                                 </div>
                             </div>
@@ -44,7 +44,7 @@
             </div>
 
             <div class="action-buttons">
-                <button v-if="hasQuizzes" @click="checkQuiz" :disabled="!hasSelectedAnswers || loading">
+                <button @click="checkQuiz" :disabled="(hasQuizzes && !hasSelectedAnswers) || loading">
                     Проверить тест
                 </button>
 
@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch, provide } from 'vue';
+import { computed, onMounted, ref, watch, provide, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getCourseActivity } from '@/api/modules/activity.api';
 import { getCourse } from '@/api/modules/courses.api';
@@ -83,7 +83,7 @@ const endOfCourse = ref(false);
 const loading = ref(false);
 const currentPageData = ref(null);
 
-const selectedAnswers = ref({});
+const selectedAnswers = reactive({});
 const quizChecked = ref({});
 const quizPassed = ref({});
 const quizWasChecked = ref(false);
@@ -124,12 +124,13 @@ const allQuizzesPassed = computed(() => {
 });
 
 const hasSelectedAnswers = computed(() => {
-    return Object.values(selectedAnswers.value).some(answers => answers.length > 0);
+    return Object.values(selectedAnswers).some(answers => answers?.length > 0);
 });
+
 const resetQuizState = () => {
-    selectedAnswers.value = {};
-    quizChecked.value = {};
-    quizPassed.value = {};
+    Object.keys(selectedAnswers).forEach(key => delete selectedAnswers[key]);
+    Object.keys(quizChecked.value).forEach(key => delete quizChecked.value[key]);
+    Object.keys(quizPassed.value).forEach(key => delete quizPassed.value[key]);
     quizWasChecked.value = false;
 };
 
@@ -169,7 +170,7 @@ const loadPageContent = async () => {
 
         if (currentPageData.value?.questions) {
             currentPageData.value.questions.forEach((_, index) => {
-                selectedAnswers.value[index] = [];
+                selectedAnswers[index] = []; // без .value!
                 quizChecked.value[index] = false;
                 quizPassed.value[index] = false;
             });
@@ -341,7 +342,7 @@ const checkQuiz = async () => {
                 return;
             }
 
-            const userAnswers = [...(selectedAnswers.value[qIndex] || [])].sort();
+            const userAnswers = [...(selectedAnswers[qIndex] || [])].sort();
             const correctAnswers = question.variants
                 .filter(v => v.is_right)
                 .map(v => v.id)
@@ -366,7 +367,7 @@ const checkQuiz = async () => {
                 });
             });
         });
-
+        console.log("Selected answers:", selectedAnswers);
         if (answersToSend.length) {
             await sendAnswer({
                 answers: answersToSend,
