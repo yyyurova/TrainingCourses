@@ -1,20 +1,79 @@
 <template>
     <Card class="no-hover">
-        <div ref="editor" class="quill-editor"></div>
+        <editor-content :editor="editor" class="editor-content" />
+
+        <div v-if="editor" class="toolbar">
+            <button @click="addImage" title="Вставить изображение">
+                <img src="/icons/paperclip.svg" alt="Вставить изображение" class="icon">
+            </button>
+
+            <button @click="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }"
+                title="Жирный">
+                <img src="/icons/bold.svg" alt="Ж" class="icon">
+            </button>
+
+            <button @click="editor.chain().focus().toggleItalic().run()"
+                :class="{ 'is-active': editor.isActive('italic') }" title="Курсив">
+                <img src="/icons/italics.svg" alt="К" class="icon">
+            </button>
+
+            <button @click="editor.chain().focus().toggleUnderline().run()"
+                :class="{ 'is-active': editor.isActive('underline') }" title="Подчеркивание">
+                <img src="/icons/underline.svg" alt="Ч" class="icon">
+            </button>
+
+            <button @click="editor.chain().focus().toggleCode().run()" :class="{ 'is-active': editor.isActive('code') }"
+                title="Код">
+                <img src="/icons/code.svg" alt="Код" class="icon">
+            </button>
+
+            <button @click="toggleLink" :class="{ 'is-active': editor.isActive('link') }" title="Добавить ссылку">
+                <img src="/icons/link.svg" alt="Добавить ссылку" class="icon">
+            </button>
+
+            <button @click="editor.chain().focus().toggleBulletList().run()"
+                :class="{ 'is-active': editor.isActive('bulletList') }" title="Маркированный список">
+                <img src="/icons/ulist.svg" alt="Марк.список" class="icon">
+            </button>
+
+            <button @click="editor.chain().focus().toggleOrderedList().run()"
+                :class="{ 'is-active': editor.isActive('orderedList') }" title="Нумерованный список">
+                <img src="/icons/olist.svg" alt="Нум.список" class="icon">
+            </button>
+
+            <button @click="editor.chain().focus().setTextAlign('left').run()"
+                :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }" title="По левому краю">
+                <img src="/icons/align-left.svg" alt="По левому краю" class="icon">
+            </button>
+
+            <button @click="editor.chain().focus().setTextAlign('center').run()"
+                :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }" title="По центру">
+                <img src="/icons/align-center.svg" alt="По центру" class="icon">
+            </button>
+
+            <button @click="editor.chain().focus().setTextAlign('right').run()"
+                :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }" title="По правому краю">
+                <img src="/icons/align-right.svg" alt="По правому краю" class="icon">
+            </button>
+        </div>
     </Card>
+
+    <AddLink v-if="showLinkModal" @insert="insertLink" @cancel="closeModal" />
 </template>
 
 <script setup>
-import { ref, onMounted, watch, onUnmounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { Editor, EditorContent } from '@tiptap/vue-3';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
+
+import AddLink from './modals/AddLink.vue';
 import Card from '@/components/Card.vue';
-import Quill from 'quill';
-import 'quill/dist/quill.snow.css';
 
 const props = defineProps({
-    content: {
-        type: String,
-        default: ''
-    },
     modelValue: {
         type: String,
         default: ''
@@ -24,181 +83,219 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue']);
 
 const editor = ref(null);
-const quill = ref(null);
-const isMounted = ref(true);
+const showLinkModal = ref(false);
 
-onUnmounted(() => {
-    isMounted.value = false;
-});
+const closeModal = () => {
+    if (showLinkModal.value) { showLinkModal.value = false }
+}
 
-const initializeIcons = () => {
-    const icons = Quill.import('ui/icons');
-    icons['bold'] = '<img src="/icons/bold.svg" alt="Ж" class="ql-icon">';
-    icons['italic'] = '<img src="/icons/italics.svg" alt="К" class="ql-icon">';
-    icons['underline'] = '<img src="/icons/underline.svg" alt="Ч" class="ql-icon">';
-    icons['code'] = '<img src="/icons/code.svg" alt="Код" class="ql-icon">';
-    icons['list']['bullet'] = '<img src="/icons/ulist.svg" alt="Марк.список" class="ql-icon">';
-    icons['list']['ordered'] = '<img src="/icons/olist.svg" alt="Нум.список" class="ql-icon">';
-    icons['align'][''] = '<img src="/icons/align-left.svg" alt="По левому краю" class="ql-icon">';
-    icons['align']['center'] = '<img src="/icons/align-center.svg" alt="По центру" class="ql-icon">';
-    icons['align']['right'] = '<img src="/icons/align-right.svg" alt="По правому краю" class="ql-icon">';
-    icons['image'] = '<img src="/icons/paperclip.svg" alt="Вставить изображение" class="ql-icon">';
-    icons['link'] = '<img src="/icons/link.svg" alt="Добавить ссылку" class="ql-icon">';
+
+const addImage = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file || !file.type.includes('image/')) return;
+
+        try {
+            const reader = new FileReader();
+            reader.onload = (readerEvent) => {
+                editor.value.chain().focus()
+                    .setImage({ src: readerEvent.target.result })
+                    .run();
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.error('Ошибка загрузки изображения:', error);
+        }
+    };
+
+    input.click();
 };
 
-function imageHandler() {
-    const range = this.quill.getSelection();
-    const imageUrl = prompt("Введите URL изображения:");
-    if (imageUrl) {
-        this.quill.insertEmbed(range.index, 'image', imageUrl, 'user');
-    }
-}
+const openLinkModal = () => {
+    showLinkModal.value = true;
+};
 
-function linkHandler() {
-    const range = this.quill.getSelection();
-    const linkUrl = prompt("Введите URL ссылки:");
-    if (linkUrl) {
-        if (range.length === 0) {
-            const linkText = prompt("Введите текст ссылки:");
-            this.quill.insertText(range.index, linkText, 'link', linkUrl);
-        } else {
-            this.quill.format('link', linkUrl);
+const toggleLink = () => {
+    if (editor.value.isActive('link')) {
+        removeLink();
+    } else {
+        openLinkModal();
+    }
+};
+
+const insertLink = (url) => {
+    if (!url) return;
+
+    if (!/^(https?|ftp|mailto):\/\//i.test(url)) {
+        if (url.includes('@') && !url.startsWith('mailto:')) {
+            url = 'mailto:' + url;
+        }
+        else {
+            url = 'https://' + url;
         }
     }
-}
+
+    editor.value.chain().focus()
+        .setLink({ href: url })
+        .run();
+
+    closeModal();
+};
+
+const removeLink = () => {
+    editor.value.chain().focus()
+        .unsetLink()
+        .run();
+    closeModal()
+};
 
 onMounted(() => {
-    initializeIcons();
-
-    quill.value = new Quill(editor.value, {
-        modules: {
-            toolbar: {
-                container: [
-                    'image',
-                    'bold', 'italic', 'underline', 'code', 'link',
-                    { 'list': 'ordered' }, { 'list': 'bullet' },
-                    { 'align': '' }, { 'align': 'center' }, { 'align': 'right' }
-                ],
-                handlers: {
-                    image: imageHandler,
-                    link: linkHandler
-                }
-            }
+    editor.value = new Editor({
+        content: props.modelValue,
+        extensions: [
+            StarterKit,
+            Underline,
+            Image.configure({
+                inline: true,
+                allowBase64: true,
+            }),
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+                alignments: ['left', 'center', 'right'],
+            }),
+            Link.configure({
+                openOnClick: true,
+                protocols: ['ftp', 'mailto'],
+                HTMLAttributes: {
+                    class: 'text-link',
+                },
+            }),
+        ],
+        onUpdate: () => {
+            const html = editor.value.getHTML();
+            emit('update:modelValue', html);
         },
-        theme: 'snow',
-        placeholder: 'Введите текст...',
     });
+});
 
-    if (props.modelValue) {
-        quill.value.root.innerHTML = props.modelValue;
-    } else if (props.content) {
-        quill.value.root.innerHTML = props.content;
+onBeforeUnmount(() => {
+    if (editor.value) {
+        editor.value.destroy();
     }
-
-    quill.value.on('text-change', () => {
-        const html = quill.value.root.innerHTML;
-        emit('update:modelValue', html === '<p><br></p>' ? '' : html);
-    });
 });
 
 watch(() => props.modelValue, (newValue) => {
-    if (newValue !== quill.value.root.innerHTML) {
-        quill.value.root.innerHTML = newValue;
-    }
-});
+    if (!editor.value) return;
 
-watch(() => props.content, (newValue) => {
-    if (newValue && newValue !== quill.value.root.innerHTML) {
-        quill.value.root.innerHTML = newValue;
-    }
+    const isSame = editor.value.getHTML() === newValue;
+    if (isSame) return;
+
+    editor.value.commands.setContent(newValue, false);
 });
 </script>
 
-<style lang="scss">
-.ql-toolbar.ql-snow {
-    width: 100%;
-    order: 2;
-    border: none !important;
-    border-top: 1px solid #D9D9D9 !important;
-    padding: 10px !important;
-
-    .ql-formats {
-        display: flex;
-        gap: 7px;
-        align-items: center;
-        flex-wrap: wrap;
-        margin: 0;
-
-        button {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 4px !important;
-            cursor: pointer !important;
-            border-radius: 4px !important;
-
-            &:hover {
-                background: #E9F2FF !important;
-            }
-
-            &.ql-active {
-                background-color: #E9F2FF !important;
-            }
-
-            .ql-icon {
-                width: 22px;
-                height: 22px;
-            }
-        }
-    }
-}
-
-.ql-container.ql-snow {
-    border: none !important;
-    font-family: inherit !important;
-    font-size: inherit !important;
-}
-
-.ql-editor {
-    padding: 15px !important;
-    // min-height: 200px !important;
-
-    &::before {
-        font-style: normal !important;
-    }
-
-    ul,
-    ol {
-        padding-left: 20px !important;
-        margin: 0 !important;
-    }
-
-    img {
-        max-width: 100% !important;
-        height: auto !important;
-    }
-
-    a {
-        color: #0066cc;
-        text-decoration: underline;
-    }
-}
-</style>
-
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .card {
     width: 100%;
     padding: 0;
-    height: 100%;
-    max-height: 400px;
-    background-color: #ffffff;
+    background-color: #fff;
 
-    .quill-editor {
+    * {
+        outline: none;
+        box-shadow: none !important;
+
+        &:focus {
+            border: none;
+            box-shadow: none !important;
+        }
+    }
+
+    .toolbar {
         width: 100%;
-        // height: 100%;
-        min-height: 70px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        padding: 7px;
+        border-top: 1px solid #D9D9D9;
+
+        button {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+
+            &:hover {
+                background: #E9F2FF
+            }
+
+            &.is-active {
+                background: #E9F2FF
+            }
+
+            .icon {
+                width: 20px;
+                height: 20px;
+            }
+        }
+    }
+
+    .editor-content {
+        padding: 16px;
+        min-height: 70px !important;
+        width: 100%;
+        border: none !important;
+
+        :deep(a.text-link) {
+            color: #2563eb !important;
+            text-decoration: underline;
+            cursor: pointer;
+
+            * {
+                color: #2563eb !important;
+                text-decoration: underline;
+            }
+
+            &:hover {
+                color: #1d4ed8 !important;
+            }
+        }
+
+        :deep(.ProseMirror) {
+            * {
+                word-break: break-all;
+            }
+
+            &:focus {
+                outline: none !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            >*+* {
+                margin-top: 0.75em;
+            }
+
+            ul,
+            ol {
+                margin: 0;
+            }
+
+            img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 4px;
+            }
+        }
     }
 }
 </style>

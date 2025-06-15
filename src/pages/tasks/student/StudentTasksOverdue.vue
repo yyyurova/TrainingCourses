@@ -9,7 +9,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { getUserId } from '@/utils/auth';
 import { checkOverdueDeadline } from '@/utils/utils';
 import { getTasks } from '@/api/modules/tasks.api';
 
@@ -26,6 +27,14 @@ const fetchCurrentTasks = async () => {
         isLoading.value = true
         tasks.value = await getTasks()
         tasks.value = tasks.value.filter(task => checkOverdueDeadline(task.until))
+
+        tasks.value = tasks.value.map(task => {
+            const studentTask = task.students.find(s => s.id === getUserId());
+            return {
+                ...task,
+                mark: studentTask?.mark || null
+            };
+        });
     }
     catch (err) {
         console.log(err)

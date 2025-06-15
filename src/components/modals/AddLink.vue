@@ -5,11 +5,9 @@
                 <h2>Вставить ссылку</h2>
                 <div class="form-group">
                     <label>Адрес ссылки</label>
-                    <input v-model="linkUrl" type="url" autocomplete="off" required placeholder="https://example.com">
-                </div>
-                <div class="form-group">
-                    <label>Текст ссылки</label>
-                    <input v-model="linkText" type="text" autocomplete="off" placeholder="Текст ссылки">
+                    <input @keyup.enter="insertLink" v-model="linkUrl" type="url" autocomplete="off" required
+                        placeholder="https://example.com">
+                    <p class="error" v-if="error">{{ error }}</p>
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="transparent" @click="$emit('cancel')">Отмена</button>
@@ -26,19 +24,18 @@
 import { ref } from 'vue';
 
 const emit = defineEmits(['cancel', 'insert']);
-
 const linkUrl = ref('');
-const linkText = ref('');
+const error = ref('');
 
 const insertLink = () => {
     if (!linkUrl.value.trim()) {
-        console.warn("URL не может быть пустым");
+        error.value = 'Введите ссылку';
         return;
     }
-    emit('insert', {
-        url: linkUrl.value.trim(),
-        text: linkText.value.trim() || linkUrl.value.trim()
-    });
+
+    emit('insert', linkUrl.value.trim());
+    linkUrl.value = '';
+    error.value = '';
 };
 </script>
 

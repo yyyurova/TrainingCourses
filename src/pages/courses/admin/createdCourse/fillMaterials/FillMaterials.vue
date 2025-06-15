@@ -498,7 +498,7 @@ const addNewQuestion = () => {
         id: null,
         title: '',
         description: '',
-        is_group: false, // По умолчанию false - один правильный ответ
+        // is_group: false,
         options: [],
     });
 };

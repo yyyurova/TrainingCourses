@@ -162,10 +162,6 @@ const toggleMember = (user) => {
             gap: 10px !important;
         }
 
-        :deep(.editor-content) {
-            min-height: 50px !important;
-        }
-
         .dropdown {
             max-height: 100px;
         }

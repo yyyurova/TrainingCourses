@@ -18,6 +18,7 @@ import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
 import Tasks from './components/Tasks.vue';
 import Loading from '@/components/Loading.vue';
+import { getUserId } from '@/utils/auth';
 
 const tasks = ref([])
 const currentDate = new Date()
@@ -27,7 +28,19 @@ const fetchCurrentTasks = async () => {
     try {
         isLoading.value = true
         tasks.value = await getTasks()
-        tasks.value = tasks.value.filter(task => task.mark)
+
+        tasks.value = tasks.value.filter(task => {
+            const studentTask = task.students.find(s => s.id === getUserId());
+            return studentTask && studentTask.done === 1;
+        });
+
+        tasks.value = tasks.value.map(task => {
+            const studentTask = task.students.find(s => s.id === getUserId());
+            return {
+                ...task,
+                mark: studentTask?.mark || null
+            };
+        });
     } finally {
         isLoading.value = false
     }
