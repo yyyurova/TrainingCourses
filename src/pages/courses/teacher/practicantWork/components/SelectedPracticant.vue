@@ -21,30 +21,28 @@
                 </button>
             </Card>
         </div> -->
-        <div class="files" v-if="practicant.files">
-            <Card v-for="file in practicant.files.length > 0" :key="file.id" class="no-hover">
+        <div class="files" v-if="files.length > 0">
+            <Card v-for="file in files" :key="file.id" class="no-hover">
                 <img src="/icons/file.svg" alt="">
                 <div class="file__inner">
-                    <a href="#">{{ file.url }}</a>
-                    <p>{{ format(new Date(), 'short') }} ({{ files[0].bytes }} B)</p>
+                    <a :href="file.url">{{ file.url }}</a>
+                    <!-- <p>{{ format(new Date(), 'short') }} ({{ files[0].bytes }} B)</p> -->
                 </div>
             </Card>
         </div>
 
-        <!-- <div class="links">
-            <Card class="no-hover" v-for="(link, index) in links" :key="index">
+        <div class="links" v-if="links.length > 0">
+            <Card class="no-hover" v-for="link in links" :key="link.id">
                 <img src="/icons/link.svg">
                 <div class="link__inner">
-                    <a target="_blank" :href="link">{{ link }}</a>
+                    <a target="_blank" :href="link.url">{{ link.url }}</a>
                 </div>
             </Card>
-        </div> -->
+        </div>
     </div>
 </template>
 
 <script setup>
-import axios from 'axios';
-import { onMounted, ref } from 'vue';
 import { format } from '@formkit/tempo';
 import { decodeUtf8 } from '@/utils/utils';
 
@@ -57,34 +55,12 @@ const props = defineProps({
 
 const emit = defineEmits(['delete'])
 
-const files = ref([])
-const links = ref(['google.com'])
-
-const fetchFiles = async () => {
-    try {
-        const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/uploads`);
-
-        if (Array.isArray(data)) {
-            const practicantFiles = data;
-
-            files.value = practicantFiles.length > 0 ? [practicantFiles[0]] : [];
-        } else {
-            files.value = [];
-        }
-    } catch (err) {
-        console.log(err);
-        files.value = [];
-    }
-}
+const files = props.practicant.files
+const links = props.practicant.files.filter(f => f.type === 'link')
 
 const deleteFromSelected = () => {
     emit('delete', props.practicant)
 }
-
-onMounted(async () => {
-    // await fetchFiles()
-    console.log(props.practicant.files)
-})
 </script>
 
 <style scoped lang="scss">
@@ -121,7 +97,9 @@ onMounted(async () => {
         gap: 10px;
 
         .card {
-            width: 400px;
+            width: fit-content;
+            max-width: 100%;
+            min-width: 400px;
             flex-direction: row;
             align-items: center;
             gap: 10px;
@@ -129,6 +107,10 @@ onMounted(async () => {
             .file__inner,
             .link__inner {
                 flex: 1;
+
+                * {
+                    word-break: break-all;
+                }
             }
         }
     }

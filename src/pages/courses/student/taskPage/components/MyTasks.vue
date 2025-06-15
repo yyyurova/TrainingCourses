@@ -124,8 +124,8 @@ const passToCheck = async () => {
         await sendTask(
             task.value.id,
             userId,
-            uploadedFiles.value || null,
-            enteredLinks.value || null
+            uploadedFiles.value.length > 0 ? uploadedFiles.value : null,
+            enteredLinks.value.length > 0 ? enteredLinks.value : null
         );
 
         // Очищаем после успешной отправки

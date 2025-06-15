@@ -5,11 +5,12 @@
 
         <Card v-if="currentModule && !endOfModule && !endOfCourse" class="no-hover"
             :style="!material ? 'height:100vh' : ''">
-            <h1 class="chapterName">
+            <h1 class="moduleName">
                 {{ currentModule.title }}
                 <span class="score">{{ completedPages + " из " + currentModule.pages.length + " шагов пройдено"
-                    }}</span>
+                }}</span>
             </h1>
+            <h2 v-if="currentPageData" class="pageName">{{ currentPageData.title }}</h2>
             <div class="squares-score">
                 <span class="square" :class="page.completed ? 'filled' : ''" v-for="page in currentModule.pages"
                     :key="page.id" @click="goToPage(page.id)">
@@ -193,7 +194,6 @@ const fetchMaterial = async () => {
     try {
         loading.value = true;
 
-        // Получаем базовые данные курса и материалов
         const [courseResponse, modulesResponse] = await Promise.all([
             getCourse(courseId),
             getModules(courseId)
@@ -201,10 +201,20 @@ const fetchMaterial = async () => {
         course.value = courseResponse;
         material.value = modulesResponse;
 
-        await fetctActivity()
+        await fetctActivity();
 
+        let latestActivity = null;
+        if (activity.value && activity.value.length > 0) {
+            latestActivity = activity.value.reduce((latest, current) => {
+                const latestDate = new Date(latest.created_at);
+                const currentDate = new Date(current.created_at);
+                return currentDate > latestDate ? current : latest;
+            });
+        }
+        console.log(latestActivity)
+        // Устанавливаем текущий модуль и страницу
         currentModuleId.value = route.params.moduleId ||
-            (activity.value?.course_module_id || material.value[0].id);
+            (latestActivity?.course_module_id || material.value[0].id);
 
         const targetModule = material.value.find(m => Number(m.id) === Number(currentModuleId.value));
         if (!targetModule) {
@@ -213,7 +223,7 @@ const fetchMaterial = async () => {
             currentPageId.value = material.value[0].pages[0]?.id;
         } else {
             currentPageId.value = route.params.pageId ||
-                (activity.value?.course_module_page_id || targetModule.pages[0]?.id);
+                (latestActivity?.course_module_page_id || targetModule.pages[0]?.id);
 
             if (!currentPageId.value && targetModule.pages?.length) {
                 currentPageId.value = targetModule.pages[0].id;
@@ -403,7 +413,7 @@ provide('activity', activity)
     width: 100%;
     gap: 15px;
 
-    .chapterName {
+    .moduleName {
         font-weight: 600;
         font-size: 20px;
         line-height: 24px;
@@ -418,6 +428,10 @@ provide('activity', activity)
             line-height: 20px;
             letter-spacing: 0px;
         }
+    }
+
+    .pageName {
+        font-size: 18px;
     }
 
     .squares-score {

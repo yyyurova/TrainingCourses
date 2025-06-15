@@ -132,6 +132,7 @@ export const sendTask = async (taskId, userId, files, links) => {
                 }
             }
         );
+        console.log(response.data)
         return response.data;
     } catch (error) {
         console.error("Ошибка при отправке задания:", error);
