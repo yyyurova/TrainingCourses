@@ -19,7 +19,7 @@
                 </span>
             </div>
 
-            <TextEditorCard v-if="currentPage.type === 1" :content="currentPageContent" v-model="currentPageContent" />
+            <TextEditorCard v-if="currentPage.type === 1" v-model="currentPageContent" />
 
             <div class="video" v-else-if="currentPage.type === 2">
                 <div class="radio-inputs">
@@ -126,7 +126,7 @@
 
 <script setup>
 import { ref, provide, onMounted, watchEffect, watch, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { getCourse } from '@/api/modules/adminCourses.api';
 import {
     getModules,
@@ -153,6 +153,8 @@ import Loading from '@/components/Loading.vue';
 const course = ref(null);
 const material = ref(null);
 const isLoading = ref(false);
+
+const hasChanges = ref(false);
 
 const currentModule = ref(null);
 const currentPage = ref(null);
@@ -453,7 +455,7 @@ const saveCourse = async () => {
                 }
             }
         }
-
+        hasChanges.value = false;
         await fetchMaterial();
 
         popupText.value = 'Изменения успешно сохранены';
@@ -473,24 +475,6 @@ const saveCourse = async () => {
             showPopup.value = false;
         }, 5000);
     }
-};
-
-const generateEmbedUrl = (url) => {
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-        const videoId = url.split('v=')[1]?.split('&')[0] || url.split('youtu.be/')[1]?.split('?')[0];
-        return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
-    }
-    return null; // Для неподдерживаемых платформ
-};
-
-const isSupportedVideoPlatform = (url) => {
-    const supported = [
-        'youtube.com',
-        'youtu.be',
-        'vimeo.com',
-        'dailymotion.com'
-    ];
-    return supported.some(domain => url.includes(domain));
 };
 
 const addNewQuestion = () => {
@@ -564,8 +548,8 @@ const fetchCourse = async () => {
     }
 };
 
-watch(route, async (newRoute) => {
-    if (!isSaved.value && currentPage.value) {
+watch(route, async (newRoute, oldRoute) => {
+    if (hasChanges.value) {
         openSaveChangesModal();
     } else {
         await loadCurrentPage();
@@ -573,6 +557,8 @@ watch(route, async (newRoute) => {
 });
 
 const loadCurrentPage = async () => {
+    hasChanges.value = false; // Сбрасываем флаг изменений
+
     if (material.value?.modules) {
         const moduleId = parseInt(route.params.moduleId, 10);
         const pageId = parseInt(route.params.pageId, 10);
@@ -584,13 +570,23 @@ const loadCurrentPage = async () => {
             const page = module.pages.find(p => p.id === pageId);
             if (page) {
                 currentPage.value = page;
-                pageName.value = page.title
+                pageName.value = page.title;
                 currentPageIndex.value = module.pages.indexOf(page);
                 await loadPageContent();
             }
         }
     }
 };
+
+onBeforeRouteLeave((to, from, next) => {
+    if (hasChanges.value) {
+        openSaveChangesModal();
+        // Нужно сохранить целевой маршрут для перехода после сохранения
+        next(false);
+    } else {
+        next();
+    }
+});
 
 onMounted(async () => {
     await fetchCourse();
@@ -599,6 +595,10 @@ onMounted(async () => {
         await loadCurrentPage();
     }
 });
+
+watch([() => currentPageContent.value, () => videoLink.value, () => quizData.value], () => {
+    hasChanges.value = true;
+}, { deep: true });
 
 provide('course', course);
 provide('material', material);

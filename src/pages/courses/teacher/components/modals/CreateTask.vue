@@ -14,8 +14,8 @@
 
                 <div class="group">
                     <p>Описание<span class="required">*</span></p>
-                    <TextEditorCard v-model="description" :content="description"
-                        :class="{ 'error': errors.description }" @input="errors.description = false" />
+                    <TextEditorCard v-model="description" :class="{ 'error': errors.description }"
+                        @input="errors.description = false" />
                     <span v-if="errors.description" class="error-message">Поле обязательно для заполнения</span>
                 </div>
 
