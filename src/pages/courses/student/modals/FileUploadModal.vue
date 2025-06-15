@@ -111,7 +111,9 @@ const emit = defineEmits(['cancel', 'add']);
 const file = ref(null);
 
 const handleFileUpload = (event) => {
-    file.value = event.target.files[0];
+    if (event.target.files && event.target.files[0]) {
+        file.value = event.target.files[0];
+    }
 };
 
 const cancel = () => {

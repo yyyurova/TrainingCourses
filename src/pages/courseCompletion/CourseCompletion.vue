@@ -1,6 +1,6 @@
 <template>
     <CourseCompletionLayout>
-        <EndOfModule v-if="endOfModule" @next="goToNextModule" />
+        <EndOfModule v-if="endOfModule && !endOfCourse" @next="goToNextModule" />
         <EndOfCourse v-if="endOfCourse" />
 
         <Card v-if="currentModule && !endOfModule && !endOfCourse" class="no-hover"
@@ -24,8 +24,9 @@
                             <div v-if="question.description" v-html="formatTextContent(question.description)"></div>
                             <div class="options">
                                 <div v-for="(variant, vIndex) in question.variants" :key="vIndex">
-                                    <input :type="variant.answerType || 'checkbox'" v-model="selectedAnswers[qIndex]"
-                                        :value="variant.id" :disabled="quizChecked[qIndex]">
+                                    <input :type="question.is_group === 1 ? 'checkbox' : 'radio'"
+                                        v-model="selectedAnswers[qIndex]" :value="variant.id"
+                                        :disabled="quizChecked[qIndex]" :name="'question-' + qIndex">
                                     {{ (vIndex + 1) + ') ' + variant.title }}
                                 </div>
                             </div>
@@ -149,7 +150,7 @@ const loadPageContent = async () => {
         loading.value = true;
         resetQuizState();
         const pageData = await getModulePage(currentModuleId.value, currentPageId.value);
-
+        console.log(pageData)
         if (!pageData) {
             console.error('Page data not found');
             if (currentModule.value?.pages?.length) {
@@ -336,9 +337,12 @@ const checkQuiz = async () => {
                 .map(v => v.id)
                 .sort();
 
-            const isCorrect =
-                userAnswers.length === correctAnswers.length &&
-                userAnswers.every((val, idx) => val === correctAnswers[idx]);
+            // Для вопроса с одним ответом проверяем точное совпадение
+            // Для вопроса с несколькими ответами проверяем, что все выбранные ответы правильные
+            const isCorrect = question.is_group
+                ? userAnswers.every(answer => correctAnswers.includes(answer)) &&
+                userAnswers.length === correctAnswers.length
+                : userAnswers.length === 1 && correctAnswers.includes(userAnswers[0]);
 
             quizPassed.value[qIndex] = isCorrect;
             quizzesCompleted.value[qIndex] = isCorrect;
@@ -360,17 +364,12 @@ const checkQuiz = async () => {
             });
         }
 
-        // if (allCorrect && currentModule.value) {
-        //     currentModule.value.pages[currentPageIndex.value].completed = true;
-        // }
-
         return allCorrect;
     } catch (error) {
         console.error('Ошибка при проверке теста:', error);
         throw error;
     }
 };
-
 watch(() => route.params, async (newParams) => {
     if (newParams.moduleId && Number(newParams.moduleId) !== Number(currentModuleId.value)) {
         currentModuleId.value = Number(newParams.moduleId);
@@ -386,6 +385,7 @@ watch(() => route.params, async (newParams) => {
     } else if (newParams.pageId && Number(newParams.pageId) !== Number(currentPageId.value)) {
         currentPageId.value = Number(newParams.pageId);
         await loadPageContent();
+        console.log(currentPageData.value)
     }
 }, { immediate: true, deep: true });
 

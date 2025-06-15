@@ -21,24 +21,24 @@
                 </button>
             </Card>
         </div> -->
-        <div class="files" v-if="files.length > 0">
-            <Card class="no-hover">
+        <div class="files" v-if="practicant.files">
+            <Card v-for="file in practicant.files.length > 0" :key="file.id" class="no-hover">
                 <img src="/icons/file.svg" alt="">
                 <div class="file__inner">
-                    <a href="#">{{ decodeUtf8(files[0].fileName) }}</a>
+                    <a href="#">{{ file.url }}</a>
                     <p>{{ format(new Date(), 'short') }} ({{ files[0].bytes }} B)</p>
                 </div>
             </Card>
         </div>
 
-        <div class="links">
+        <!-- <div class="links">
             <Card class="no-hover" v-for="(link, index) in links" :key="index">
                 <img src="/icons/link.svg">
                 <div class="link__inner">
                     <a target="_blank" :href="link">{{ link }}</a>
                 </div>
             </Card>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -82,7 +82,8 @@ const deleteFromSelected = () => {
 }
 
 onMounted(async () => {
-    await fetchFiles()
+    // await fetchFiles()
+    console.log(props.practicant.files)
 })
 </script>
 

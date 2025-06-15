@@ -94,10 +94,19 @@ export const getQuestion = async (pageId, questionId) => {
 
 export const createQuestion = async (pageId, title, description, is_group) => {
     try {
+        console.log(pageId, title, description, is_group)
         const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}`, { title: title, description: description, is_group: is_group });
         return response.data;
     } catch (error) {
         console.error('Полная ошибка:', error);
+    }
+};
+
+export const deleteQuestion = async (pageId, questionId) => {
+    try {
+        await client.delete(`${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}/${questionId}`);
+    } catch (error) {
+        console.error('Ошибка удаления варианта:', error);
     }
 };
 

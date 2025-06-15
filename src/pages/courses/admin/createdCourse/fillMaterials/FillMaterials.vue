@@ -65,7 +65,7 @@
                     <div class="question-item" v-for="(question, qIndex) in quizData.questions" :key="qIndex">
                         <div class="question-header">
                             <h4>Вопрос {{ qIndex + 1 }}</h4>
-                            <button class="icon" @click="removeQuestion(qIndex)" v-if="quizData.questions.length > 1">
+                            <button class="icon" @click="removeQuestion(qIndex)">
                                 <img src="/icons/x.svg" alt="">
                             </button>
                         </div>
@@ -80,16 +80,16 @@
                             <p>Количество правильных ответов:</p>
                             <div class="radio-inputs">
                                 <label class="radio">
-                                    <input type="radio" :name="'radio-' + qIndex" value="several"
-                                        v-model="question.answerType">
+                                    <input type="radio" :name="'radio-' + qIndex" :value="true"
+                                        v-model="question.is_group">
                                     <span class="name">
                                         Несколько
                                         <img src="/icons/checkbox.svg" alt="">
                                     </span>
                                 </label>
                                 <label class="radio">
-                                    <input type="radio" :name="'radio-' + qIndex" value="one"
-                                        v-model="question.answerType">
+                                    <input type="radio" :name="'radio-' + qIndex" :value="false"
+                                        v-model="question.is_group">
                                     <span class="name">
                                         Один
                                         <img src="/icons/radio.svg" alt="">
@@ -99,8 +99,8 @@
 
                             <div class="answers">
                                 <Answer v-for="(option, index) in question.options" :key="index"
-                                    :input-type="question.answerType.startsWith('one') ? 'one' : 'several'"
-                                    :option="option.title" :index="index" :is-correct="option.is_right === 1"
+                                    :input-type="question.is_group ? 'several' : 'one'" :option="option.title"
+                                    :index="index" :is-correct="option.is_right === 1"
                                     @remove="() => removeAnswer(qIndex, index)"
                                     @update:option="(val) => updateOption(qIndex, index, val)"
                                     @update:correct="(data) => updateCorrectAnswers(qIndex, data)" />
@@ -134,6 +134,7 @@ import {
     updatePage,
     updateQuestion,
     createQuestion,
+    deleteQuestion,
     getQuestionsForPage,
     getVariants,
     createVariant,
@@ -313,8 +314,8 @@ const loadPageContent = async () => {
                 return {
                     id: q.id,
                     title: q.title,
-                    description: q.description || '', // Просто текст/HTML без JSON
-                    answerType: q.answer_type || 'several', // Предполагаем, что тип хранится отдельно
+                    description: q.description || '',
+                    is_group: q.is_group || false, // Используем новое поле из API
                     options: variants.map(v => ({
                         id: v.id,
                         title: v.title,
@@ -322,7 +323,7 @@ const loadPageContent = async () => {
                     }))
                 };
             }));
-
+            console.log(quizData.value)
             if (quizData.value.questions.length === 0) {
                 addNewQuestion();
             }
@@ -361,104 +362,99 @@ const saveCourse = async () => {
                 );
             }
         }
-        else if (currentPage.value.type === 2) {
-            // Видео страница
-            let description = '';
-
-            if (selectedWay.value === 'other' && videoLink.value) {
-                const embedUrl = generateEmbedUrl(videoLink.value);
-
-                if (embedUrl) {
-                    description = `<div class="video"><iframe src="${embedUrl}"></iframe></div>`;
-                } else if (isSupportedVideoPlatform(videoLink.value)) {
-                    description = `<div class="video"><iframe src="${videoLink.value}"></iframe></div>`;
-                } else {
-                    description = `
-                        <div class="video">
-                            <p>Видео недоступно для встраивания</p>
-                            <a href="${videoLink.value}" target="_blank">Смотреть на сайте источника</a>
-                        </div>
-                    `;
-                }
-            } else if (currentPage.value.type === 2 && selectedWay.value === 'upload' && uploadedFiles.value.length) {
-                const file = uploadedFiles.value[0];
-                description = `<div class="video">
-                                    <video controls width="100%">
-                                        <source src="${file.base64}" type="${file.type}">
-                                    </video>
-                                </div>`;
-            }
-
-            if (currentQuestion.value?.id) {
-                await updateQuestion(
-                    currentPage.value.id,
-                    currentQuestion.value.id,
-                    pageName.value,
-                    description
-                );
-            } else {
-                await createQuestion(
-                    currentPage.value.id,
-                    pageName.value,
-                    description
-                );
-            }
-        }
         else if (currentPage.value.type === 3) {
             for (const question of quizData.value.questions) {
-                let questionId;
+                console.log('Сохранение вопроса:', question);
 
-                // Сохраняем вопрос (без JSON в description)
-                if (question.id) {
-                    await updateQuestion(
-                        currentPage.value.id,
-                        question.id,
-                        question.title,
-                        question.description // Просто текст/HTML
-                    );
-                    questionId = question.id;
-                } else {
-                    const newQuestion = await createQuestion(
-                        currentPage.value.id,
-                        question.title,
-                        question.description // Просто текст/HTML
-                    );
-                    questionId = newQuestion.id;
-                    question.id = questionId;
+                // 1. Сначала сохраняем сам вопрос
+                let questionId;
+                try {
+                    if (question.id) {
+                        // Обновляем существующий вопрос
+                        const response = await updateQuestion(
+                            currentPage.value.id,
+                            question.id,
+                            question.title,
+                            question.description,
+                            question.is_group
+                        );
+                        questionId = question.id;
+                        console.log('Вопрос обновлен:', response);
+                    } else {
+                        // Создаем новый вопрос
+                        const response = await createQuestion(
+                            currentPage.value.id,
+                            question.title,
+                            question.description,
+                            question.is_group
+                        );
+
+                        // Извлекаем ID из ответа
+                        if (response && response.data && response.data.id) {
+                            questionId = response.data.id;
+                            question.id = questionId; // Сохраняем ID в локальном состоянии
+                            console.log('Новый вопрос создан, ID:', questionId);
+                        } else {
+                            throw new Error('Не удалось создать вопрос: некорректный ответ от сервера');
+                        }
+                    }
+                } catch (err) {
+                    console.error("Ошибка при сохранении вопроса:", err);
+                    continue; // Пропускаем этот вопрос
                 }
 
-                const currentVariants = await getVariants(questionId);
+                // 2. Получаем текущие варианты ответов
+                let currentVariants = [];
+                try {
+                    currentVariants = await getVariants(questionId);
+                    console.log('Текущие варианты:', currentVariants);
+                } catch (err) {
+                    console.error("Ошибка при получении вариантов:", err);
+                }
+
                 const currentVariantIds = currentVariants.map(v => v.id);
 
+                // 3. Сохраняем варианты ответов
                 for (const option of question.options) {
                     try {
-                        if (option.id) {
+                        if (option.id && currentVariantIds.includes(option.id)) {
+                            // Обновляем существующий вариант
                             await updateVariant(
                                 questionId,
                                 option.id,
                                 option.title,
                                 option.is_right ? 1 : 0
                             );
+                            console.log('Вариант обновлен:', option);
+
+                            // Удаляем ID из списка текущих вариантов
                             const index = currentVariantIds.indexOf(option.id);
                             if (index !== -1) {
                                 currentVariantIds.splice(index, 1);
                             }
                         } else {
-                            const newVariant = await createVariant(
+                            // Создаем новый вариант
+                            const response = await createVariant(
                                 questionId,
                                 option.title,
                                 option.is_right ? 1 : 0
                             );
-                            option.id = newVariant.id;
+
+                            if (response && response.data && response.data.id) {
+                                option.id = response.data.id;
+                                console.log('Новый вариант создан, ID:', option.id);
+                            }
                         }
                     } catch (err) {
                         console.error("Ошибка при сохранении варианта:", err);
                     }
                 }
 
+                // 4. Удаляем варианты, которые больше не нужны
                 for (const variantId of currentVariantIds) {
                     try {
                         await deleteVariant(questionId, variantId);
+                        console.log('Вариант удален:', variantId);
                     } catch (err) {
                         console.error("Ошибка при удалении варианта:", err);
                     }
@@ -510,7 +506,7 @@ const addNewQuestion = () => {
         id: null,
         title: '',
         description: '',
-        answerType: 'several',
+        is_group: false, // По умолчанию false - один правильный ответ
         options: [],
     });
 };

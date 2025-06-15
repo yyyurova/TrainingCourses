@@ -69,14 +69,22 @@ const handleClickOutside = (e) => {
 }
 
 const addUploadedFile = (file) => {
+    if (uploadedFiles.value.length >= 1) {
+        alert('Можно добавить только один файл. Сначала удалите текущий файл.');
+        return;
+    }
     uploadedFiles.value.push(file);
     showFileUploadModal.value = false;
 };
 
 const addLink = (link) => {
-    enteredLinks.value.push(link)
-    showEnterLinkModal.value = false
-}
+    if (enteredLinks.value.length >= 1) {
+        alert('Можно добавить только одну ссылку. Сначала удалите текущую ссылку.');
+        return;
+    }
+    enteredLinks.value.push(link);
+    showEnterLinkModal.value = false;
+};
 
 onMounted(async () => {
     if (route.params.taskId) {

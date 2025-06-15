@@ -24,16 +24,23 @@ const cancel = () => {
     link.value = ''
 }
 
+// EnterLinkModal.vue
 const add = () => {
     let correctedLink = link.value.trim();
 
-    if (!correctedLink.startsWith('http://') && !correctedLink.startsWith('https://')) {
-        correctedLink = 'https://' + correctedLink;
+    try {
+        // Базовая валидация URL
+        new URL(correctedLink);
+    } catch {
+        // Если URL невалидный, добавляем https://
+        if (!correctedLink.startsWith('http://') && !correctedLink.startsWith('https://')) {
+            correctedLink = 'https://' + correctedLink;
+        }
     }
 
-    emit('add', correctedLink)
-    link.value = ''
-}
+    emit('add', correctedLink);
+    link.value = '';
+};
 </script>
 
 <style scoped lang="scss">

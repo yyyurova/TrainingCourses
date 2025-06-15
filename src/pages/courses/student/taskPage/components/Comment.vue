@@ -154,7 +154,8 @@ const initMessages = () => {
             display: flex;
             align-items: center;
             gap: 8px;
-            border: 1px solid #D9D9D9;
+            border-radius: 0 0 8px 8px;
+            border-top: 1px solid #D9D9D9;
 
             button {
                 height: fit-content;

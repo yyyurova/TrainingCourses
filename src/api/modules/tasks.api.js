@@ -110,3 +110,31 @@ export const assignTask = async (taskId, userId) => {
         return [];
     }
 };
+
+export const sendTask = async (taskId, userId, files, links) => {
+    try {
+        const formData = new FormData();
+        console.log(taskId, userId, files, links)
+        if (files !== null) {
+            formData.append('file', files[0]);
+        }
+
+        if (links !== null) {
+            formData.append('link', links[0]);
+        }
+
+        const response = await client.post(
+            `${ENDPOINTS.TASK}/${taskId}/user/${userId}`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Ошибка при отправке задания:", error);
+        throw error;
+    }
+};

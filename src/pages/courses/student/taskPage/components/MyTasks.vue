@@ -35,15 +35,17 @@
             на
             проверку</button>
     </Card>
-    <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" />
+    <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :isSuccess="isSuccess" />
 </template>
 
 <script setup>
 import { inject, ref } from 'vue';
+import { sendTask } from '@/api/modules/tasks.api';
 
 import Card from '@/components/Card.vue';
 import FileOrLinkPopup from '../../modals/FileOrLinkPopup.vue';
 import Popup from '@/components/Popup.vue';
+import { getUserId } from '@/utils/auth';
 
 const emit = defineEmits(['openLinkModal', 'openFileModal',])
 
@@ -52,6 +54,11 @@ const uploadedFiles = inject('uploadedFiles')
 
 const showPopup = ref(false)
 const popupText = ref('')
+const isSuccess = ref(true)
+
+const task = inject('task')
+
+const userId = getUserId()
 
 const showChoicePopup = inject('showChoicePopup')
 const openChoicePopup = () => {
@@ -93,16 +100,58 @@ const downloadFile = (file) => {
     URL.revokeObjectURL(url);
 };
 
-const passToCheck = () => {
-    uploadedFiles.value = []
-    enteredLinks.value = []
-    popupText.value = 'Задание отправлено на проверку.'
-    showPopup.value = true
-    setTimeout(() => {
-        showPopup.value = false
-    }, 5000);
-}
+// MyTasks.vue
+const passToCheck = async () => {
+    try {
+        if (uploadedFiles.value.length === 0 && enteredLinks.value.length === 0) {
+            popupText.value = 'Добавьте файл или ссылку для отправки';
+            showPopup.value = true;
+            isSuccess.value = false;
+            setTimeout(() => showPopup.value = false, 5000);
+            return;
+        }
 
+        // Проверка на количество файлов/ссылок
+        if (uploadedFiles.value.length > 1 || enteredLinks.value.length > 1) {
+            popupText.value = 'Можно отправить только один файл или одну ссылку';
+            showPopup.value = true;
+            isSuccess.value = false;
+            setTimeout(() => showPopup.value = false, 5000);
+            return;
+        }
+
+        // Отправляем на сервер
+        await sendTask(
+            task.value.id,
+            userId,
+            uploadedFiles.value || null,
+            enteredLinks.value || null
+        );
+
+        // Очищаем после успешной отправки
+        uploadedFiles.value = [];
+        enteredLinks.value = [];
+
+        popupText.value = 'Задание успешно отправлено на проверку.';
+        showPopup.value = true;
+        isSuccess.value = true;
+
+        setTimeout(() => {
+            showPopup.value = false;
+        }, 5000);
+
+    } catch (error) {
+        console.error('Ошибка отправки:', error);
+        popupText.value = 'Ошибка при отправке задания: ' +
+            (error.response?.data?.message || 'Попробуйте позже');
+        showPopup.value = true;
+        isSuccess.value = false;
+
+        setTimeout(() => {
+            showPopup.value = false;
+        }, 5000);
+    }
+};
 const closePopup = () => {
     showPopup.value = false
 }

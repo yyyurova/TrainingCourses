@@ -169,6 +169,7 @@ const fetchTask = async () => {
     task.value = await getTask(route.params.taskId)
     allPracticants.value = task.value.students
     updateTaskStatuse()
+    console.log(task.value)
 }
 
 onMounted(async () => {
@@ -286,7 +287,7 @@ onMounted(async () => {
     }
 }
 
-@media (max-width: 930px) {
+@media (max-width: 1200px) {
     .works {
         flex-direction: column;
 
