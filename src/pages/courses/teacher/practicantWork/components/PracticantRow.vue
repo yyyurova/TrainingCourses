@@ -1,11 +1,10 @@
 <template>
     <div class="practicant-row">
-        <!-- <input :checked="isSelect" type="checkbox"> -->
         <img v-if="practicant.avatar" class="avatar" :src="practicant.avatar" alt="">
         <AvatarLetter v-else :name="practicant.name" />
         <span>{{ practicant.name }}</span>
-        <input min="1" max="10" :disabled="action === 'Назначить' || selectedPracticant?.id !== practicant.id" @click.stop
-            v-model="mark" class="mark" type="text" @blur="updateMark" @keyup.enter="updateMark">
+        <input min="1" max="10" :disabled="action === 'Назначить' || selectedPracticant?.id !== practicant.id"
+            v-model="localMark" class="mark" type="number" @input="handleInput">
         <button class="icon" @click.stop="showAction = !showAction" ref="actionButton">
             <img src="/icons/menu-vertical.svg" alt="">
         </button>
@@ -20,51 +19,48 @@
 </template>
 
 <script setup>
-import { inject, onMounted, onUnmounted, ref } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const props = defineProps({
-    // isSelect: { type: Boolean, default: false },
     practicant: Object,
     action: String,
     taskId: Number,
-})
+    selectedPracticant: Object,
+    practicantMark: [Number, String]
+});
 
-const selectedPracticant = inject('selectedPracticant')
+const emit = defineEmits(['update:practicantMark', 'actionWithPracticant']);
 
-const emit = defineEmits(['actionWithPracticant', 'updateMark'])
-
-const mark = ref(props.practicant.mark || 0)
-const showAction = ref(false)
+const localMark = ref(props.practicantMark || '');
+const showAction = ref(false);
 const actionButton = ref(null);
 const actionMenu = ref(null);
 
-const handleClickOutside = (event) => {
-    if (
-        showAction.value &&
-        // !action.value?.contains(event.target)
+const handleInput = () => {
+    // Обновляем только локальное значение, не отправляем на сервер
+    emit('update:practicantMark', localMark.value);
+};
 
+watch(() => props.practicantMark, (newVal) => {
+    localMark.value = newVal;
+});
+
+const handleClickOutside = (event) => {
+    if (showAction.value &&
         !actionMenu.value?.contains(event.target) &&
-        !actionButton.value?.contains(event.target)
-    ) {
+        !actionButton.value?.contains(event.target)) {
         showAction.value = false;
     }
 };
 
-const updateMark = async () => {
-    emit('updateMark',
-        props.taskId, props.practicant.id, Number(mark.value),
-    );
-}
-
-onUnmounted(() => {
-    // updateMark();
-    document.removeEventListener('click', handleClickOutside)
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
 });
 
-onMounted(() => {
-    document.addEventListener('click', handleClickOutside)
-})
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <style scoped lang="scss">
@@ -93,6 +89,11 @@ onMounted(() => {
         height: auto;
         max-height: 35px;
         object-fit: cover;
+    }
+
+    input.mark {
+        text-align: center;
+        width: 45px;
     }
 
     .action {

@@ -4,36 +4,35 @@
             <Card class="no-hover left">
                 <h1>Работы практикантов</h1>
 
-                <button class="blue">Проверить</button>
-                <!-- <div class="all-practicants-row" @click="selectAllPracticants">
-                    <input type="checkbox" :checked="isAllSelected">
-                    <span>Все практиканты</span>
-                </div> -->
+                <button class="blue" @click="submitMark" :disabled="!selectedPracticant || !localMark">
+                    Проверить
+                </button>
 
                 <div class="status" v-if="assigned.length > 0">
                     <h3>Назначено</h3>
                     <PracticantRow :class="{ 'selected-practicant': selectedPracticant?.id === practicant.id }"
-                        v-for="practicant in assigned" :key="practicant.id" :practicant="practicant" :task-id="task.id"
-                        @click="selectPracticant(practicant)" :is-select="practicant.isSelect"
-                        @action-with-practicant="cancelTask" action="Отменить" @update-mark="updateMark" />
+                        :selected-practicant="selectedPracticant" v-for="practicant in assigned" :key="practicant.id"
+                        :practicant="practicant" :task-id="task.id" @click="selectPracticant(practicant)"
+                        @action-with-practicant="cancelTask" action="Отменить"
+                        v-model:practicant-mark="practicant.mark" />
                 </div>
 
                 <div class="status" v-if="done.length > 0">
                     <h3>Сдано</h3>
                     <PracticantRow :class="{ 'selected-practicant': selectedPracticant?.id === practicant.id }"
-                        v-for="practicant in done" :key="practicant.id" :practicant="practicant" :task-id="task.id"
-                        @click="selectPracticant(practicant)" :is-select="practicant.isSelect" action="Отменить"
-                        @update-mark="updateMark" @action-with-practicant="cancelTask" />
-
+                        :selected-practicant="selectedPracticant" v-for="practicant in done" :key="practicant.id"
+                        :practicant="practicant" :task-id="task.id" @click="selectPracticant(practicant)"
+                        action="Отменить" @action-with-practicant="cancelTask"
+                        v-model:practicant-mark="practicant.mark" />
                 </div>
 
                 <div class="status" v-if="cancelled.length > 0">
                     <h3>Отменено</h3>
                     <PracticantRow :class="{ 'selected-practicant': selectedPracticant?.id === practicant.id }"
-                        v-for="practicant in cancelled" :key="practicant.id" :practicant="practicant"
-                        @click="selectPracticant(practicant)" :task-id="task.id" :is-select="practicant.isSelect"
-                        action="Назначить" @action-with-practicant="assignTask" />
-
+                        :selected-practicant="selectedPracticant" v-for="practicant in cancelled" :key="practicant.id"
+                        :practicant="practicant" @click="selectPracticant(practicant)" :task-id="task.id"
+                        action="Назначить" @action-with-practicant="assignTask"
+                        v-model:practicant-mark="practicant.mark" />
                 </div>
             </Card>
             <Card class="no-hover right">
@@ -48,12 +47,13 @@
                     <p>Для просмотра выполненного задания</p>
                 </div>
 
-                <div v-if="selectedPracticant" class="selected">
-                    <SelectedPracticant :practicant="selectedPracticant" />
-                </div>
+                <SelectedPracticant v-if="selectedPracticant" :practicant="selectedPracticant"
+                    v-model:mark="localMark" />
             </Card>
         </div>
+
         <Loading v-else />
+        <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :isSuccess="isSuccess" />
     </Layout>
 </template>
 
@@ -68,6 +68,7 @@ import Card from '@/components/Card.vue';
 import PracticantRow from './components/PracticantRow.vue';
 import SelectedPracticant from './components/SelectedPracticant.vue';
 import Loading from '@/components/Loading.vue';
+import Popup from '@/components/Popup.vue';
 
 const task = ref(null)
 
@@ -75,25 +76,38 @@ const route = useRoute()
 
 const isAllSelected = ref(false)
 
-const selectedPracticant = ref(null)
+const localMark = ref(null);
+const selectedPracticant = ref(null);
 
 const allPracticants = ref([])
 const assigned = ref([])
 const done = ref([])
 const cancelled = ref([])
 
-const deleteFromSelected = (practicant) => {
-    selectedPracticant.value = selectedPracticant.value.filter(pr => pr.id !== practicant.id)
-    practicant.isSelect = false
+const showPopup = ref(false);
+const popupText = ref('');
+const isSuccess = ref(true);
+
+const showMessage = (text, success) => {
+    popupText.value = text;
+    isSuccess.value = success;
+    showPopup.value = true;
+    setTimeout(() => showPopup.value = false, 5000);
+};
+
+const closePopup = () => {
+    showPopup.value = false
 }
 
 const selectPracticant = (practicant) => {
-    selectedPracticant.value = practicant
-}
+    selectedPracticant.value = practicant;
+    localMark.value = practicant.mark || null;
+};
 
 const cancelTask = async (taskId, userId) => {
     try {
         await apiCancelTask(taskId, userId);
+        showMessage('Задание отменено', true)
         const practicant = allPracticants.value.find(p => p.id === userId);
         if (practicant) {
             practicant.cancelled = 1;
@@ -102,6 +116,7 @@ const cancelTask = async (taskId, userId) => {
         }
         updateTaskStatuse();
     } catch (err) {
+        showMessage('Ошибка при отмене задания', false)
         console.error("Ошибка при отмене задания:", err);
     }
 };
@@ -125,24 +140,36 @@ const updateTaskStatuse = () => {
 const assignTask = async (taskId, userId) => {
     try {
         await apiAssignTask(taskId, userId)
+        showMessage('Задание назначено', true)
         const practicant = allPracticants.value.find(p => p.id === userId);
         if (practicant) {
             practicant.cancelled = 0;
         }
         updateTaskStatuse()
     } catch (err) {
+        showMessage('Ошибка при назначении задания', false)
         console.error("Ошибка при назначении задания:", err);
     }
 }
 
-const updateMark = async (taskId, practicantId, mark) => {
-    try {
-        await completeTask(taskId, practicantId, mark)
-        await fetchTask()
-    } catch (err) {
-        console.error("Ошибка при обновлении оценки:", err);
+const submitMark = async () => {
+    if (!selectedPracticant.value || !localMark.value) return;
+
+    const markValue = Number(localMark.value);
+    if (markValue < 1 || markValue > 10) {
+        showMessage('Оценка должна быть от 1 до 10', false);
+        return;
     }
-}
+
+    try {
+        await completeTask(task.value.id, selectedPracticant.value.id, markValue);
+        showMessage('Оценка сохранена', true);
+        await fetchTask();
+    } catch (err) {
+        showMessage('Произошла ошибка при сохранении оценки', false);
+        console.error("Ошибка при сохранении оценки:", err);
+    }
+};
 
 const fetchTask = async () => {
     task.value = await getTask(route.params.taskId)

@@ -4,6 +4,7 @@
             <img v-if="practicant.avatar" :src="practicant.avatar" alt="">
             <AvatarLetter v-else :name="practicant.name" />
             <p>{{ practicant.name }}</p>
+            <input type="number" min="1" max="10" v-model="localMark" placeholder="Оценка" @input="updateMark">
         </div>
 
         <div class="files" v-if="files.length > 0">
@@ -34,14 +35,19 @@
 
 <script setup>
 import { format } from '@formkit/tempo';
+import { computed, watch, ref } from 'vue';
 
 import Card from '@/components/Card.vue';
 import AvatarLetter from '@/components/AvatarLetter.vue';
-import { computed } from 'vue';
 
 const props = defineProps({
-    practicant: Object
-})
+    practicant: Object,
+    mark: [Number, String]
+});
+
+const emit = defineEmits(['update:mark']);
+
+const localMark = ref(props.mark || '');
 // const emit = defineEmits(['delete'])
 
 const files = computed(() => {
@@ -62,10 +68,18 @@ const formatFileSize = (sizeInMB) => {
 // const deleteFromSelected = () => {
 //     emit('delete', props.practicant)
 // }
+const updateMark = () => {
+    emit('update:mark', localMark.value);
+};
+
+watch(() => props.mark, (newVal) => {
+    localMark.value = newVal;
+});
 </script>
 
 <style scoped lang="scss">
 .selected-practicant {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -88,6 +102,11 @@ const formatFileSize = (sizeInMB) => {
         img {
             width: 35px;
             height: auto;
+        }
+
+        input {
+            width: 30%;
+            flex: none;
         }
     }
 

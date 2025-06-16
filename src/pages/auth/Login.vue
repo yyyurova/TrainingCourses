@@ -251,11 +251,6 @@ onMounted(() => {
         }
     }
 
-    button:disabled {
-        background-color: #EBEBEB;
-        color: #969696;
-    }
-
     .text {
         display: flex;
         flex-direction: column;
