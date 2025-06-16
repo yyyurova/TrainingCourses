@@ -137,3 +137,13 @@ export const sendTask = async (taskId, userId, files, links) => {
         throw error;
     }
 };
+
+export const deleteAttachment = async (attachId) => {
+    try {
+        const response = await client.delete(`${ENDPOINTS.ATTACHMENTS}/${attachId}`)
+        return response.data.data
+    } catch (error) {
+        console.log(error)
+        return [];
+    }
+};

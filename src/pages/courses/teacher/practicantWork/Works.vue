@@ -3,35 +3,34 @@
         <div v-if="task" class="works">
             <Card class="no-hover left">
                 <h1>Работы практикантов</h1>
-                <!-- <Card class="search-practicant no-hover">
-                    <input type="text" placeholder="Иван Иванов">
-                    <button class="icon">
-                        <img src="/icons/x.svg" alt="">
-                    </button>
-                </Card> -->
-                <div class="all-practicants-row" @click="selectAllPracticants">
+
+                <button class="blue">Проверить</button>
+                <!-- <div class="all-practicants-row" @click="selectAllPracticants">
                     <input type="checkbox" :checked="isAllSelected">
                     <span>Все практиканты</span>
-                </div>
+                </div> -->
 
                 <div class="status" v-if="assigned.length > 0">
                     <h3>Назначено</h3>
-                    <PracticantRow v-for="practicant in assigned" :key="practicant.id" :practicant="practicant"
-                        :task-id="task.id" @click="selectPracticant(practicant)" :is-select="practicant.isSelect"
+                    <PracticantRow :class="{ 'selected-practicant': selectedPracticant?.id === practicant.id }"
+                        v-for="practicant in assigned" :key="practicant.id" :practicant="practicant" :task-id="task.id"
+                        @click="selectPracticant(practicant)" :is-select="practicant.isSelect"
                         @action-with-practicant="cancelTask" action="Отменить" @update-mark="updateMark" />
                 </div>
 
                 <div class="status" v-if="done.length > 0">
                     <h3>Сдано</h3>
-                    <PracticantRow v-for="practicant in done" :key="practicant.id" :practicant="practicant"
-                        :task-id="task.id" @click="selectPracticant(practicant)" :is-select="practicant.isSelect"
-                        action="Отменить" @update-mark="updateMark" @action-with-practicant="cancelTask" />
+                    <PracticantRow :class="{ 'selected-practicant': selectedPracticant?.id === practicant.id }"
+                        v-for="practicant in done" :key="practicant.id" :practicant="practicant" :task-id="task.id"
+                        @click="selectPracticant(practicant)" :is-select="practicant.isSelect" action="Отменить"
+                        @update-mark="updateMark" @action-with-practicant="cancelTask" />
 
                 </div>
 
                 <div class="status" v-if="cancelled.length > 0">
                     <h3>Отменено</h3>
-                    <PracticantRow v-for="practicant in cancelled" :key="practicant.id" :practicant="practicant"
+                    <PracticantRow :class="{ 'selected-practicant': selectedPracticant?.id === practicant.id }"
+                        v-for="practicant in cancelled" :key="practicant.id" :practicant="practicant"
                         @click="selectPracticant(practicant)" :task-id="task.id" :is-select="practicant.isSelect"
                         action="Назначить" @action-with-practicant="assignTask" />
 
@@ -44,14 +43,13 @@
                     <p class="deadline">{{ format(task.until, 'short') }}</p>
                 </div>
 
-                <div v-if="selectedPracticants.length === 0" class="no-selected-student">
+                <div v-if="!selectedPracticant" class="no-selected-student">
                     <h2>Выберите практиканта</h2>
                     <p>Для просмотра выполненного задания</p>
                 </div>
 
-                <div v-if="selectedPracticants.length > 0" class="selected">
-                    <SelectedPracticant v-for="practicant in selectedPracticants" :key="practicant.id"
-                        :practicant="practicant" @delete="deleteFromSelected" />
+                <div v-if="selectedPracticant" class="selected">
+                    <SelectedPracticant :practicant="selectedPracticant" />
                 </div>
             </Card>
         </div>
@@ -60,7 +58,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, provide, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { format } from '@formkit/tempo';
 import { getTask, completeTask, cancelTask as apiCancelTask, assignTask as apiAssignTask } from '@/api/modules/tasks.api';
@@ -77,7 +75,7 @@ const route = useRoute()
 
 const isAllSelected = ref(false)
 
-const selectedPracticants = ref([])
+const selectedPracticant = ref(null)
 
 const allPracticants = ref([])
 const assigned = ref([])
@@ -85,31 +83,12 @@ const done = ref([])
 const cancelled = ref([])
 
 const deleteFromSelected = (practicant) => {
-    selectedPracticants.value = selectedPracticants.value.filter(pr => pr.id !== practicant.id)
+    selectedPracticant.value = selectedPracticant.value.filter(pr => pr.id !== practicant.id)
     practicant.isSelect = false
 }
 
 const selectPracticant = (practicant) => {
-    const practicantToSelect = allPracticants.value.find(pr => pr.id === practicant.id);
-
-    if (practicantToSelect) {
-        practicantToSelect.isSelect = !practicantToSelect.isSelect;
-
-        if (practicantToSelect.isSelect) {
-            selectedPracticants.value.push(practicantToSelect);
-        } else {
-            selectedPracticants.value = selectedPracticants.value.filter(
-                pr => pr.id !== practicantToSelect.id
-            );
-        }
-    }
-}
-
-const selectAllPracticants = () => {
-    isAllSelected.value = !isAllSelected.value
-    allPracticants.value.map(pr => {
-        selectPracticant(pr)
-    })
+    selectedPracticant.value = practicant
 }
 
 const cancelTask = async (taskId, userId) => {
@@ -174,6 +153,8 @@ const fetchTask = async () => {
 onMounted(async () => {
     await fetchTask()
 })
+
+provide('selectedPracticant', selectedPracticant)
 </script>
 
 <style scoped lang="scss">
@@ -197,6 +178,16 @@ onMounted(async () => {
 
         &.left {
             width: calc(40% - 5px);
+
+            padding: 20px 0;
+
+            h1 {
+                padding: 0 20px
+            }
+
+            button.blue {
+                margin: 0 20px
+            }
         }
 
         &.right {
@@ -282,6 +273,14 @@ onMounted(async () => {
             display: flex;
             flex-direction: column;
             gap: 5px;
+
+            h3 {
+                padding: 0 20px
+            }
+
+            .selected-practicant {
+                background-color: #E9F2FF;
+            }
         }
     }
 }

@@ -4,9 +4,6 @@
             <img v-if="practicant.avatar" :src="practicant.avatar" alt="">
             <AvatarLetter v-else :name="practicant.name" />
             <p>{{ practicant.name }}</p>
-            <button class="icon" @click="deleteFromSelected">
-                <img src="/icons/x.svg" alt="">
-            </button>
         </div>
 
         <div class="files" v-if="files.length > 0">
@@ -30,7 +27,7 @@
             </Card>
         </div>
         <div class="no-items" v-if="links.length === 0 && files.length === 0">
-            <p>Этот практикант пока ничего не присылал</p>
+            <p>Этот практикант пока ничего не сдавал</p>
         </div>
     </div>
 </template>
@@ -40,26 +37,31 @@ import { format } from '@formkit/tempo';
 
 import Card from '@/components/Card.vue';
 import AvatarLetter from '@/components/AvatarLetter.vue';
+import { computed } from 'vue';
 
 const props = defineProps({
     practicant: Object
 })
-const emit = defineEmits(['delete'])
+// const emit = defineEmits(['delete'])
 
-const files = props.practicant.files.filter(f => f.type !== 'link')
-const links = props.practicant.files.filter(f => f.type === 'link')
+const files = computed(() => {
+    return props.practicant.files.filter(f => f.type !== 'link')
+})
+const links = computed(() => {
+    return props.practicant.files.filter(f => f.type === 'link')
+})
 
 const formatFileSize = (sizeInMB) => {
-    const sizeInKB = sizeInMB * 1024; // Переводим МБ в КБ
+    const sizeInKB = sizeInMB * 1024;
     if (sizeInMB < 0.1) {
-        return `${sizeInKB.toFixed(2)} KB`; // Показываем с 2 знаками после запятой для КБ
+        return `${sizeInKB.toFixed(2)} KB`;
     }
-    return `${sizeInMB.toFixed(2)} MB`; // Показываем с 2 знаками после запятой для МБ
+    return `${sizeInMB.toFixed(2)} MB`;
 };
 
-const deleteFromSelected = () => {
-    emit('delete', props.practicant)
-}
+// const deleteFromSelected = () => {
+//     emit('delete', props.practicant)
+// }
 </script>
 
 <style scoped lang="scss">

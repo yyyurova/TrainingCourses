@@ -1,11 +1,11 @@
 <template>
     <div class="practicant-row">
-        <input :checked="isSelect" type="checkbox">
+        <!-- <input :checked="isSelect" type="checkbox"> -->
         <img v-if="practicant.avatar" class="avatar" :src="practicant.avatar" alt="">
         <AvatarLetter v-else :name="practicant.name" />
         <span>{{ practicant.name }}</span>
-        <input min="1" max="10" :disabled="action === 'Назначить'" @click.stop v-model="mark" class="mark" type="text"
-            @blur="updateMark" @keyup.enter="updateMark">
+        <input min="1" max="10" :disabled="action === 'Назначить' || selectedPracticant?.id !== practicant.id" @click.stop
+            v-model="mark" class="mark" type="text" @blur="updateMark" @keyup.enter="updateMark">
         <button class="icon" @click.stop="showAction = !showAction" ref="actionButton">
             <img src="/icons/menu-vertical.svg" alt="">
         </button>
@@ -20,15 +20,17 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { inject, onMounted, onUnmounted, ref } from 'vue';
 import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const props = defineProps({
-    isSelect: { type: Boolean, default: false },
+    // isSelect: { type: Boolean, default: false },
     practicant: Object,
     action: String,
     taskId: Number,
 })
+
+const selectedPracticant = inject('selectedPracticant')
 
 const emit = defineEmits(['actionWithPracticant', 'updateMark'])
 
@@ -73,7 +75,8 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 5px;
+    padding: 5px 20px;
+    // border-radius: ;
 
     span:not(.avatar-letter) {
         flex: 1

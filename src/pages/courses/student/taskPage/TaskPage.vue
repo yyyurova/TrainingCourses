@@ -9,6 +9,8 @@
             <FileUploadModal v-if="showFileUploadModal" @cancel="closeModal" @add="addUploadedFile" />
             <EnterLinkModal v-if="showEnterLinkModal" @cancel="closeModal" @add="addLink" />
         </Layout>
+
+        <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :isSuccess="isSuccess" />
     </template>
 
 <script setup>
@@ -23,6 +25,7 @@ import EnterLinkModal from '../modals/EnterLinkModal.vue';
 import FullTask from './components/FullTask.vue';
 import Comment from './components/Comment.vue';
 import MyTasks from './components/MyTasks.vue';
+import Popup from '@/components/Popup.vue';
 
 const isLoading = ref(false)
 const course = ref(null)
@@ -36,16 +39,23 @@ const showEnterLinkModal = ref(false)
 const uploadedFiles = ref([]);
 const enteredLinks = ref([])
 
+const showPopup = ref(false);
+const popupText = ref('');
+const isSuccess = ref(true);
+
 const task = ref(null)
 
 const fetchTask = async (id) => {
     try {
         isLoading.value = true;
         task.value = await getTask(id);
+        console.log(task.value)
     } finally {
         isLoading.value = false;
     }
 };
+
+const closePopup = () => { showPopup.value = false }
 
 const openFileModal = () => {
     showChoicePopup.value = false;
@@ -56,6 +66,13 @@ const openLinkModal = () => {
     showChoicePopup.value = false
     showEnterLinkModal.value = true
 }
+
+const showMessage = (text, success) => {
+    popupText.value = text;
+    isSuccess.value = success;
+    showPopup.value = true;
+    setTimeout(() => showPopup.value = false, 5000);
+};
 
 const closeModal = () => {
     if (showFileUploadModal.value) { showFileUploadModal.value = false }
@@ -70,7 +87,8 @@ const handleClickOutside = (e) => {
 
 const addUploadedFile = (file) => {
     if (uploadedFiles.value.length >= 1) {
-        alert('Можно добавить только один файл. Сначала удалите текущий файл.');
+        closeModal()
+        showMessage('Можно добавить только один файл. Сначала удалите текущий файл.', false)
         return;
     }
     uploadedFiles.value.push(file);
@@ -79,7 +97,8 @@ const addUploadedFile = (file) => {
 
 const addLink = (link) => {
     if (enteredLinks.value.length >= 1) {
-        alert('Можно добавить только одну ссылку. Сначала удалите текущую ссылку.');
+        closeModal()
+        showMessage('Можно добавить только одну ссылку. Сначала удалите текущую ссылку.', false)
         return;
     }
     enteredLinks.value.push(link);
@@ -99,40 +118,10 @@ provide('course', course)
 provide('showChoicePopup', showChoicePopup)
 provide('uploadedFiles', uploadedFiles)
 provide('enteredLinks', enteredLinks)
+provide('fetchTask', fetchTask);
 </script>
 
 <style scoped lang="scss">
-// .task {
-//     width: 100%;
-//     display: flex;
-//     gap: 15px;
-
-//     h2 {
-//         font-weight: 600;
-//         font-size: 42px;
-//         line-height: 50px;
-//         letter-spacing: 1px;
-//     }
-
-//     .left,
-//     .right {
-//         width: 50%;
-
-//         .card {
-//             width: 100%;
-//         }
-//     }
-
-//     .right:not(.message.right) {
-//         max-width: 600px;
-//     }
-
-//     .left:not(.message.left) {
-//         display: flex;
-//         flex-direction: column;
-//         gap: 15px;
-//     }
-// }
 .task {
     width: 100%;
     display: flex;

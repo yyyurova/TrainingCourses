@@ -20,6 +20,7 @@ export const ENDPOINTS = {
     CURATOR_COURSES: '/curator/courses',
 
     TASK: '/task',
+    ATTACHMENTS: '/attachments',
 
     ANSWERS: '/question-answers'
 }
