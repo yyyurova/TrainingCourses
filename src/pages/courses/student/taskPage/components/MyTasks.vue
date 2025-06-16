@@ -232,6 +232,10 @@ const closePopup = () => {
                 display: flex;
                 flex-direction: column;
                 gap: 5px;
+
+                * {
+                    word-break: break-all;
+                }
             }
         }
     }
@@ -254,6 +258,10 @@ const closePopup = () => {
                 display: flex;
                 flex-direction: column;
                 gap: 5px;
+
+                * {
+                    word-break: break-all;
+                }
 
                 p {
                     color: #787878;

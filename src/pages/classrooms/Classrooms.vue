@@ -34,7 +34,7 @@
             text="Студенты и куратор потеряют доступ к курсу" right-button-text="Удалить" @confirm="deleteClassroom"
             @cancel="closeModal" />
 
-        <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" />
+        <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :is-success="isSuccess" />
 
         <EditClassroom v-if="showEditModal" :classroom="selectedClassroom" @cancel="closeModal" @edit="editClassroom" />
 
@@ -71,6 +71,7 @@ const selectedClassroom = ref(null)
 
 const showPopup = ref(false)
 const popupText = ref('')
+const isSuccess = ref(true)
 
 const router = useRouter()
 
@@ -85,6 +86,13 @@ const closePopup = () => {
     showPopup.value = false
     popupText.value = ''
 }
+
+const showMessage = (text, success) => {
+    popupText.value = text;
+    isSuccess.value = success;
+    showPopup.value = true;
+    setTimeout(() => showPopup.value = false, 5000);
+};
 
 const openDeleteModal = (classroom) => {
     showConfirmDeleteModal.value = true
@@ -215,19 +223,11 @@ const save = async () => {
         // Добавляем участников
         await addUsersToClass(createdClassroomId.value, classroomMembers.value);
 
-        popupText.value = 'Класс успешно создан';
-        showPopup.value = true;
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000);
-        closeModal();
+        showMessage('Класс успешно создан', false)
+
         await fetchClassrooms();
     } catch (error) {
-        popupText.value = 'Ошибка при сохранении данных';
-        showPopup.value = true;
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000);
+        showMessage('Ошибка при сохранении данных', false)
     } finally {
         isLoading.value = false;
     }

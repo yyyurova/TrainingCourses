@@ -3,7 +3,7 @@
             <div class="task" v-if="task">
                 <FullTask />
                 <MyTasks @openLinkModal="openLinkModal" @openFileModal="openFileModal" />
-                <Comment />
+                <Comment :chat="commentChat" />
             </div>
             <Loading v-if="isLoading" />
             <FileUploadModal v-if="showFileUploadModal" @cancel="closeModal" @add="addUploadedFile" />
@@ -16,7 +16,7 @@
 <script setup>
 import { onMounted, provide, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { getTask } from '@/api/modules/tasks.api';
+import { getTask, getTaskChat } from '@/api/modules/tasks.api';
 
 import Layout from '@/layouts/Layout.vue';
 import Loading from '@/components/Loading.vue';
@@ -26,6 +26,7 @@ import FullTask from './components/FullTask.vue';
 import Comment from './components/Comment.vue';
 import MyTasks from './components/MyTasks.vue';
 import Popup from '@/components/Popup.vue';
+import { getUserId } from '@/utils/auth';
 
 const isLoading = ref(false)
 const course = ref(null)
@@ -44,12 +45,17 @@ const popupText = ref('');
 const isSuccess = ref(true);
 
 const task = ref(null)
+const commentChat = ref(null)
 
 const fetchTask = async (id) => {
     try {
         isLoading.value = true;
         task.value = await getTask(id);
-        console.log(task.value)
+
+        try {
+            commentChat.value = await getTaskChat(task.value.id, getUserId())
+            console.log(commentChat.value)
+        } catch { commentChat.value = null }
     } finally {
         isLoading.value = false;
     }

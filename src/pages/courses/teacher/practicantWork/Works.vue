@@ -213,7 +213,12 @@ provide('selectedPracticant', selectedPracticant)
             }
 
             button.blue {
-                margin: 0 20px
+                margin: 0 20px;
+
+                &:disabled {
+                    background-color: #ebebeb;
+                    color: #969696;
+                }
             }
         }
 

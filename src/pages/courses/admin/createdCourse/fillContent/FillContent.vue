@@ -26,6 +26,8 @@
                 <button @click="saveCourse" class="blue">Сохранить изменения</button>
             </div>
         </div>
+
+        <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :isSuccess="isSuccess" />
         <Loading v-if="isLoading" />
         <CreateLesson v-if="showCreateLessonModal" @cancel="closeModal" @create="createPageWithType" />
     </FillCourseContentLayout>
@@ -50,6 +52,7 @@ import CreateLesson from '../fillMaterials/components/modals/CreateLesson.vue';
 import FillCourseContentLayout from '@/layouts/FillCourseContentLayout.vue';
 import Module from './components/Module.vue';
 import Loading from '@/components/Loading.vue';
+import Popup from '@/components/Popup.vue';
 
 const course = ref(null);
 const content = ref({ modules: [] });
@@ -71,12 +74,26 @@ const router = useRouter()
 
 const isLoading = ref(false)
 
+const showPopup = ref(false);
+const popupText = ref('');
+const isSuccess = ref(true);
+
 const showCreateLessonModal = ref(false)
 const currentModuleIndex = ref(null);
 
 const closeModal = () => {
     if (showCreateLessonModal.value) { showCreateLessonModal.value = false }
 }
+
+const closePopup = () => { showPopup.value = false }
+
+const showMessage = (text, success) => {
+    popupText.value = text;
+    isSuccess.value = success;
+    showPopup.value = true;
+    setTimeout(() => showPopup.value = false, 5000);
+};
+
 
 const fetchCourse = async () => {
     try {
@@ -133,7 +150,8 @@ const newModule = async () => {
 
         await fetchCourse();
     } catch (error) {
-        console.error('Ошибка создания модуля:', error);
+        showMessage('Ошибка создания модуля', false)
+        // console.error('Ошибка создания модуля:', error);
     }
 };
 

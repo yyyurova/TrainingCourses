@@ -259,7 +259,6 @@ watch(selectedChat, async (newChat) => {
 onMounted(async () => {
     await fetchMembers()
     await fetchMessages()
-    // console.log(selectedChat.value)
 })
 </script>
 

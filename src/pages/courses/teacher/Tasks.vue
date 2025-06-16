@@ -34,7 +34,7 @@ import { onMounted, ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { getCourse } from '@/api/modules/courses.api';
 import { getPracticants } from '@/api/modules/curarorStudents.api';
-import { getTasksByCourse, createTask as apiCreateTask, deleteTask as apiDeleteTask, updateTask } from '@/api/modules/tasks.api';
+import { getTasksByCourse, createTask as apiCreateTask, deleteTask as apiDeleteTask, updateTask, createChatForTask } from '@/api/modules/tasks.api';
 
 import CreateTask from './components/modals/CreateTask.vue';
 import Layout from '@/layouts/Layout.vue';
@@ -101,6 +101,13 @@ const openEditModal = (task) => {
     showEditModal.value = true
 }
 
+const showMessage = (text, success) => {
+    popupText.value = text;
+    isSuccess.value = success;
+    showPopup.value = true;
+    setTimeout(() => showPopup.value = false, 5000);
+};
+
 const openDeleteModal = (task) => {
     showDeleteModal.value = true
     taskToDelete.value = task
@@ -131,21 +138,13 @@ const deleteTask = async (id) => {
         closeModal()
         await apiDeleteTask(id)
         await fetchTasks()
-        popupText.value = 'Задание удалено'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
+
+        showMessage('Задание удалено', true)
     }
     catch (err) {
         console.log(err)
         await fetchTasks()
-        popupText.value = 'Не удалось удалить задание'
-        showPopup.value = true
-        isSuccess.value = false
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
+        showMessage('Не удалось удалить задание', false)
     }
     finally { isLoading.value = false }
 }
@@ -156,24 +155,19 @@ const createTask = async (task) => {
         closeModal()
 
         task = { ...task, course_id: course.value.id }
-        await apiCreateTask(task)
+        const resp = await apiCreateTask(task)
+        console.log(resp)
 
         await fetchTasks()
 
-        popupText.value = 'Задание успешно создано'
-        showPopup.value = true
-        isSuccess.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
+        await Promise.all(resp.students.map(async (s) => {
+            await createChatForTask(`Задание "${resp.name}"`, s.id, resp.id);
+        }));
+
+        showMessage('Задание успешно создано', true)
     } catch (err) {
         console.log(err)
-        popupText.value = 'Не удалось создать задание'
-        showPopup.value = true
-        isSuccess.value = false
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
+        showMessage('Не удалось создать задание', false)
     } finally {
         isLoading.value = false
     }
@@ -186,20 +180,10 @@ const editTask = async (updatedTask) => {
         await updateTask(updatedTask.id, updatedTask)
         await fetchTasks()
 
-        popupText.value = 'Задание успешно изменено';
-        showPopup.value = true;
-        isSuccess.value = true;
-        setTimeout(() => {
-            showPopup.value = false;
-        }, 5000);
+        showMessage('Задание успешно изменено', true)
     } catch (err) {
         console.log(err);
-        popupText.value = 'Не удалось изменить задание';
-        showPopup.value = true;
-        isSuccess.value = false;
-        setTimeout(() => {
-            showPopup.value = false;
-        }, 5000);
+        showMessage('Не удалось изменить задание', false)
     } finally {
         isLoading.value = false;
     }

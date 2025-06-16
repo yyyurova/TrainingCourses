@@ -10,7 +10,8 @@
             <template v-for="(section, sectionIndex) in sidebarContent[user.role]" :key="sectionIndex">
                 <h1 v-if="section.header">{{ section.header }}</h1>
                 <template v-for="(item, itemIndex) in section.items || [section]" :key="itemIndex">
-                    <RouterLink v-if="item.linkTo" :to="item.linkTo" class="link" @click="handleCourseClick(item)">
+                    <RouterLink v-if="item.linkTo" :to="item.linkTo" class="link" @click="handleCourseClick(item)"
+                        :class="{ 'router-link-active': isLinkActive(item) }">
                         <div class="link-content">
                             <img width="24" height="24" :src="item.imageUrl" alt="">
                             <span>{{ item.title }}</span>
@@ -62,7 +63,7 @@
         </div>
     </aside>
 
-    <Popup v-if="showPopup" :text="popupText" :is-success="isSuccess" />
+    <Popup v-if="showPopup" :text="popupText" :is-success="isSuccess" @close="closePopup" />
 
     <ConfirmDelete v-if="showConfirmExit" right-button-text="Выйти" question="Выйти из профиля?"
         text="Вы потеряете доступ к функционалу сервиса." @cancel="closeModal" @confirm="exitFromProfile" />
@@ -98,7 +99,8 @@ const route = useRoute();
 const router = useRouter();
 const isCoursesListOpen = ref(false);
 
-const courses = inject('courses')
+// const courses = inject('courses')
+let courses
 
 const showUserActions = ref(false);
 const showConfirmExit = ref(false);
@@ -137,7 +139,10 @@ const sidebarContent = {
             title: 'Учебные классы',
             name: 'classrooms',
             imageUrl: '/icons/book.svg',
-            linkTo: '/classrooms'
+            linkTo: '/classrooms',
+            activeRoutes: [
+                'Classroom',
+            ]
         }
     ],
     curator: [
@@ -151,11 +156,6 @@ const sidebarContent = {
                     list: true,
                     imageUrl: '/icons/graduation.svg',
                 },
-                // {
-                //     title: 'Создать задание',
-                //     name: 'createTask',
-                //     imageUrl: '/icons/plus-black.svg',
-                // }
             ]
         },
         {
@@ -188,6 +188,12 @@ const sidebarContent = {
                     imageUrl: '/icons/task.svg',
                     linkTo: '/tasks/current',
                     counter: true,
+                    activeRoutes: [
+                        'TaskPage',
+                        'TasksCurrent',
+                        'TasksOverdue',
+                        'TasksDone'
+                    ]
                 }
             ]
         },
@@ -205,6 +211,16 @@ const sidebarContent = {
         }
     ]
 };
+
+const closePopup = () => { showPopup.value = false }
+
+const showMessage = (text, success) => {
+    popupText.value = text;
+    isSuccess.value = success;
+    showPopup.value = true;
+    setTimeout(() => showPopup.value = false, 5000);
+};
+
 
 const exitFromProfile = () => {
     logout()
@@ -229,12 +245,8 @@ const saveUserChanges = async (changes) => {
     try {
         closeModal()
         const resp = await editProfile(changes.name, changes.avatar);
-        isSuccess.value = true
-        popupText.value = 'Изменения сохранены'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 4000);
+
+        showMessage('Изменения сохранены', true)
 
         user.value.name = resp.data.name;
         user.value.avatar = resp.data.avatar
@@ -251,12 +263,8 @@ const saveUserChanges = async (changes) => {
 
     } catch (error) {
         console.error('Ошибка при сохранении профиля:', error);
-        isSuccess.value = false
-        popupText.value = 'Не удалось сохранить изменения'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 4000);
+
+        showMessage('Не удалось сохранить изменения', true)
     }
 };
 
@@ -276,6 +284,14 @@ const handleClickOutsideUser = (e) => {
     }
 };
 
+const isLinkActive = (item) => {
+    if (item.activeRoutes) {
+        return item.activeRoutes.includes(route.name);
+    }
+    return route.path.startsWith(item.linkTo) ||
+        route.name === item.name;
+};
+
 const getCourseLink = (course) => {
     const basePath = user.value.role === 'user'
         ? `/courses/${course.id}/my-study`
@@ -290,7 +306,8 @@ const getCourseLink = (course) => {
 
 watch(() => route.path, async (newPath) => {
     if (newPath.startsWith('/courses')) {
-        if (newPath.startsWith('/courses/')) isCoursesListOpen.value = true;
+        isCoursesListOpen.value = true;
+        courses = inject('courses')
     }
 }, { immediate: true });
 
