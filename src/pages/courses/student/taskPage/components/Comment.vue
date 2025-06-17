@@ -2,17 +2,27 @@
     <Card class="no-hover comment">
         <h3>Комментарий к заданию</h3>
         <div class="chat-about-task">
-            <div class="messages-in-task" id="messages">
-                <p class="day">Сегодня</p>
+            <div v-if="messages.length > 0" class="messages-in-task" id="messages">
+                <!-- <p class="day">Сегодня</p> -->
                 <div class="spacer"></div>
                 <Message v-for="message in messages" :key="message.id" :message="message" />
             </div>
+            <Loading v-else-if="isLoading" />
+            <NoMessages v-else />
+
+            <div v-if="attachedFiles.length > 0" class="files">
+                <FileCard v-for="file in attachedFiles" :key="file.name" :file="file" @delete-file="deleteFile" />
+            </div>
+
             <div class="input-field">
-                <button class="icon ">
+                <button class="icon" @click="fileUpload">
                     <img class="small" src="/icons/paperclip.svg" alt="">
                 </button>
-                <input autocomplete="off" ref="messageInput" @keypress.enter="sendMessage"
-                    placeholder="Добавить комментарий к заданию" type="text" class="inp-field">
+                <div class="center">
+                    <p v-if="limitMessage.length > 0" class="limit-message">{{ limitMessage }}</p>
+                    <input autocomplete="off" ref="messageInput" @keypress.enter="sendMessage"
+                        placeholder="Добавить комментарий к заданию" type="text" class="inp-field">
+                </div>
                 <button class="icon" @click="sendMessage">
                     <img src="/icons/send.svg" alt="">
                 </button>
@@ -22,72 +32,133 @@
 </template>
 
 <script setup>
-import { inject, watch, ref } from 'vue';
+import { ref, onMounted, nextTick, computed } from 'vue';
+import { getChatMessages, createMessage } from '@/api/modules/chat.api';
+import { useRoute } from 'vue-router';
 
 import Card from '@/components/Card.vue';
+import FileCard from '@/pages/chat/components/open/components/FileCard.vue';
 import Message from '@/components/Message.vue';
+import NoMessages from '@/pages/chat/components/open/components/NoMessages.vue';
+import Loading from '@/components/Loading.vue';
 
-defineProps({ chat: Object })
+// const route = useRoute()
+
+// Используем taskId как chatId для комментариев к заданию
+// const chatId = computed(() => props.taskId);
+const props = defineProps({ chat: Object })
+
+const chatId = computed(() => props.chat?.id);
 
 const messages = ref([]);
-const teacherName = ref('')
-const messageInput = ref(null)
+const messageInput = ref(null);
+const limitMessage = ref('');
+const attachedFiles = ref([]);
+const isLoading = ref(false);
 
-const course = inject('course')
-
-const sendMessage = () => {
-    const text = messageInput.value.value.trim();
-    if (!text) return;
-
-    const newMessage = {
-        id: Date.now(),
-        text,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isMe: true
-    };
-
-    messages.value.push(newMessage);
-    messageInput.value.value = '';
-
-    setTimeout(() => {
-        const messagesContainer = document.getElementById('messages');
+const scrollToBottom = () => {
+    const messagesContainer = document.getElementById('messages');
+    if (messagesContainer) {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }, 50);
+    }
 };
 
-// const fetchTeacherName = async (teacherId) => {
-//     try {
-//         // const user = await getUser(teacherId);
-//         teacherName.value = user.name;
-//     } catch (err) {
-//         teacherName.value = 'Учитель не найден';
-//     }
-// };
+const fetchMessages = async () => {
+    // Если нет chatId, не пытаемся загружать сообщения
+    if (!chatId.value) return;
 
-// watch(() => course.value, async (newCourse) => {
-//     if (newCourse && newCourse.teacher) {
-//         await fetchTeacherName(newCourse.teacher);
-//         initMessages();
-//     }
-// }, { immediate: true });
+    try {
+        isLoading.value = true;
+        messages.value = await getChatMessages(chatId.value);
+        messages.value.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        console.log(messages.value)
+    } catch (error) {
+        console.error('Ошибка загрузки сообщений:', error);
+    } finally {
+        isLoading.value = false;
+        nextTick(() => { scrollToBottom() });
+    }
+};
 
-// const initMessages = () => {
-//     messages.value = [
-//         {
-//             id: 1,
-//             text: "Можно узнать, почему такая оценка?",
-//             time: "19:57",
-//             isMe: true
-//         },
-//         {
-//             id: 2,
-//             text: "Не вижу, где библиотека компонентов.",
-//             time: "19:57",
-//             isMe: false,
-//             userName: teacherName.value
-//         }
-//     ];
-// }
+
+const fileUpload = () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.multiple = true;
+    fileInput.accept = '.jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt';
+
+    fileInput.onchange = (e) => {
+        const files = Array.from(e.target.files);
+        const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif|\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.txt)$/i;
+
+        files.forEach(file => {
+            if (!allowedExtensions.exec(file.name)) {
+                limitMessage.value = 'Недопустимое расширение файлов';
+                return;
+            }
+
+            attachedFiles.value.push({
+                name: file.name,
+                size: formatFileSize(file.size),
+                file: file
+            });
+        });
+    };
+
+    fileInput.click();
+};
+
+const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+const sendMessage = async () => {
+    const text = messageInput.value.value.trim();
+
+    if (!text && attachedFiles.value.length === 0) return;
+    if (text.length > 2048) {
+        limitMessage.value = 'Длина сообщения не должна превышать 2048 символов';
+        return;
+    } else {
+        limitMessage.value = '';
+    }
+    if (attachedFiles.value.length > 10) {
+        limitMessage.value = 'Вы можете прикрепить не более 10 файлов';
+        return;
+    }
+
+    try {
+        // Используем createMessage, но передаем taskId как chatId
+        await createMessage(
+            props.chat.id,
+            text || null,
+            attachedFiles.value.map(f => f.file)
+        );
+
+        messageInput.value.value = '';
+        attachedFiles.value = [];
+        await fetchMessages();
+    } catch (error) {
+        console.error('Ошибка отправки комментария', error);
+    } finally {
+        limitMessage.value = '';
+    }
+};
+
+const deleteFile = (file) => {
+    attachedFiles.value = attachedFiles.value.filter(item => item.name !== file.name);
+    if (attachedFiles.value.length <= 10) {
+        limitMessage.value = '';
+    }
+};
+
+onMounted(async () => {
+    await fetchMessages();
+});
 </script>
 
 <style scoped lang="scss">
@@ -115,6 +186,8 @@ const sendMessage = () => {
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            padding: 10px;
+            gap: 10px;
 
             .day {
                 font-weight: 400;
@@ -126,6 +199,19 @@ const sendMessage = () => {
             }
         }
 
+        .files {
+            padding: 5px 10px;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            border-top: 1px solid #D9D9D9;
+            white-space: nowrap;
+            max-height: 70px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 10px;
+        }
 
         .input-field {
             width: 100%;
@@ -136,9 +222,18 @@ const sendMessage = () => {
             border-radius: 0 0 8px 8px;
             border-top: 1px solid #D9D9D9;
 
+            .center {
+                flex: 1;
+
+                .limit-message {
+                    padding-left: 5px;
+                    color: red;
+                    font-size: 12px;
+                }
+            }
+
             button.icon img.small {
                 width: 28px;
-                // height: fit-content;
             }
         }
 
@@ -147,8 +242,8 @@ const sendMessage = () => {
             padding: 10px;
             border: none;
             outline: none;
+            width: 100%;
         }
-
     }
 }
 </style>

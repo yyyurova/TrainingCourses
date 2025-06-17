@@ -161,7 +161,8 @@ const createTask = async (task) => {
         await fetchTasks()
 
         await Promise.all(resp.students.map(async (s) => {
-            await createChatForTask(`Задание "${resp.name}"`, s.id, resp.id);
+            const response = await createChatForTask(`Задание "${resp.name}"`, s.id, resp.id);
+            console.log(response)
         }));
 
         showMessage('Задание успешно создано', true)

@@ -27,6 +27,7 @@
                 </div>
             </Card>
         </div>
+
         <div class="no-items" v-if="links.length === 0 && files.length === 0">
             <p>Этот практикант пока ничего не сдавал</p>
         </div>

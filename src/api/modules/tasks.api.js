@@ -150,6 +150,7 @@ export const deleteAttachment = async (attachId) => {
 
 export const createChatForTask = async (title, userId, taskId) => {
     try {
+        console.log({ title: title, user_id: userId, task_id: taskId })
         const response = await client.post(ENDPOINTS.CHAT, { title: title, user_id: userId, task_id: taskId })
         return response.data.data
     } catch (error) {
@@ -160,7 +161,7 @@ export const createChatForTask = async (title, userId, taskId) => {
 
 export const getTaskChat = async (taskId, userId) => {
     try {
-        const response = await client.get(`${ENDPOINTS.TASK}/${taskId}/user/${userId}`)
+        const response = await client.get(`${ENDPOINTS.TASK}/${taskId}/by/users/${userId}`)
         return response.data.data || null
     } catch (error) {
         console.log(error)
