@@ -77,7 +77,6 @@ import Card from '@/components/Card.vue';
 import AvatarLetter from '@/components/AvatarLetter.vue';
 import Message from '@/components/Message.vue';
 import FileCard from '@/pages/chat/components/open/components/FileCard.vue';
-import NoMessages from '@/pages/chat/components/open/components/NoMessages.vue';
 import Loading from '@/components/Loading.vue';
 
 const props = defineProps({
@@ -97,7 +96,6 @@ const attachedFiles = ref([]);
 const isLoading = ref(false);
 
 const localMark = ref(props.mark || '');
-// const emit = defineEmits(['delete'])
 
 const files = computed(() => {
     return props.practicant.files.filter(f => f.type !== 'link')

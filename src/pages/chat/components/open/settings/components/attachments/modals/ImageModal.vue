@@ -1,7 +1,7 @@
 <template>
     <div class="modal" @click.self="$emit('close')">
         <SVGPreview v-if="image.type === 'svg'" :content="image.svgContent" />
-        <img v-else :src="image.url" :alt="image.fileName" class="modal-image">
+        <img v-else :src="image.path" :alt="image.name" class="modal-image">
         <button class="icon" @click="$emit('close')"><img src="/icons/x.svg" alt=""></button>
     </div>
 </template>

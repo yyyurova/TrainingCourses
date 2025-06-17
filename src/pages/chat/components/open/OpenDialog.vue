@@ -41,7 +41,8 @@
             </button>
             <div class="center">
                 <p v-if="limitMessage.length > 0" class="limit-message">{{ limitMessage }}</p>
-                <input ref="input" placeholder="Отправить сообщение..." type="text" class="inp-field">
+                <input ref="input" placeholder="Отправить сообщение..." type="text" class="inp-field"
+                    @keydown.enter="sendMessage">
             </div>
             <button class="icon">
                 <img src="/icons/emote-smile.svg" alt="">
@@ -294,6 +295,7 @@ onMounted(async () => {
                     letter-spacing: 0px;
                     margin: 0;
                     padding: 0;
+                    word-break: break-all;
                 }
 
                 .avatar {

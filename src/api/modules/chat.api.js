@@ -117,3 +117,10 @@ export const deleteMember = async (chatId, userId) => {
         console.error('Ошибка удаления участника:', error);
     }
 };
+
+export const getChatAttachments = async (chatId) => {
+    try {
+        const response = await client.get(`${ENDPOINTS.CHAT}/${chatId}/files`)
+        return response.data.data
+    } catch (error) { console.log(error); return [] }
+}

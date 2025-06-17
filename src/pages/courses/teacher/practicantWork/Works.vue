@@ -74,8 +74,6 @@ const task = ref(null)
 
 const route = useRoute()
 
-const isAllSelected = ref(false)
-
 const localMark = ref(null);
 const selectedPracticant = ref(null);
 

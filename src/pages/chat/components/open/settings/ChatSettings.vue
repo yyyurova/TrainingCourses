@@ -34,8 +34,9 @@
 
 <script setup>
 import pluralize from 'pluralize-ru';
-import { inject, computed, shallowRef, watch, ref, onMounted } from 'vue';
+import { inject, computed, shallowRef, watch, ref, onMounted, provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { getChatAttachments } from '@/api/modules/chat.api';
 
 import Navbar from '@/components/Navbar.vue';
 import Members from './components/members/Members.vue';
@@ -57,6 +58,9 @@ const contentHeight = ref(0);
 const header = ref(null)
 const navbar = ref(null)
 
+const docs = ref([])
+const images = ref([])
+
 const showEditChatModal = ref(false)
 const showConfirmDeleteModal = ref(false)
 
@@ -64,6 +68,15 @@ const deleteChat = inject('deleteChat')
 
 const openConfirmDeleteModal = () => {
     showConfirmDeleteModal.value = true
+}
+
+const fetchFiles = async () => {
+    try {
+        const data = await getChatAttachments(selectedChat.value.id)
+        console.log(data)
+        docs.value = data.files
+        images.value = data.images
+    } catch (err) { console.log(err) }
 }
 
 const closeModal = () => {
@@ -131,10 +144,14 @@ watch(
     { immediate: true }
 );
 
-onMounted(() => {
+onMounted(async () => {
+    await fetchFiles()
     calculateContentHeight();
     window.addEventListener('resize', calculateContentHeight);
 });
+
+provide('docs', docs)
+provide('images', images)
 </script>
 
 <style scoped lang="scss">
