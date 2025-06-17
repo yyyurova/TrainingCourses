@@ -47,8 +47,8 @@
                     <p>Для просмотра выполненного задания</p>
                 </div>
 
-                <SelectedPracticant v-if="selectedPracticant" :practicant="selectedPracticant"
-                    v-model:mark="localMark" />
+                <SelectedPracticant v-if="selectedPracticant" :practicant="selectedPracticant" v-model:mark="localMark"
+                    :taskId="task.id" />
             </Card>
         </div>
 
