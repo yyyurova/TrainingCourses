@@ -26,7 +26,8 @@
                             <div class="options">
                                 <div v-for="(variant, vIndex) in question.variants" :key="vIndex">
                                     <input :type="question.is_group === 1 ? 'checkbox' : 'radio'"
-                                        v-model="selectedAnswers[qIndex]" :value="variant.id">
+                                        :name="'question_' + qIndex" :value="variant.id"
+                                        @change="handleAnswerChange(qIndex, variant.id, question.is_group === 1)">
                                     {{ (vIndex + 1) + ') ' + variant.title }}
                                 </div>
                             </div>
@@ -43,7 +44,7 @@
             </div>
 
             <div class="action-buttons">
-                <button @click="checkQuiz" :disabled="(hasQuizzes && !hasSelectedAnswers) || loading">
+                <button class="blue" @click="checkQuiz" :disabled="(hasQuizzes && !hasSelectedAnswers) || loading">
                     Проверить тест
                 </button>
 
@@ -123,7 +124,9 @@ const allQuizzesPassed = computed(() => {
 });
 
 const hasSelectedAnswers = computed(() => {
-    return Object.values(selectedAnswers).some(answers => answers?.length > 0);
+    return Object.values(selectedAnswers).some(answers => {
+        return answers && answers.length > 0;
+    });
 });
 
 const resetQuizState = () => {
@@ -308,6 +311,24 @@ const goToNextModule = () => {
                 }
             });
         }
+    }
+};
+
+const handleAnswerChange = (qIndex, variantId, isCheckbox) => {
+    if (isCheckbox) {
+        // Для чекбоксов (множественный выбор)
+        if (!selectedAnswers[qIndex]) {
+            selectedAnswers[qIndex] = [];
+        }
+        const index = selectedAnswers[qIndex].indexOf(variantId);
+        if (index === -1) {
+            selectedAnswers[qIndex].push(variantId);
+        } else {
+            selectedAnswers[qIndex].splice(index, 1);
+        }
+    } else {
+        // Для радиокнопок (одиночный выбор)
+        selectedAnswers[qIndex] = [variantId];
     }
 };
 
