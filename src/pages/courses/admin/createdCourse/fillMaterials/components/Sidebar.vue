@@ -23,13 +23,13 @@
                 </div>
 
                 <div class="pages" v-if="module.pages" v-show="openChapters[index]">
-                    <div v-for="(page, pageIndex) in module.pages" :key="pageIndex" class="page-link"
-                        :class="{ 'active-page': isActivePage(module.id, page.id) }"
-                        @click="goToPage(module.id, page.id)">
+                    <RouterLink v-for="(page, pageIndex) in module.pages" :key="pageIndex"
+                        :to="`/course-fill-materials/${course.id}/module/${module.id}/page/${page.id}`"
+                        class="page-link" active-class="active-page">
                         <div class="page-content">
                             {{ index + 1 + '.' + (pageIndex + 1) + ' ' + page.title }}
                         </div>
-                    </div>
+                    </RouterLink>
                 </div>
             </div>
         </div>

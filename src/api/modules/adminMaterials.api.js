@@ -95,13 +95,11 @@ export const getQuestion = async (pageId, questionId) => {
 export const createQuestion = async (pageId, title, description, is_group = false, attachments) => {
     try {
         const formData = new FormData();
-        console.log(pageId, title, description, is_group)
         formData.append('title', title);
         if (description) formData.append('description', description);
 
         formData.append('is_group', is_group ? '1' : '0');
 
-        console.log('Files to upload:', attachments);
         if (attachments) {
             attachments.forEach(file => {
                 formData.append('attachments[]', file);
@@ -117,7 +115,6 @@ export const createQuestion = async (pageId, title, description, is_group = fals
                 }
             }
         );
-        console.log(response)
         return response.data;
     } catch (error) {
         console.error('Ошибка при создании вопроса:', error);
@@ -135,7 +132,6 @@ export const deleteQuestion = async (pageId, questionId) => {
 
 export const updateQuestion = async (pageId, questionId, title, description, is_group = false, attachments) => {
     try {
-        console.log(pageId, questionId, title, description, is_group = false, attachments)
         const formData = new FormData();
 
         // Добавляем текстовые поля

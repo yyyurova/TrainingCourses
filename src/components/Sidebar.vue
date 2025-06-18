@@ -19,7 +19,8 @@
                                 src="/icons/arrow.svg" alt="">
                             <!-- <span v-if="item.counter" class="circle">{{ user[item.name] }}</span> -->
                         </div>
-                        <div v-if="item.list" class="courses-list" :class="{ 'active': isCoursesListOpen }">
+                        <div v-if="item.list && courses?.length > 0" class="courses-list"
+                            :class="{ 'active': isCoursesListOpen }">
                             <RouterLink v-for="course in courses" :key="course.id" :to="getCourseLink(course)"
                                 class="course-link" :class="{
                                     'router-link-active': currentCourseId === course.id.toString(),
@@ -468,6 +469,10 @@ provide('user', user)
         margin-left: 20px;
         margin-top: 20px;
         cursor: pointer;
+
+        span {
+            word-break: break-all;
+        }
 
         button.icon {
             background: none;

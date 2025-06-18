@@ -303,6 +303,10 @@ onMounted(() => {
         margin-top: 20px;
         cursor: pointer;
 
+        span {
+            word-break: break-all;
+        }
+
         button.icon {
             margin-left: 3px;
             padding: 3px;
