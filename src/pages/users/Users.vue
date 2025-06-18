@@ -26,7 +26,7 @@
         <EditUser v-if="showEditModal" :user="selectedUser" @cancel="closeModal"
             @edit="(newInfo) => handleEditUser(selectedUser, newInfo)" />
 
-        <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" />
+        <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :is-success="isSuccess" />
 
     </Layout>
 </template>
@@ -66,6 +66,7 @@ const showEditModal = ref(false)
 
 const showPopup = ref(false)
 const popupText = ref('')
+const isSuccess = ref(true)
 
 const selectedUser = ref(null);
 

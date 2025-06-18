@@ -56,9 +56,12 @@ const selectedCurator = ref(null);
 
 const fetchUsers = async () => {
     try {
-        users.value = (await getUsers()).data;
-        students.value = users.value.filter(u => u.role === 'user')
-        curators.value = users.value.filter(u => u.role === 'curator')
+        students.value = (await getUsers({ role: 'user' })).data
+
+        curators.value = (await getUsers({ role: 'curator' })).data
+        // users.value = (await getUsers()).data;
+        // students.value = users.value.filter(u => u.role === 'user')
+        // curators.value = users.value.filter(u => u.role === 'curator')
     } catch (error) {
         console.error('Ошибка загрузки пользователей:', error);
     }

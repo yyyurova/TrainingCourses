@@ -492,6 +492,7 @@ const saveCourse = async () => {
         popupText.value = 'Изменения успешно сохранены';
         showPopup.value = true;
         isSaved.value = true;
+        isSuccess.value = true
 
         setTimeout(() => {
             showPopup.value = false;

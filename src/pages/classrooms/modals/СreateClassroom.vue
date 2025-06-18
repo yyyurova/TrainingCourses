@@ -33,9 +33,7 @@
 
 <script setup>
 import { onMounted, ref, watch } from 'vue';
-import axios from 'axios';
 import { getCourses } from '@/api/modules/adminCourses.api';
-import { getUsers } from '@/api/modules/adminUsers.api';
 
 const emit = defineEmits(['cancel', 'next']);
 
