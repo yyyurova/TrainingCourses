@@ -31,7 +31,7 @@
 
             <div class="separator">или</div>
             <div class="google-container">
-                <button class="transparent border wide">
+                <button class="transparent border wide" @click.prevent="signInWithGoogle">
                     Войти через Google
                     <img src="/icons/google.svg" alt="Google Icon">
                 </button>
@@ -50,11 +50,13 @@
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { register } from '@/api/modules/auth.api';
+import { register, getLoginUrls } from '@/api/modules/auth.api';
 
 const name = ref('')
 const email = ref('')
 const password = ref('')
+
+const googleUrl = ref('')
 
 const errors = ref({
     name: '',
@@ -133,8 +135,27 @@ const handleSubmit = async () => {
     }
 }
 
+const signInWithGoogle = async () => {
+    try {
+        googleUrl.value = await getLoginUrls();
+        // googleUrl.value = urls.google_url;
+        if (googleUrl.value) {
+            window.location.href = googleUrl.value.google_url;
+        }
+    } catch (error) {
+        console.error('Ошибка при получении URL для входа:', error);
+        errors.value.google = 'Не удалось получить ссылку для входа';
+    }
+};
+
 onMounted(() => {
     document.querySelector('input').focus()
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('google_error')) {
+        errors.value.google = 'Google login failed. Please try again.';
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
 })
 </script>
 <style scoped lang="scss">
