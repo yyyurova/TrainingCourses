@@ -66,6 +66,7 @@ provide('courses', courses)
 
     .card {
         cursor: pointer;
+        justify-content: space-between;
 
         .top {
 

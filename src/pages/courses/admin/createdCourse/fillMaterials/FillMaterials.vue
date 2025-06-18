@@ -490,23 +490,33 @@ const saveCourse = async () => {
         hasChanges.value = false;
         await fetchMaterial();
 
+        isSuccess.value = true
         popupText.value = 'Изменения успешно сохранены';
         showPopup.value = true;
         isSaved.value = true;
-        isSuccess.value = true
 
         setTimeout(() => {
             showPopup.value = false;
         }, 5000);
 
     } catch (err) {
-        console.error('Ошибка сохранения:', err);
-        isSuccess.value = false;
-        popupText.value = 'Ошибка при сохранении: ' + (err.message || err);
-        showPopup.value = true;
-        setTimeout(() => {
-            showPopup.value = false;
-        }, 5000);
+        if (err.status === 413) {
+            isSuccess.value = false;
+            popupText.value = 'Слишком большой размер прикрепленного файла';
+            showPopup.value = true;
+            setTimeout(() => {
+                showPopup.value = false;
+            }, 5000);
+        }
+        else {
+            console.error('Ошибка сохранения:', err);
+            isSuccess.value = false;
+            popupText.value = 'Ошибка при сохранении: ' + (err.message || err);
+            showPopup.value = true;
+            setTimeout(() => {
+                showPopup.value = false;
+            }, 5000);
+        }
     }
 };
 
