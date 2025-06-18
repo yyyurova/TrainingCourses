@@ -148,15 +148,15 @@ const truncateText = (text, maxLength) => {
                     }
 
                     &.task-col {
-                        width: 50%;
+                        width: 55%;
                     }
 
                     &.deadline-col {
-                        width: 20%;
+                        width: 25%;
                     }
 
                     &.mark-col {
-                        width: 30%;
+                        width: 20%;
                     }
                 }
             }

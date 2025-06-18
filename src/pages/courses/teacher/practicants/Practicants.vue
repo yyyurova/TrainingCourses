@@ -129,4 +129,14 @@ onMounted(fetchPracticants)
         outline: none;
     }
 }
+
+@media (max-width: 960px) {
+    .card.search {
+        width: 100% !important;
+    }
+
+    .practicants .card {
+        width: calc(50% - 5px);
+    }
+}
 </style>
