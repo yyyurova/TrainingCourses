@@ -195,7 +195,7 @@ button.blue {
     margin: 15px 0;
 
     .card {
-        width: calc(50% - 5px) !important;
+        width: calc(50% - 5px);
 
         cursor: pointer;
 
