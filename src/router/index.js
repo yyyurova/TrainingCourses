@@ -30,6 +30,11 @@ const baseRoutes = [
         },
     },
     {
+        path: '/auth/google/callback',
+        name: 'google-callback',
+        component: () => import('@/pages/auth/GoogleCallback.vue')
+    },
+    {
         path: '/verification',
         name: 'EmailVerification',
         component: EmailVerification,

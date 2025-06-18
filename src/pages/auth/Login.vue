@@ -91,21 +91,13 @@ const handleSubmit = async () => {
         const resp = await login(email.value, password.value);
         localStorage.setItem('token', resp.data.data.access_token);
 
-        console.log({
-            id: resp.data.data.id,
-            name: resp.data.data.name,
-            role: resp.data.data.role,
-            email: resp.data.data.email,
-            image: resp.data.data.image,
-            status: resp.data.data.ststus
-        })
         localStorage.setItem('user', JSON.stringify({
             id: resp.data.data.id,
             name: resp.data.data.name,
             role: resp.data.data.role,
             email: resp.data.data.email,
             image: resp.data.data.image,
-            status: resp.data.data.ststus
+            status: resp.data.data.status
         }));
         if (resp.data.data.status === 'rejected') {
             await nextTick()
@@ -141,6 +133,12 @@ const signInWithGoogle = async () => {
 
 onMounted(() => {
     document.querySelector('input').focus()
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('google_error')) {
+        errors.value.google = 'Google login failed. Please try again.';
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
 })
 </script>
 
