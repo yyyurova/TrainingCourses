@@ -94,7 +94,6 @@ const showMessage = (text, success) => {
     setTimeout(() => showPopup.value = false, 5000);
 };
 
-
 const fetchCourse = async () => {
     try {
         isLoading.value = true
@@ -263,9 +262,10 @@ const saveCourse = async () => {
         if (content.value.modules.length > 0 && content.value.modules[0].pages.length > 0) {
             router.push(`/course-fill-materials/${course.value.id}/module/${content.value.modules[0].id}/page/${content.value.modules[0].pages[0].id}`);
         } else {
-            console.log('Переход невозможен: модуль еще не сохранён или нет страниц');
+            showMessage('Изменения сохранены', true)
         }
     } catch (error) {
+        showMessage('Не удалось сохранить изменения', false)
         console.error('Ошибка сохранения:', error);
     }
 };

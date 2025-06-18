@@ -6,7 +6,8 @@
             <div class="cards">
                 <Card class="course">
                     <div class="top">
-                        <img width="36px" height="36px" :src="course.imageUrl || '/image.png'" alt="avatar">
+                        <img v-if="course.photo" width="36px" height="36px" :src="course.photo" alt="avatar">
+                        <AvatarLetter v-else :name="course.title" />
                         <p class="name-of-course">{{ course.title }}</p>
                     </div>
                     <button class="blue" @click="continueStudy(course.id)">Продолжить обучение</button>
@@ -45,7 +46,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { mockUser } from '@/mocks/user';
 import { getActiveDays } from '@/api/modules/activity.api';
 import { getCourse } from '@/api/modules/courses.api';
 
@@ -53,6 +53,7 @@ import Loading from '@/components/Loading.vue';
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';
 import Card from '@/components/Card.vue';
+import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const route = useRoute();
 
@@ -92,6 +93,7 @@ const fetchCourse = async (id) => {
 const fetchCourseActivity = async () => {
     try {
         activity.value = await getActiveDays(course.value.id)
+        console.log(activity.value)
     } finally {
         isLoading.value = false
     }

@@ -1,9 +1,9 @@
 import { ENDPOINTS } from "../constants/endpoints";
 import client from "../http/client";
 
-export const getTasks = async () => {
+export const getTasks = async (params = {}) => {
     try {
-        const response = await client.get(`${ENDPOINTS.TASK}`)
+        const response = await client.get(`${ENDPOINTS.TASK}`, { params: params })
         return response.data.data
     } catch (error) {
         console.log(error)

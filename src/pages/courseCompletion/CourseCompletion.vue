@@ -19,15 +19,15 @@
 
             <div v-if="currentPageData && !loading" class="content">
 
-                <div v-if="currentPageData.type === 2 && currentPageData.questions?.[0]?.description"
+                <div v-if="currentPageData.type === 2 && currentPageData.questions?.[0].attachments"
                     class="video-container">
-                    <!-- <div v-html="currentPageData.questions[0].description"></div> -->
+                    <div class="" v-for="a in currentPageData.questions[0].attachments" :key="a.id">
+                        <video controls>
+                            <source :src="a.url" type="video/mp4">
+                            Ваш браузер не поддерживает видео тег.
+                        </video>
+                    </div>
 
-                    <!-- Для загруженных видео -->
-                    <video v-if="currentPageData.questions[0]?.attachments?.length" controls>
-                        <source :src="getVideoUrl(currentPageData.questions[0].attachments[0])" type="video/mp4">
-                        Ваш браузер не поддерживает видео тег.
-                    </video>
                 </div>
                 <div v-if="currentPageData.questions && currentPageData.questions.length" class="qiuz">
                     <div v-for="(question, qIndex) in currentPageData.questions" :key="qIndex">

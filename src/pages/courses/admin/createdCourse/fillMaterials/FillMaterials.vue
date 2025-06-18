@@ -358,19 +358,18 @@ const saveCourse = async () => {
         }
 
         if (currentPage.value.type === 1) {
-            // Текстовая страница
             const description = currentPageContent.value;
             if (currentQuestion.value?.id) {
                 await updateQuestion(
                     currentPage.value.id,
                     currentQuestion.value.id,
-                    pageName.value,
+                    pageName.value, // Убедитесь, что передаёте title
                     description
                 );
             } else {
                 await createQuestion(
                     currentPage.value.id,
-                    pageName.value,
+                    pageName.value, // Убедитесь, что передаёте title
                     description
                 );
             }
@@ -382,36 +381,43 @@ const saveCourse = async () => {
             if (selectedWay.value === 'other' && videoLink.value) {
                 description = generateVideoIframe(videoLink.value);
             } else if (selectedWay.value === 'upload') {
-                attachments = [...uploadedFiles.value]; // Копируем массив File объектов
+                attachments = [...uploadedFiles.value];
             }
 
-            console.log('Preparing to send:', { attachments });
-            await createQuestion(
-                currentPage.value.id,
-                pageName.value,
-                description,
-                false,
-                attachments
-            );
+            if (currentQuestion.value?.id) {
+                await updateQuestion(
+                    currentPage.value.id,
+                    currentQuestion.value.id,
+                    pageName.value, // Убедитесь, что передаёте title
+                    description,
+                    false, // is_group
+                    attachments
+                );
+            } else {
+                await createQuestion(
+                    currentPage.value.id,
+                    pageName.value, // Убедитесь, что передаёте title
+                    description,
+                    false, // is_group
+                    attachments
+                );
+            }
         }
         else if (currentPage.value.type === 3) {
             for (const question of quizData.value.questions) {
 
-                // 1. Сначала сохраняем сам вопрос
                 let questionId;
                 try {
                     if (question.id) {
-                        // Обновляем существующий вопрос
                         const response = await updateQuestion(
                             currentPage.value.id,
                             question.id,
-                            question.title,
+                            question.title, // Убедитесь, что передаёте title
                             question.description,
                             question.is_group
                         );
                         questionId = question.id;
                     } else {
-                        // Создаем новый вопрос
                         const response = await createQuestion(
                             currentPage.value.id,
                             question.title,
@@ -419,20 +425,18 @@ const saveCourse = async () => {
                             question.is_group
                         );
 
-                        // Извлекаем ID из ответа
                         if (response && response.data && response.data.id) {
                             questionId = response.data.id;
-                            question.id = questionId; // Сохраняем ID в локальном состоянии
+                            question.id = questionId;
                         } else {
                             throw new Error('Не удалось создать вопрос: некорректный ответ от сервера');
                         }
                     }
                 } catch (err) {
                     console.error("Ошибка при сохранении вопроса:", err);
-                    continue; // Пропускаем этот вопрос
+                    continue;
                 }
 
-                // 2. Получаем текущие варианты ответов
                 let currentVariants = [];
                 try {
                     currentVariants = await getVariants(questionId);
@@ -442,11 +446,9 @@ const saveCourse = async () => {
 
                 const currentVariantIds = currentVariants.map(v => v.id);
 
-                // 3. Сохраняем варианты ответов
                 for (const option of question.options) {
                     try {
                         if (option.id && currentVariantIds.includes(option.id)) {
-                            // Обновляем существующий вариант
                             await updateVariant(
                                 questionId,
                                 option.id,
@@ -454,13 +456,11 @@ const saveCourse = async () => {
                                 option.is_right ? 1 : 0
                             );
 
-                            // Удаляем ID из списка текущих вариантов
                             const index = currentVariantIds.indexOf(option.id);
                             if (index !== -1) {
                                 currentVariantIds.splice(index, 1);
                             }
                         } else {
-                            // Создаем новый вариант
                             const response = await createVariant(
                                 questionId,
                                 option.title,
@@ -476,7 +476,6 @@ const saveCourse = async () => {
                     }
                 }
 
-                // 4. Удаляем варианты, которые больше не нужны
                 for (const variantId of currentVariantIds) {
                     try {
                         await deleteVariant(questionId, variantId);

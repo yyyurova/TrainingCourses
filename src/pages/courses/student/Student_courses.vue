@@ -65,8 +65,10 @@ provide('courses', courses)
     margin: 15px 0;
 
     .card {
+        cursor: pointer;
+
         .top {
-            cursor: pointer;
+
             width: 100%;
             display: flex;
             gap: 10px;

@@ -73,8 +73,9 @@ const goToTask = (id) => {
 const fetchTasks = async () => {
     try {
         isLoading.value = true
-        tasks.value = await getTasks()
+        tasks.value = await getTasks({ course: course.value.id })
         tasks.value.sort(t => -t.id)
+        console.log(tasks.value)
         // tasks.value = tasks.value.filter(task => new Date(task.until) < new Date())
     } finally {
         isLoading.value = false;

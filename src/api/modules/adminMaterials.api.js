@@ -92,24 +92,21 @@ export const getQuestion = async (pageId, questionId) => {
     }
 };
 
-export const createQuestion = async (pageId, title, description, is_group, attachments = []) => {
+export const createQuestion = async (pageId, title, description, is_group = false, attachments) => {
     try {
         const formData = new FormData();
-
+        console.log(pageId, title, description, is_group)
         formData.append('title', title);
         if (description) formData.append('description', description);
-        if (is_group) {
-            formData.append('is_group', is_group);
-        }
+
+        formData.append('is_group', is_group ? '1' : '0');
 
         console.log('Files to upload:', attachments);
         if (attachments) {
             attachments.forEach(file => {
-                console.log('File:', file.name, file.size, file.type);
                 formData.append('attachments[]', file);
             });
         }
-
 
         const response = await client.post(
             `${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}`,
@@ -136,12 +133,37 @@ export const deleteQuestion = async (pageId, questionId) => {
     }
 };
 
-export const updateQuestion = async (pageId, questionId, title, description) => {
+export const updateQuestion = async (pageId, questionId, title, description, is_group = false, attachments) => {
     try {
-        const response = await client.patch(`${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}/${questionId}`, { title: title, description: description });
+        console.log(pageId, questionId, title, description, is_group = false, attachments)
+        const formData = new FormData();
+
+        // Добавляем текстовые поля
+        formData.append('title', title);
+        if (description) formData.append('description', description);
+        if (is_group) formData.append('is_group', is_group);
+
+        // Добавляем файлы (если есть)
+        if (attachments && attachments.length > 0) {
+            attachments.forEach((file) => {
+                formData.append('attachments[]', file);
+            });
+        }
+        formData.get('title')
+        const response = await client.post(
+            `${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}/${questionId}`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        );
+
         return response.data;
     } catch (error) {
-        console.error('Полная ошибка:', error);
+        console.error('Ошибка при обновлении вопроса:', error);
+        throw error;
     }
 };
 
