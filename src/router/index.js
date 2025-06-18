@@ -32,7 +32,10 @@ const baseRoutes = [
     {
         path: '/auth/google/callback',
         name: 'google-callback',
-        component: () => import('@/pages/auth/GoogleCallback.vue')
+        component: () => import('@/pages/auth/GoogleCallback.vue'),
+        meta: {
+            requiresAuth: false
+        }
     },
     {
         path: '/verification',

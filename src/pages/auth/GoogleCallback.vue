@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { handleGoogleCallback } from '@/api/modules/auth.api';
 import { addRoleRoutes } from '@/router';
@@ -15,40 +15,39 @@ const router = useRouter();
 
 onMounted(async () => {
     try {
-        // const code = route.query.code;
-        // const state = route.query.state;
 
-        // if (!code || !state) {
-        //     throw new Error('Authorization code missing');
-        // }
+        const params = {
+            code: route.query.code,
+            state: route.query.state || null,
+        };
 
-        const response = await handleGoogleCallback();
-        localStorage.setItem('token', response.access_token);
+        const resp = await handleGoogleCallback(params);
+        console.log(resp)
+        localStorage.setItem('token', resp.access_token);
 
         localStorage.setItem('user', JSON.stringify({
-            id: response.id,
-            name: response.name,
-            role: response.role,
-            email: response.email,
-            image: response.image
+            id: resp.id,
+            name: resp.name,
+            role: resp.role,
+            email: resp.email,
+            image: resp.image
         }));
-        if (resp.data.data.status === 'rejected') {
-            // await nextTick()
+        if (resp.status === 'rejected') {
+            await nextTick()
             router.push('/denied')
             return
         }
-        if (resp.data.data.status === 'pending') {
-            // await nextTick()
+        if (resp.status === 'pending') {
+            await nextTick()
             router.push('/waiting')
             return
         }
-        addRoleRoutes(resp.data.data.role);
-        // await nextTick()
+        addRoleRoutes(resp.role);
+        await nextTick()
         router.push('/courses');
 
     } catch (error) {
         console.error('Google login failed:', error);
-        router.push('/signin?google_error=1');
     }
 });
 </script>

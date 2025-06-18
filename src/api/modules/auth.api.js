@@ -26,6 +26,7 @@ export const register = async (name, email, password) => {
 export const getLoginUrls = async () => {
     try {
         const response = await client.get(`${ENDPOINTS.LOGIN}`);
+        console.log(response)
         return response.data;
     } catch (error) {
         console.error('Error fetching auth URLs:', error);
@@ -33,11 +34,14 @@ export const getLoginUrls = async () => {
     }
 };
 
-export const handleGoogleCallback = async (code, state) => {
+export const handleGoogleCallback = async (params = {}) => {
     try {
-        const response = await axios.post(ENDPOINTS.GOOGLE_CALLBACK);
-        return response.data;
+        const response = await client.get(ENDPOINTS.GOOGLE_CALLBACK, {
+            params: params
+        });
+        return response.data.data;
     } catch (error) {
+        console.error('Google authentication failed:', error);
         throw new Error('Google authentication failed');
     }
 };
