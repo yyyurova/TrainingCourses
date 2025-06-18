@@ -328,4 +328,10 @@ provide('content', content)
     }
 
 }
+
+@media (max-width: 960px) {
+    .top {
+        flex-direction: column;
+    }
+}
 </style>

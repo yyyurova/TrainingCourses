@@ -265,10 +265,21 @@ div:has(.block) {
             gap: 10px;
 
             p {
-                flex: 1
+                flex: 1;
+                word-break: break-all;
             }
         }
     }
 
+}
+
+@media (max-width: 768px) {
+    .practicants .card {
+        width: 100% !important;
+    }
+
+    button.transparent.border {
+        width: 100% !important;
+    }
 }
 </style>

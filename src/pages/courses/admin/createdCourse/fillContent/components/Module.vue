@@ -153,4 +153,10 @@ const checkEmptyness = (e) => {
     max-height: 0;
     transform: translateY(-10px);
 }
+
+@media (max-width: 960px) {
+    input.name {
+        width: 100% !important;
+    }
+}
 </style>
