@@ -27,6 +27,7 @@
                 </div>
                 <span v-if="errors.password" class="error">{{ errors.password }}</span>
             </div>
+            <span v-if="errors.all" class="error">{{ errors.all }}</span>
             <button type="submit" class="blue wide" :disabled="!isFormFilled">Зарегистрироваться</button>
 
             <div class="separator">или</div>
@@ -131,7 +132,10 @@ const handleSubmit = async () => {
 
             router.push('/verification')
         }
-        catch (err) { console.log(err) }
+        catch (err) {
+            errors.value.all = 'Неправильные email или пароль';
+            console.log(err)
+        }
     }
 }
 

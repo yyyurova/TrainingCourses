@@ -321,4 +321,10 @@ h2 {
 
     }
 }
+
+@media (max-width: 960px) {
+    .cards .card {
+        width: 100% !important;
+    }
+}
 </style>

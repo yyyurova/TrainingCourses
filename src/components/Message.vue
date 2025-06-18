@@ -12,7 +12,7 @@
                             <img src="/icons/file.svg" alt="">
                         </button>
                         <!-- <p>{{ attachment.url }}</p> -->
-                        <a :href="attachment.url">{{ attachment.url }}</a>
+                        <a :href="attachment.url">{{ attachment.name }}</a>
                     </div>
                 </div>
             </div>
@@ -114,8 +114,8 @@ const props = defineProps({
         }
     }
 
-
     .username {
+        word-break: break-all;
         font-weight: 400;
         font-size: 14px;
         line-height: 20px;

@@ -34,6 +34,7 @@ const emit = defineEmits(['delete'])
 
     p {
         flex: 1;
+        word-break: break-all;
     }
 }
 </style>
