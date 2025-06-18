@@ -237,9 +237,7 @@ const handleCreateUser = async (user) => {
             role: user.role,
             date: new Date()
         })
-        // const { data } = await axios.post(`https://c1a9f09250b13f61.mokky.dev/users`, {
 
-        // })
         await fetchUsers()
         popupText.value = 'Пользователь создан'
         showPopup.value = true

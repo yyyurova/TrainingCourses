@@ -56,12 +56,8 @@
             </div>
 
             <div class="quiz" v-if="currentPage.type === 3">
-                <button class="blue" @click="addNewQuestion">
-                    Добавить вопрос
-                    <img src="/icons/plus.svg" alt="">
-                </button>
 
-                <div class="question-list">
+                <div class="question-list" v-if="quizData.questions?.length">
                     <div class="question-item" v-for="(question, qIndex) in quizData.questions" :key="qIndex">
                         <div class="question-header">
                             <h4>Вопрос {{ qIndex + 1 }}</h4>
@@ -113,6 +109,11 @@
                         </div>
                     </div>
                 </div>
+
+                <button class="blue" @click="addNewQuestion">
+                    Добавить вопрос
+                    <img src="/icons/plus.svg" alt="">
+                </button>
             </div>
         </Card>
         <div class="save-block">
