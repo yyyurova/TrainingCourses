@@ -695,6 +695,7 @@ provide('material', material);
         box-sizing: border-box;
         border: 1px solid #D9D9D9;
         width: 40%;
+        min-width: 300px;
         font-size: 14px;
 
         .radio {
