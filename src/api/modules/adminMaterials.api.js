@@ -92,12 +92,39 @@ export const getQuestion = async (pageId, questionId) => {
     }
 };
 
-export const createQuestion = async (pageId, title, description, is_group) => {
+export const createQuestion = async (pageId, title, description, is_group, attachments = []) => {
     try {
-        const response = await client.post(`${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}`, { title: title, description: description, is_group: is_group });
+        const formData = new FormData();
+
+        formData.append('title', title);
+        if (description) formData.append('description', description);
+        if (is_group) {
+            formData.append('is_group', is_group);
+        }
+
+        console.log('Files to upload:', attachments);
+        if (attachments) {
+            attachments.forEach(file => {
+                console.log('File:', file.name, file.size, file.type);
+                formData.append('attachments[]', file);
+            });
+        }
+
+
+        const response = await client.post(
+            `${ENDPOINTS.ADMIN_MODULE}/page/question/${pageId}`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }
+        );
+        console.log(response)
         return response.data;
     } catch (error) {
-        console.error('Полная ошибка:', error);
+        console.error('Ошибка при создании вопроса:', error);
+        throw error;
     }
 };
 

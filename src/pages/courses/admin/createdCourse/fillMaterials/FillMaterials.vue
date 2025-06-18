@@ -125,7 +125,7 @@
 </template>
 
 <script setup>
-import { ref, provide, onMounted, watchEffect, watch, computed } from 'vue';
+import { ref, provide, onMounted, watch } from 'vue';
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { getCourse } from '@/api/modules/adminCourses.api';
 import {
@@ -208,29 +208,28 @@ const goToPage = async (index) => {
     }
 };
 
-const handleFileUpload = (e) => {
-    const files = e.target.files;
-    if (!files.length) return;
+// const handleFileUpload = (e) => {
+//     const files = e.target.files;
+//     if (!files.length) return;
 
-    const file = files[0];
-    const reader = new FileReader();
+//     const file = files[0];
+//     const reader = new FileReader();
 
-    reader.onload = (event) => {
-        const fileObj = {
-            id: Date.now(),
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            base64: event.target.result // Сохраняем файл как base64
-        };
+//     reader.onload = (event) => {
+//         const fileObj = {
+//             id: Date.now(),
+//             name: file.name,
+//             size: file.size,
+//             type: file.type,
+//             base64: event.target.result // Сохраняем файл как base64
+//         };
 
-        uploadedFiles.value = [fileObj];
-    };
+//         uploadedFiles.value = [fileObj];
+//     };
 
-    reader.readAsDataURL(file);
-    e.target.value = '';
-};
-
+//     reader.readAsDataURL(file);
+//     e.target.value = '';
+// };
 
 const removeFile = (index) => {
     uploadedFiles.value.splice(index, 1);
@@ -293,19 +292,32 @@ const loadPageContent = async () => {
         currentPageContent.value = currentQuestion.value?.description || '';
     }
     else if (currentPage.value.type === 2) {
-        // Видео страница - очищаем старые данные
+        // Видео страница
         selectedWay.value = 'other';
         videoLink.value = '';
         uploadedFiles.value = [];
 
-        // Попытка извлечения ссылки из HTML
         if (currentQuestion.value?.description) {
+            // Пытаемся извлечь ссылку из iframe
             const parser = new DOMParser();
             const doc = parser.parseFromString(currentQuestion.value.description, 'text/html');
             const iframe = doc.querySelector('iframe');
-            if (iframe) {
+
+            if (iframe && iframe.src.includes('youtube.com')) {
                 videoLink.value = iframe.src.replace('embed/', 'watch?v=');
+            } else if (currentQuestion.value.description.startsWith('http')) {
+                videoLink.value = currentQuestion.value.description;
             }
+        }
+
+        // Проверяем, есть ли прикрепленные файлы
+        if (currentQuestion.value?.attachments?.length) {
+            selectedWay.value = 'upload';
+            uploadedFiles.value = currentQuestion.value.attachments.map(att => ({
+                name: att.filename || 'Видеофайл',
+                size: att.size || 0,
+                type: att.mimetype || 'video/*'
+            }));
         }
     }
     else if (currentPage.value.type === 3) {
@@ -362,6 +374,25 @@ const saveCourse = async () => {
                     description
                 );
             }
+        }
+        else if (currentPage.value.type === 2) {
+            let description = '';
+            let attachments = [];
+
+            if (selectedWay.value === 'other' && videoLink.value) {
+                description = generateVideoIframe(videoLink.value);
+            } else if (selectedWay.value === 'upload') {
+                attachments = [...uploadedFiles.value]; // Копируем массив File объектов
+            }
+
+            console.log('Preparing to send:', { attachments });
+            await createQuestion(
+                currentPage.value.id,
+                pageName.value,
+                description,
+                false,
+                attachments
+            );
         }
         else if (currentPage.value.type === 3) {
             for (const question of quizData.value.questions) {
@@ -455,6 +486,7 @@ const saveCourse = async () => {
                 }
             }
         }
+
         hasChanges.value = false;
         await fetchMaterial();
 
@@ -475,6 +507,28 @@ const saveCourse = async () => {
             showPopup.value = false;
         }, 5000);
     }
+};
+
+const generateVideoIframe = (url) => {
+    const videoId = extractVideoId(url);
+    if (videoId) {
+        return `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+    }
+    return url; // Если не YouTube ссылка, возвращаем как есть
+};
+
+const extractVideoId = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+};
+
+const handleFileUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    uploadedFiles.value = files.map(file => file); // Сохраняем оригинальные File объекты
+    e.target.value = '';
 };
 
 const addNewQuestion = () => {
@@ -596,7 +650,7 @@ onMounted(async () => {
     }
 });
 
-watch([() => currentPageContent.value, () => videoLink.value, () => quizData.value], () => {
+watch([() => currentPageContent.value, () => videoLink.value, () => uploadedFiles.value, () => quizData.value], () => {
     hasChanges.value = true;
 }, { deep: true });
 

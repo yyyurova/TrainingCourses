@@ -18,6 +18,17 @@
             </div>
 
             <div v-if="currentPageData && !loading" class="content">
+
+                <div v-if="currentPageData.type === 2 && currentPageData.questions?.[0]?.description"
+                    class="video-container">
+                    <!-- <div v-html="currentPageData.questions[0].description"></div> -->
+
+                    <!-- Для загруженных видео -->
+                    <video v-if="currentPageData.questions[0]?.attachments?.length" controls>
+                        <source :src="getVideoUrl(currentPageData.questions[0].attachments[0])" type="video/mp4">
+                        Ваш браузер не поддерживает видео тег.
+                    </video>
+                </div>
                 <div v-if="currentPageData.questions && currentPageData.questions.length" class="qiuz">
                     <div v-for="(question, qIndex) in currentPageData.questions" :key="qIndex">
                         <div v-if="question.variants && question.variants.length" class="quiz-section">
@@ -44,7 +55,8 @@
             </div>
 
             <div class="action-buttons">
-                <button class="blue" @click="checkQuiz" :disabled="(hasQuizzes && !hasSelectedAnswers) || loading">
+                <button class="blue" v-if="hasQuizzes" @click="checkQuiz"
+                    :disabled="(hasQuizzes && !hasSelectedAnswers) || loading">
                     Проверить тест
                 </button>
 
@@ -411,11 +423,13 @@ watch(() => route.params, async (newParams) => {
     } else if (newParams.pageId && Number(newParams.pageId) !== Number(currentPageId.value)) {
         currentPageId.value = Number(newParams.pageId);
         await loadPageContent();
+        console.log(currentPageData.value)
     }
 }, { immediate: true, deep: true });
 
 onMounted(async () => {
     await fetchMaterial()
+    console.log(currentPageData.value)
 });
 
 provide('material', material);
