@@ -35,14 +35,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, computed } from 'vue';
+import { ref, watch, nextTick, computed } from 'vue';
 import { getChatMessages, createMessage } from '@/api/modules/chat.api';
-import { useRoute } from 'vue-router';
 
 import Card from '@/components/Card.vue';
 import FileCard from '@/pages/chat/components/open/components/FileCard.vue';
 import Message from '@/components/Message.vue';
-import NoMessages from '@/pages/chat/components/open/components/NoMessages.vue';
 import Loading from '@/components/Loading.vue';
 
 // const route = useRoute()
@@ -158,9 +156,16 @@ const deleteFile = (file) => {
     }
 };
 
-onMounted(async () => {
-    await fetchMessages();
-});
+watch(
+    () => props.chat,
+    (newChat) => {
+        if (newChat?.id) {
+            fetchMessages();
+        }
+    },
+    { immediate: true } // Вызовет fetchMessages сразу, если chat уже есть
+);
+
 </script>
 
 <style scoped lang="scss">
