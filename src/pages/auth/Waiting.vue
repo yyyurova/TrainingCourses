@@ -4,10 +4,10 @@
             <img src="/icons/logo.svg" alt="">
             <div class="text">
                 <h1>
-                    Подтверждение электронной почты
+                    Ожидание одобрения
                 </h1>
                 <p>
-                    Мы отправили письмо на {{ email }}. Перейдите по ссылке в письме для активации аккаунта
+                    Ваша заявка принята. Доступ будет предоставлен после подтверждения администратором
                 </p>
             </div>
         </div>
@@ -16,17 +16,14 @@
 
 <script setup>
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { getCurrentUser } from '@/utils/auth';
-import { onMounted, ref } from 'vue';
-
-const email = ref(null)
-onMounted(() => {
-    email.value = getCurrentUser().email
-})
 </script>
 
 <style scoped lang="scss">
 .block {
+    * {
+        text-align: center;
+    }
+
     display: flex;
     flex-direction: column;
     align-items: center;

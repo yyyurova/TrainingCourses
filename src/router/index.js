@@ -7,11 +7,8 @@ import { getUserRole } from "@/utils/auth";
 import Registration from "@/pages/auth/Registration.vue";
 import Login from "@/pages/auth/Login.vue";
 import EmailVerification from "@/pages/auth/EmailVerification.vue";
-import Chat from "@/pages/chat/Chat.vue";
-
-import Attachments from "@/pages/chat/components/open/settings/components/attachments/Attachments.vue";
-import Docs from "@/pages/chat/components/open/settings/components/Docs.vue";
-import Members from "@/pages/chat/components/open/settings/components/members/Members.vue";
+import Waiting from "@/pages/auth/Waiting.vue";
+import AccessRejected from "@/pages/auth/AccessRejected.vue";
 
 const baseRoutes = [
     {
@@ -38,6 +35,24 @@ const baseRoutes = [
         component: EmailVerification,
         meta: {
             title: 'Подтверждение электронной почты',
+            requiresAuth: false
+        }
+    },
+    {
+        path: '/denied',
+        name: 'AccessDenied',
+        component: AccessRejected,
+        meta: {
+            title: 'Доступ отклонен',
+            requiresAuth: false
+        }
+    },
+    {
+        path: '/waiting',
+        name: 'Waiting',
+        component: Waiting,
+        meta: {
+            title: 'Ожидание одобрения',
             requiresAuth: false
         }
     },

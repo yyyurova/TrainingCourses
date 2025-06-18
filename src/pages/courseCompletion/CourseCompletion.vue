@@ -8,7 +8,7 @@
             <h1 class="moduleName">
                 {{ currentModule.title }}
                 <span class="score">{{ completedPages + " из " + currentModule.pages.length + " шагов пройдено"
-                    }}</span>
+                }}</span>
             </h1>
             <h2 v-if="currentPageData" class="pageName">{{ currentPageData.title }}</h2>
             <div class="squares-score">
@@ -484,6 +484,10 @@ provide('activity', activity)
 
     .content {
         width: 100%;
+
+        video {
+            max-height: 500px;
+        }
 
         h2 {
             font-weight: 600;

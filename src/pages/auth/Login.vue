@@ -91,13 +91,32 @@ const handleSubmit = async () => {
         const resp = await login(email.value, password.value);
         localStorage.setItem('token', resp.data.data.access_token);
 
+        console.log({
+            id: resp.data.data.id,
+            name: resp.data.data.name,
+            role: resp.data.data.role,
+            email: resp.data.data.email,
+            image: resp.data.data.image,
+            status: resp.data.data.ststus
+        })
         localStorage.setItem('user', JSON.stringify({
             id: resp.data.data.id,
             name: resp.data.data.name,
             role: resp.data.data.role,
             email: resp.data.data.email,
-            image: resp.data.data.image
+            image: resp.data.data.image,
+            status: resp.data.data.ststus
         }));
+        if (resp.data.data.status === 'rejected') {
+            await nextTick()
+            router.push('/denied')
+            return
+        }
+        if (resp.data.data.status === 'pending') {
+            await nextTick()
+            router.push('/waiting')
+            return
+        }
         addRoleRoutes(resp.data.data.role);
         await nextTick()
         router.push('/courses');

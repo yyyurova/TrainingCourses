@@ -389,9 +389,9 @@ const saveCourse = async () => {
                 await updateQuestion(
                     currentPage.value.id,
                     currentQuestion.value.id,
-                    pageName.value, // Убедитесь, что передаёте title
+                    pageName.value,
                     description,
-                    false, // is_group
+                    false,
                     attachments
                 );
             } else {
