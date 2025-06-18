@@ -5,6 +5,7 @@ export const login = async (email, password) => {
     try {
         return await client.post(`${ENDPOINTS.LOGIN}`, { email, password });
     } catch (error) {
+        console.log(error)
         return { error };
     }
 };

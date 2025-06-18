@@ -8,7 +8,10 @@
                 <Message v-for="message in messages" :key="message.id" :message="message" />
             </div>
             <Loading v-else-if="isLoading" />
-            <NoMessages v-else />
+
+            <div class="no-items" v-else>
+                <p>В чате нет сообщений</p>
+            </div>
 
             <div v-if="attachedFiles.length > 0" class="files">
                 <FileCard v-for="file in attachedFiles" :key="file.name" :file="file" @delete-file="deleteFile" />
@@ -64,7 +67,6 @@ const scrollToBottom = () => {
 };
 
 const fetchMessages = async () => {
-    // Если нет chatId, не пытаемся загружать сообщения
     if (!chatId.value) return;
 
     try {
@@ -179,30 +181,45 @@ onMounted(async () => {
         display: flex;
         flex-direction: column;
         width: 100%;
+        max-height: 400px;
+        /* Максимальная высота всего блока чата */
+        min-height: 200px;
+        /* Минимальная высота */
 
         .messages-in-task {
-            height: 200px;
-            min-height: 200px;
+            flex: 1;
+            /* Занимает все доступное пространство */
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             padding: 10px;
             gap: 10px;
 
-            .day {
-                font-weight: 400;
-                font-size: 16px;
-                line-height: 20px;
-                letter-spacing: 0px;
-                text-align: center;
-                padding-bottom: 10px;
+            .spacer {
+                flex: 1;
+                /* Помогает с прокруткой */
+            }
+        }
+
+        :deep(.loading-dots) {
+            flex: 1;
+        }
+
+        .no-items {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+
+            p {
+                color: #8f8f8f;
             }
         }
 
         .files {
             padding: 5px 10px;
             width: 100%;
-            max-width: 100%;
             overflow-x: auto;
             border-top: 1px solid #D9D9D9;
             white-space: nowrap;
@@ -215,20 +232,28 @@ onMounted(async () => {
 
         .input-field {
             width: 100%;
-            padding: 7px 12px;
+            padding: 7px 12px 0 12px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
             border-radius: 0 0 8px 8px;
             border-top: 1px solid #D9D9D9;
+            background: white;
+            position: sticky;
+            bottom: 0;
 
             .center {
                 flex: 1;
+                min-width: 0;
+                /* Предотвращает переполнение */
 
                 .limit-message {
                     padding-left: 5px;
                     color: red;
                     font-size: 12px;
+                    white-space: normal;
+                    /* Разрешаем перенос текста */
                 }
             }
 
@@ -243,6 +268,8 @@ onMounted(async () => {
             border: none;
             outline: none;
             width: 100%;
+            min-width: 0;
+            /* Предотвращает переполнение */
         }
     }
 }

@@ -40,7 +40,6 @@
                     <Message v-for="message in messages" :key="message.id" :message="message" />
                 </div>
                 <Loading v-else-if="isLoading" />
-                <!-- <NoMessages v-else /> -->
                 <div class="no-items" v-else>
                     <p>В чате нет сообщений</p>
                 </div>
@@ -174,6 +173,7 @@ const fileUpload = () => {
 };
 
 const sendMessage = async () => {
+    isLoading.value = true
     const text = messageInput.value.value.trim();
 
     if (!text && attachedFiles.value.length === 0) return;
@@ -201,6 +201,7 @@ const sendMessage = async () => {
     } catch (error) {
         console.error('Ошибка отправки комментария', error);
     } finally {
+        isLoading.value = false
         limitMessage.value = '';
     }
 };
@@ -327,6 +328,10 @@ watch(() => props.practicant, async (newPr) => {
                 flex: 1;
                 /* Помогает с прокруткой */
             }
+        }
+
+        :deep(.loading-dots) {
+            flex: 1;
         }
 
         .no-items {

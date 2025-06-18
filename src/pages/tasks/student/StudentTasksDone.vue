@@ -41,6 +41,7 @@ const fetchCurrentTasks = async () => {
                 mark: studentTask?.mark || null
             };
         });
+        tasks.value.sort(t => -t.id)
     } finally {
         isLoading.value = false
     }

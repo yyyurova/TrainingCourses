@@ -126,6 +126,7 @@ const fetchTasks = async () => {
     try {
         isLoading.value = true
         tasks.value = await getTasksByCourse(course.value.id)
+        tasks.value.sort(t => -t.id)
     } catch (err) { console.log(err) }
     finally {
         isLoading.value = false

@@ -3,9 +3,9 @@
         <h1>Успеваемость</h1>
         <Navbar :elements="navbarItems" />
         <div v-if="!isLoading">
-            <div class="tests">
+            <div class="tests" v-if="testsStatiscics">
                 <h3>Тесты</h3>
-                <div class="success" v-if="testsStatiscics">
+                <div class="success">
                     <div class="row">
                         <Card class="center no-hover">
                             <p class="label">Количество тестов</p>
