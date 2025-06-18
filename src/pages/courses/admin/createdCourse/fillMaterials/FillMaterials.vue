@@ -120,7 +120,7 @@
             <button class="blue" @click="saveCourse">Сохранить изменения</button>
             <button class="transparent border" @click="goToCourses">Вернуться к списку курсов</button>
         </div>
-        <SaveChanges v-if="showSaveChangesModal" @cancel="closeModal" @confirm="saveCourse" />
+        <SaveChanges v-if="showSaveChangesModal" @cancel="closeModal" @confirm="saveCourse" @discard="discardChanges" />
         <Popup v-if="showPopup" :text="popupText" @close="closePopup" :is-success="isSuccess" />
     </FillCourseMaterialsLayout>
 </template>
@@ -155,7 +155,11 @@ const course = ref(null);
 const material = ref(null);
 const isLoading = ref(false);
 
+const isInitializing = ref(true);
+
 const hasChanges = ref(false);
+
+const nextRoute = ref(null);
 
 const currentModule = ref(null);
 const currentPage = ref(null);
@@ -187,6 +191,16 @@ const openSaveChangesModal = () => {
     showSaveChangesModal.value = true
 }
 
+const discardChanges = () => {
+    hasChanges.value = false;
+    if (nextRoute.value !== null) {
+        const index = nextRoute.value;
+        nextRoute.value = null;
+        goToPage(index);
+    }
+    closeModal();
+};
+
 const translateType = (type) => {
     switch (type) {
         case 1: return 'Текст';
@@ -204,9 +218,12 @@ const goToPage = async (index) => {
     if (!currentModule.value) return;
 
     const page = currentModule.value.pages[index];
-    if (page) {
+    if (page && !hasChanges.value) {
         router.push(`/course-fill-materials/${course.value.id}/module/${currentModule.value.id}/page/${page.id}`);
     }
+
+    nextRoute.value = index;
+    openSaveChangesModal()
 };
 
 // const handleFileUpload = (e) => {
@@ -285,6 +302,7 @@ const loadPageQuestion = async (pageId) => {
 
 const loadPageContent = async () => {
     if (!currentPage.value) return;
+    isInitializing.value = true;
 
     await loadPageQuestion(currentPage.value.id);
 
@@ -347,6 +365,7 @@ const loadPageContent = async () => {
             addNewQuestion();
         }
     }
+    isInitializing.value = false;
 };
 
 const saveCourse = async () => {
@@ -499,6 +518,12 @@ const saveCourse = async () => {
             showPopup.value = false;
         }, 5000);
 
+        if (nextRoute.value !== null) {
+            const index = nextRoute.value;
+            nextRoute.value = null;
+            const page = currentModule.value.pages[index];
+            router.push(`/course-fill-materials/${course.value.id}/module/${currentModule.value.id}/page/${page.id}`);
+        }
     } catch (err) {
         if (err.status === 413) {
             isSuccess.value = false;
@@ -662,6 +687,7 @@ onMounted(async () => {
 });
 
 watch([() => currentPageContent.value, () => videoLink.value, () => uploadedFiles.value, () => quizData.value], () => {
+    if (isInitializing.value || !currentPage.value) return;
     hasChanges.value = true;
 }, { deep: true });
 

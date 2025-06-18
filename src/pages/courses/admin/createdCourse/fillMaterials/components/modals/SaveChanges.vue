@@ -6,6 +6,7 @@
             <div class="modal-buttons">
                 <button class="transparent" @click="$emit('cancel')">Отмена</button>
                 <button class="blue" @click="$emit('confirm')">Сохранить</button>
+                <button class="discard" @click="$emit('discard')">Перейти без сохранения</button>
             </div>
         </div>
     </div>
@@ -15,4 +16,13 @@
 const emit = defineEmits(['cancel', 'confirm'])
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.modal-buttons {
+    flex-wrap: wrap;
+    gap: 10px;
+
+    button.discard {
+        width: 100%;
+    }
+}
+</style>

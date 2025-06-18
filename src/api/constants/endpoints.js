@@ -22,5 +22,7 @@ export const ENDPOINTS = {
     TASK: '/task',
     ATTACHMENTS: '/attachments',
 
-    ANSWERS: '/question-answers'
+    ANSWERS: '/question-answers',
+
+    GOOGLE_CALLBACK: '/google/callback'
 }

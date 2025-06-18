@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal__inner">
                 <div class="top-row">
-                    <img src="/icons/danger.svg" alt="">
+                    <img src="/icons/attention.svg" alt="">
                     <h2>{{ question }}</h2>
                 </div>
                 <p v-if="text">{{ text }}</p>

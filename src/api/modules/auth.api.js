@@ -35,10 +35,7 @@ export const getLoginUrls = async () => {
 
 export const handleGoogleCallback = async (code, state) => {
     try {
-        const response = await axios.post('/api/auth/google/callback', {
-            code,
-            state
-        });
+        const response = await axios.post(ENDPOINTS.GOOGLE_CALLBACK);
         return response.data;
     } catch (error) {
         throw new Error('Google authentication failed');

@@ -15,14 +15,14 @@ const router = useRouter();
 
 onMounted(async () => {
     try {
-        const code = route.query.code;
-        const state = route.query.state;
+        // const code = route.query.code;
+        // const state = route.query.state;
 
-        if (!code || !state) {
-            throw new Error('Authorization code missing');
-        }
+        // if (!code || !state) {
+        //     throw new Error('Authorization code missing');
+        // }
 
-        const response = await handleGoogleCallback(code, state);
+        const response = await handleGoogleCallback();
         localStorage.setItem('token', response.access_token);
 
         localStorage.setItem('user', JSON.stringify({

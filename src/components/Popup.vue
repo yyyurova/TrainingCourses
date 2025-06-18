@@ -1,6 +1,6 @@
 <template>
     <div class="confirmation-popup">
-        <img :src="isSuccess ? '/icons/checkcircle.svg' : '/icons/danger.svg'" alt="">
+        <img :src="isSuccess ? '/icons/checkcircle.svg' : '/icons/attention.svg'" alt="">
         <p>{{ text }}</p>
         <button class="icon" @click="emit('closePopup')">
             <img src="/icons/x.svg" alt="">
