@@ -217,8 +217,7 @@ button.blue {
 
             .avatar {
                 width: 35px;
-                height: auto;
-                max-height: 35px;
+                height: 35px;
                 border-radius: 4px;
                 object-fit: cover;
             }

@@ -11,17 +11,17 @@ export const login = async (email, password) => {
 };
 
 export const register = async (name, email, password) => {
-    try {
-        return await client.post(`${ENDPOINTS.REGISTER}`, {
-            name: name,
-            email: email,
-            password: password,
-        });
-    } catch (error) {
-        console.error('Ошибка:', error);
-        return [];
-    }
-};
+    return await client.post(`${ENDPOINTS.REGISTER}`, {
+        name: name,
+        email: email,
+        password: password,
+    });
+    // } catch (error) {
+    //     console.error('Ошибка:', error);
+    //     return error;
+    // }
+}
+    ;
 
 export const getLoginUrls = async () => {
     try {

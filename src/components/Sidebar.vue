@@ -429,10 +429,9 @@ provide('user', user)
             }
 
             .avatar {
-                width: 30px;
+                width: 35px;
                 border-radius: 4px;
-                height: auto;
-                max-height: 35px;
+                height: 35px;
                 object-fit: cover;
             }
 

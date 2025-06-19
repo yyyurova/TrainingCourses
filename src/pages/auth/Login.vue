@@ -5,14 +5,16 @@
             <h1 id="header">Вход</h1>
             <div class="field">
                 <label for="email">Электронная почта<span class="required">*</span></label>
-                <input autocomplete="email" v-model="email" type="email" class="email credintals"
+                <input name="email" autocomplete="email" v-model="email" type="email" class="email credintals"
                     placeholder="name@email.com" required>
                 <span v-if="errors.email" class="error">{{ errors.email }}</span>
             </div>
+
             <div class="field">
                 <label for="password">Пароль<span class="required">*</span></label>
                 <div class="pass-container">
-                    <input v-model="password" ref="passwordInput" type="password" class="password credintals" required>
+                    <input name="password" autocomplete="off" v-model="password" ref="passwordInput" type="password"
+                        class="password credintals" required>
                     <img @click="switchPasswordVisibility" ref="eye" class="eye" src="/icons/eye-closed.svg" alt="">
                 </div>
                 <span v-if="errors.password" class="error">{{ errors.password }}</span>

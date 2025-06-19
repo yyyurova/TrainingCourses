@@ -16,7 +16,8 @@
                     <div v-show="showCoursesDropdown" class="dropdown courses">
                         <div v-for="course in courses" :key="course.id" class="item"
                             @mousedown="classroomCourse = course">
-                            <img :src="course.imageUrl || 'image.png'" :alt="course.title">
+                            <img v-if="course.photo" :src="course.photo" :alt="course.title">
+                            <AvatarLetter v-else :name="course.title" />
                             <span>{{ course.title }}</span>
                         </div>
                     </div>
@@ -34,6 +35,8 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
 import { getCourses } from '@/api/modules/adminCourses.api';
+
+import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const emit = defineEmits(['cancel', 'next']);
 

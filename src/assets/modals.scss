@@ -107,9 +107,10 @@ select {
     }
 
     img {
-      padding-left: 5px;
-      width: 36px;
-      height: 36px;
+      width: 35px;
+      height: 35px;
+      border-radius: 4px;
+      object-fit: cover;
     }
   }
 }

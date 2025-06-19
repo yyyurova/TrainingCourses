@@ -6,23 +6,23 @@
 
             <div class="field">
                 <label for="first-last-name">Имя и Фамилия<span class="required">*</span></label>
-                <input v-model="name" type="text" autocomplete="off" class="first-last-name credintals"
+                <input name="name" v-model="name" type="text" autocomplete="name" class="first-last-name credintals"
                     placeholder="Иван Иванов" :class="{ 'incorrect': errors.name }">
                 <span v-if="errors.name" class="error">{{ errors.name }}</span>
             </div>
 
             <div class="field">
                 <label for="email">Электронная почта<span class="required">*</span></label>
-                <input v-model="email" type="email" class="email credintals" placeholder="name@email.com"
-                    :class="{ 'incorrect': errors.email }">
+                <input name="email" v-model="email" type="email" autocomplete="email" class="email credintals"
+                    placeholder="name@email.com" :class="{ 'incorrect': errors.email }">
                 <span v-if="errors.email" class="error">{{ errors.email }}</span>
             </div>
 
             <div class="field">
                 <label for="password">Пароль<span class="required">*</span></label>
                 <div class="pass-container">
-                    <input ref="passwordInput" v-model="password" type="password" class="password credintals"
-                        :class="{ 'incorrect': errors.password }">
+                    <input name="password" ref="passwordInput" v-model="password" type="password" autocomplete="off"
+                        class="password credintals" :class="{ 'incorrect': errors.password }">
                     <img @click="switchPasswordVisibility" ref="eye" class="eye" src="/icons/eye-closed.svg" alt="">
                 </div>
                 <span v-if="errors.password" class="error">{{ errors.password }}</span>
@@ -133,8 +133,34 @@ const handleSubmit = async () => {
             router.push('/verification')
         }
         catch (err) {
-            errors.value.all = 'Неправильные email или пароль';
-            console.log(err)
+            if (err.response && err.response.status === 422) {
+                const errorData = err.response.data;
+
+                errors.value = { name: '', email: '', password: '', all: '' };
+                if (errorData.errors) {
+                    if (errorData.errors.email) {
+                        errors.value.email = errorData.errors.email[0];
+                        if (errorData.errors.email[0] === 'The email has already been taken.') {
+                            errors.value.email = 'Этот адрес электронной почты уже зарегистрирован в системе.'
+                        }
+                        if (errorData.errors.email[0] === 'The email field must be a valid email address.') {
+                            errors.value.email = 'Пожалуйста, введите корректный email'
+                        }
+                    }
+                    if (errorData.errors.password) {
+                        errors.value.password = errorData.errors.password[0];
+                    }
+                    if (errorData.errors.name) {
+                        errors.value.name = errorData.errors.name[0];
+                    }
+                } else if (errorData.message) {
+                    errors.value.all = errorData.message;
+                }
+            } else {
+                // Другие ошибки (например, проблемы с сетью)
+                errors.value.all = 'Произошла ошибка при регистрации. Пожалуйста, попробуйте позже.';
+                console.error('Registration error:', err);
+            }
         }
     }
 }

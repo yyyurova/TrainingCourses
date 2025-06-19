@@ -6,7 +6,6 @@
             <div class="modal-buttons">
                 <button class="transparent" @click="$emit('cancel')">Отмена</button>
                 <button class="blue" @click="$emit('confirm')">Сохранить</button>
-                <button class="discard" @click="$emit('discard')">Перейти без сохранения</button>
             </div>
         </div>
     </div>

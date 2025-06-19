@@ -56,9 +56,8 @@ const props = defineProps({
             align-items: center;
 
             img {
-                width: 36px;
-                height: auto;
-                max-height: 45px;
+                width: 35px;
+                height: 35px;
                 border-radius: 4px;
                 object-fit: cover;
             }
@@ -67,8 +66,6 @@ const props = defineProps({
                 width: 80%;
             }
         }
-
-
     }
 
     .dialog-content {
