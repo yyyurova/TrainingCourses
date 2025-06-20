@@ -45,7 +45,7 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { inject, provide, ref } from "vue";
-import { deleteCourse as apiDeleteCourse, editCourse as apiEditCourse, createCourse as apiCreateCourse } from "@/api/modules/adminCourses.api";
+import { deleteCourse as apiDeleteCourse, editCourse as apiEditCourse, createCourse as apiCreateCourse } from "@/api/modules/adminCourses";
 
 import Layout from '@/layouts/Layout.vue'
 import Card from '@/components/Card.vue'

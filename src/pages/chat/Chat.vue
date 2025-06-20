@@ -18,8 +18,8 @@
 import { provide, ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { getChats, createChat as apiCreateChat, deleteChat as apiDeleteChat, addMembersToChat, editChat as apiEditChat } from '@/api/modules/chat.api';
-import { getUser } from '@/api/modules/adminUsers.api';
+import { getChats, createChat as apiCreateChat, deleteChat as apiDeleteChat, addMembersToChat, editChat as apiEditChat } from '@/api/modules/chat';
+import { getUser } from '@/api/modules/adminUsers';
 
 import ChatLayout from '@/layouts/ChatLayout.vue';
 import AllChats from './components/all/AllChats.vue';

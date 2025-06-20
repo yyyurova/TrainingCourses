@@ -34,7 +34,7 @@
 
 <script setup>
 import { inject, ref, computed, provide } from 'vue';
-import { deleteMember as apiDeleteMember, getChat } from '@/api/modules/chat.api';
+import { deleteMember as apiDeleteMember, getChat } from '@/api/modules/chat';
 
 import MemberCard from './MemberCard.vue';
 import Card from '@/components/Card.vue';

@@ -6,7 +6,7 @@
 import { getUserRole } from '@/utils/auth';
 import { ref, provide, onMounted } from 'vue';
 import { getCourses as getStudentCourses } from '@/api/modules/courses.api';
-import { getCourses as getAdminCourses } from '@/api/modules/adminCourses.api';
+import { getCourses as getAdminCourses } from '@/api/modules/adminCourses';
 import { getCourses as getCuratorCourses } from '@/api/modules/curatorCourses.api';
 
 import Admin_courses from './admin/Admin_courses.vue';

@@ -44,7 +44,7 @@
 import pluralize from 'pluralize-ru';
 import { inject, computed, shallowRef, watch, ref, onMounted, provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getChatAttachments } from '@/api/modules/chat.api';
+import { getChatAttachments } from '@/api/modules/chat';
 
 import Navbar from '@/components/Navbar.vue';
 import Members from './components/members/Members.vue';

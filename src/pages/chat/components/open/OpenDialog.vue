@@ -70,7 +70,7 @@
 <script setup>
 import pluralize from 'pluralize-ru';
 import { inject, watch, ref, computed, onMounted, nextTick } from 'vue';
-import { getChatMessages, getChat, getChatMembers, createMessage } from '@/api/modules/chat.api';
+import { getChatMessages, getChat, getChatMembers, createMessage } from '@/api/modules/chat';
 
 import NoMessages from './components/NoMessages.vue';
 import Message from '@/components/Message.vue';

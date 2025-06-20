@@ -35,7 +35,7 @@ import { ref, onMounted, watch, provide } from 'vue'
 
 import { getUserRole } from '@/utils/auth'
 
-import { getUsers, deleteUser as apiDeleteUser, editUser, createUser } from '@/api/modules/adminUsers.api'
+import { getUsers, deleteUser as apiDeleteUser, editUser, createUser } from '@/api/modules/adminUsers'
 
 import Layout from '../../layouts/Layout.vue'
 

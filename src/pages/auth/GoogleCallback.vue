@@ -7,7 +7,7 @@
 <script setup>
 import { onMounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { handleGoogleCallback } from '@/api/modules/auth.api';
+import { handleGoogleCallback } from '@/api/modules/auth';
 import { addRoleRoutes } from '@/router';
 
 const route = useRoute();

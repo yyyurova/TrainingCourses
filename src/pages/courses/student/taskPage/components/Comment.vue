@@ -38,7 +38,7 @@
 
 <script setup>
 import { ref, watch, nextTick, computed } from 'vue';
-import { getChatMessages, createMessage } from '@/api/modules/chat.api';
+import { getChatMessages, createMessage } from '@/api/modules/chat';
 
 import Card from '@/components/Card.vue';
 import FileCard from '@/pages/chat/components/open/components/FileCard.vue';

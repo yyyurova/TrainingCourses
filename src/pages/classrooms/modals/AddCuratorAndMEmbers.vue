@@ -37,7 +37,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getUsers } from '@/api/modules/adminUsers.api';
+import { getUsers } from '@/api/modules/adminUsers';
 
 const emit = defineEmits(['cancel', 'save']);
 

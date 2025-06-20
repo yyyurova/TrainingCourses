@@ -14,7 +14,7 @@
 
             <div class="field">
                 <label for="password">Пароль<span class="required">*</span></label>
-                
+
                 <div class="pass-container">
                     <input name="password" autocomplete="off" v-model="password" ref="passwordInput" type="password"
                         class="password credintals" required>
@@ -23,16 +23,16 @@
 
                 <span v-if="errors.password" class="error">{{ errors.password }}</span>
             </div>
-           
+
             <span v-if="errors.all" class="error">{{ errors.all }}</span>
-           
+
             <button type="submit" class="blue wide" :disabled="!(email.trim() && password.trim())">Войти</button>
-           
+
             <div class="separator">или</div>
-           
+
             <div class="google-container">
                 <span v-if="errors.google" class="error">{{ errors.google }}</span>
-                
+
                 <button class="transparent border wide" @click.prevent="signInWithGoogle">
                     Войти через Google
                     <img src="/icons/google.svg" alt="Google Icon">
@@ -51,7 +51,7 @@
 <script setup>
 import { nextTick, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { login, getLoginUrls } from '@/api/modules/auth.api';
+import { login, getLoginUrls } from '@/api/modules/auth';
 import { addRoleRoutes } from '@/router';
 
 import AuthLayout from '@/layouts/AuthLayout.vue';

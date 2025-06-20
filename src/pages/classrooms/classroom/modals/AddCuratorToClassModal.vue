@@ -28,7 +28,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getUsers } from '@/api/modules/adminUsers.api';
+import { getUsers } from '@/api/modules/adminUsers';
 
 import Loading from '@/components/Loading.vue';
 

@@ -135,7 +135,7 @@
 <script setup>
 import { ref, provide, onMounted, watch } from 'vue';
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
-import { getCourse } from '@/api/modules/adminCourses.api';
+import { getCourse } from '@/api/modules/adminCourses';
 import {
     getModules,
     getPagesForModule,
@@ -148,7 +148,7 @@ import {
     createVariant,
     updateVariant,
     deleteVariant
-} from '@/api/modules/adminMaterials.api';
+} from '@/api/modules/adminMaterials';
 
 import TextEditorCard from '@/components/TextEditorCard.vue';
 import FillCourseMaterialsLayout from '@/layouts/FillCourseMaterialsLayout.vue';

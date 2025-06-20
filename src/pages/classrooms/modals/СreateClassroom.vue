@@ -36,7 +36,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { getCourses } from '@/api/modules/adminCourses.api';
+import { getCourses } from '@/api/modules/adminCourses';
 
 import AvatarLetter from '@/components/AvatarLetter.vue';
 

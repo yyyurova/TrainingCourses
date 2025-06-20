@@ -41,7 +41,7 @@
 <script setup>
 import { onMounted, provide, ref, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getCourse } from '@/api/modules/adminCourses.api';
+import { getCourse } from '@/api/modules/adminCourses';
 import {
     createModule,
     updateModule,
@@ -51,7 +51,7 @@ import {
     getPagesForModule,
     deleteModule,
     deletePage
-} from '@/api/modules/adminMaterials.api';
+} from '@/api/modules/adminMaterials';
 
 import CreateLesson from '../fillMaterials/components/modals/CreateLesson.vue';
 import FillCourseContentLayout from '@/layouts/FillCourseContentLayout.vue';

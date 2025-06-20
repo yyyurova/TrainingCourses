@@ -70,7 +70,7 @@ import { useRouter } from 'vue-router';
 import { logout } from '@/utils/auth';
 import { resetRoleRoutes } from '@/router';
 import { editProfile } from '@/api/modules/profile.api';
-import { pulichCourse } from '@/api/modules/adminCourses.api';
+import { pulichCourse } from '@/api/modules/adminCourses';
 
 import EditUser from '@/components/modals/EditUser.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';

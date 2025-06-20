@@ -54,7 +54,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { register, getLoginUrls } from '@/api/modules/auth.api';
+import { register, getLoginUrls } from '@/api/modules/auth';
 
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
