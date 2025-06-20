@@ -1,7 +1,7 @@
 .modal {
   display: flex;
   position: fixed;
-  z-index: 1000;
+  z-index: 1002;
   left: 0;
   top: 0;
   width: 100%;
@@ -101,7 +101,11 @@ select {
     align-items: center;
     padding: 8px 12px;
     gap: 10px;
-
+    span:not(.avatar-letter),
+    label {
+      flex: 1;
+      word-break: break-all;
+    }
     &:hover {
       background-color: #eeeeee;
     }
@@ -118,5 +122,12 @@ select {
 @media (max-width: 530px) {
   .modal-content {
     width: 95% !important;
+    padding: 40px !important;
+
+    h2,
+    p,
+    .modal-buttons button {
+      font-size: smaller;
+    }
   }
 }

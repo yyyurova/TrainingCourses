@@ -108,7 +108,7 @@ const clearSearch = () => {
 };
 
 const fetchUsers = async () => {
-    allUsers.value = await getUsers()
+    allUsers.value =  await getUsers({ status:'approved' })
     allUsers.value = allUsers.value.filter(u => u.id)
 };
 

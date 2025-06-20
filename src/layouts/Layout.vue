@@ -101,10 +101,4 @@ onBeforeUnmount(() => {
         font-size: 24px;
     }
 }
-
-@media (max-width: 930px) {
-    .content {
-        margin: 20px !important;
-    }
-}
 </style>

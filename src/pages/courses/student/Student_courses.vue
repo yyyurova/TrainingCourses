@@ -3,7 +3,7 @@
     <div v-else>
         <Layout>
             <h1 v-if="courses && courses.length > 0">Курсы</h1>
-            <div v-if="!isLoading && courses.length === 0" class="no-items">
+            <div v-if="!isLoading && courses?.length === 0" class="no-items">
                 <p> У вас нет доступных курсов</p>
             </div>
             <div class="courses" v-if="courses && courses.length > 0">
@@ -45,9 +45,6 @@ const goToCourse = (id) => {
 }
 
 provide('courses', courses)
-// onMounted(async () => {
-//     await fetchCourses()
-// })
 </script>
 
 <style scoped lang="scss">
@@ -106,7 +103,7 @@ provide('courses', courses)
     }
 }
 
-@media (max-width:550px) {
+@media (max-width:768px) {
     .card {
         width: 100%;
     }

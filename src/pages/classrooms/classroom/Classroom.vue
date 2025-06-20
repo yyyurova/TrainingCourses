@@ -105,6 +105,13 @@ const closePopup = () => {
     showPopup.value = false
 }
 
+const showMessage = (text, success) => {
+    popupText.value = text;
+    isSuccess.value = success;
+    showPopup.value = true;
+    setTimeout(() => showPopup.value = false, 5000);
+};
+
 const openAddUserModal = () => {
     showAddUsersModal.value = true
 }
@@ -138,18 +145,10 @@ const deleteMember = async () => {
         closeModal()
         await deleteUserFromClass(classroom.value.id, memberToDelete.value.id)
         await fetchClassroom()
-        popupText.value = 'Практикант успешно удален'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 4000);
+
+        showMessage('Практикант успешно удален', true)
     } catch {
-        popupText.value = 'Не удалось удалить практиканта'
-        isSuccess.value = false
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 4000);
+        showMessage('Не удалось удалить практиканта', false)
     } finally {
         isLoading.value = false
     }
@@ -161,18 +160,10 @@ const addMembers = async (members) => {
         closeModal()
         await addUsersToClass(classroom.value.id, members)
         await fetchClassroom()
-        popupText.value = 'Практиканты успешно добавлены'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 4000);
+
+        showMessage('Практиканты успешно добавлены', true)
     } catch {
-        popupText.value = 'Не удалось добавить практикантов'
-        isSuccess.value = false
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 4000);
+        showMessage('Не удалось добавить практикантов', false)
     } finally {
         isLoading.value = false
     }
@@ -186,18 +177,9 @@ const addCurator = async (curatorId) => {
         await addCuratorToClass(classroom.value.id, curatorId)
         await fetchClassroom()
 
-        popupText.value = 'Куратор успешно добавлен'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 4000);
+        showMessage('Куратор успешно добавлен', true)
     } catch {
-        popupText.value = 'Не удалось добавить куратора'
-        isSuccess.value = false
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 4000);
+        showMessage('Не удалось добавить куратора', false)
     } finally {
         isLoading.value = false
     }
@@ -210,18 +192,9 @@ const deleteCurator = async () => {
         await deleteCuratorFromClass(classroom.value.id)
         await fetchClassroom()
 
-        popupText.value = 'Куратор удален'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 4000);
+        showMessage('Куратор удален', true)
     } catch {
-        popupText.value = 'Не удалось удалить куратора'
-        isSuccess.value = false
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 4000);
+        showMessage('Не удалось удалить куратора', false)
     } finally {
         isLoading.value = false
     }

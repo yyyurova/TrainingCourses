@@ -68,6 +68,10 @@ onBeforeUnmount(() => {
         .content {
             margin: 10px 0 0 0 !important;
         }
+
+        :deep(.top) {
+            padding: 10px !important;
+        }
     }
 
     .sidebar-hidden {
@@ -83,8 +87,6 @@ onBeforeUnmount(() => {
         background-color: rgba(0, 0, 0, 0.5);
         z-index: 1000;
     }
-
-
 }
 
 @media (max-width: 930px) {
@@ -113,7 +115,6 @@ onBeforeUnmount(() => {
             }
         }
     }
-
 
     .sidebar {
         position: fixed;

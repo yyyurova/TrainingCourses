@@ -74,6 +74,13 @@ const saveScrollPosition = () => {
     scrollPosition.value = window.scrollY || document.documentElement.scrollTop;
 };
 
+const showMessage = (text, success) => {
+    popupText.value = text;
+    isSuccess.value = success;
+    showPopup.value = true;
+    setTimeout(() => showPopup.value = false, 5000);
+};
+
 const modalConfig = ref({
     question: '',
     text: '',
@@ -100,11 +107,7 @@ const fetchUsers = async () => {
         const response = await getUsers(params);
         users.value = response.data;
         totalItems.value = response.meta.total;
-        currentPage.value = response.meta.current_page;
-
-        // nextTick(() => {
-        //     window.scrollTo(0, scrollPosition.value);
-        // });
+        currentPage.value = response.meta.current_page
     } catch (error) {
         console.error('Ошибка:', error);
     } finally {
@@ -162,6 +165,8 @@ const deleteUser = async (user) => {
     try {
         await apiDeleteUser(user.id)
         await fetchUsers()
+
+        showMessage(`Пользователь удален`, true)
     } catch (error) {
         console.error('Error deleting user:', error)
     }
@@ -176,17 +181,13 @@ const disapproveUser = async (user) => {
             ...user,
             status: 'rejected'
         })
-        // await axios.patch(`https://c1a9f09250b13f61.mokky.dev/users/${user.id}`, {
-        //     status: 'Доступ не одобрен'
-        // })
+
         await fetchUsers()
-        popupText.value = 'Пользователь удален'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000);
+
+        showMessage(`Доступ для пользователя ${user.name} отклонен`, true)
     } catch (error) {
         console.error('Error disapproving user:', error)
+        showMessage('Не удалось сохранить изменения', false)
     } finally {
         isLoading.value = false
     }
@@ -201,15 +202,17 @@ const selectRole = async (role) => {
     if (!selectedUser.value || !role) return;
     closeModal();
     try {
-
         await editUser(selectedUser.value.id, {
             ...selectedUser.value,
             role: role,
             status: 'approved'
         })
         await fetchUsers();
+
+        showMessage('Роль пользователя обновлена', true)
     } catch (error) {
         console.error('Error approving user:', error);
+        showMessage('Не удалось обновить роль пользователя', false)
     } finally {
         selectedUser.value = null;
     }
@@ -239,13 +242,11 @@ const handleCreateUser = async (user) => {
         })
 
         await fetchUsers()
-        popupText.value = 'Пользователь создан'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000);
+
+        showMessage('Пользователь создан', true)
     } catch (err) {
         console.log(err)
+        showMessage('Ошибка при создании пользователя', false)
     }
 }
 
@@ -260,13 +261,11 @@ const handleEditUser = async (user, newUser) => {
         await editUser(user.id, newUser)
         // await axios.patch(`https://c1a9f09250b13f61.mokky.dev/users/${user.id}`, newInfo);
         await fetchUsers();
-        popupText.value = 'Изменения сохранены'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000);
+
+        showMessage('Изменения сохранены', true)
     } catch (error) {
         console.error('Error editing user:', error);
+        showMessage('Не удалось сохранить изменения', false)
     }
 };
 

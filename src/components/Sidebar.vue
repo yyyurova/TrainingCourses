@@ -222,7 +222,6 @@ const showMessage = (text, success) => {
     setTimeout(() => showPopup.value = false, 5000);
 };
 
-
 const exitFromProfile = () => {
     logout()
     resetRoleRoutes()

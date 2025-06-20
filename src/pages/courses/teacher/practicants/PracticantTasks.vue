@@ -79,6 +79,13 @@ const closePopup = () => {
     popupText.value = ''
 }
 
+const showMessage = (text, success) => {
+    popupText.value = text;
+    isSuccess.value = success;
+    showPopup.value = true;
+    setTimeout(() => showPopup.value = false, 5000);
+};
+
 const openDeleteModal = (task) => {
     showDeleteModal.value = true
     taskToDelete.value = task
@@ -109,21 +116,13 @@ const deleteTask = async (id) => {
         closeModal()
         await apiDeleteTask(id)
         await fetchData()
-        popupText.value = 'Задание удалено'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
+
+        showMessage('Задание удалено', true)
     }
     catch (err) {
         console.log(err)
         await fetchData()
-        popupText.value = 'Не удалось удалить задание'
-        showPopup.value = true
-        isSuccess.value = false
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
+        showMessage('Не удалось удалить задание', false)
     }
     finally { isLoading.value = false }
 }
@@ -135,20 +134,10 @@ const editTask = async (updatedTask) => {
         await updateTask(updatedTask.id, updatedTask)
         await fetchData()
 
-        popupText.value = 'Задание успешно изменено';
-        showPopup.value = true;
-        isSuccess.value = true;
-        setTimeout(() => {
-            showPopup.value = false;
-        }, 5000);
+        showMessage('Задание успешно изменено', true)
     } catch (err) {
         console.log(err);
-        popupText.value = 'Не удалось изменить задание';
-        showPopup.value = true;
-        isSuccess.value = false;
-        setTimeout(() => {
-            showPopup.value = false;
-        }, 5000);
+        showMessage('Не удалось изменить задание', false)
     } finally {
         isLoading.value = false;
     }
@@ -184,24 +173,17 @@ const filterTasks = () => {
     }
 }
 
-// const fetchPracticants = async () => {
-//     try {
-
-//         const { data } = await axios.get(`https://c1a9f09250b13f61.mokky.dev/users?role=student`);
-//         allPraricants.value = data
-//     } catch (err) { console.log(err) }
-//     finally {
-//         isLoading.value = false
-//     }
-// }
-
 onMounted(async () => {
     await fetchData()
-    // await fetchPracticants()
 })
 </script>
 
 <style scoped lang="scss">
+h1 {
+    word-break: break-all;
+    flex: 1
+}
+
 .header {
     display: flex;
     align-items: center;

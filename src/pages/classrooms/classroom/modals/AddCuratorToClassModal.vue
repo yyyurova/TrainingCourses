@@ -42,7 +42,7 @@ const isLoading = ref(false)
 const fetchUsers = async () => {
     try {
         isLoading.value = true
-        const data = await getUsers({ role: 'curator' })
+        const data = await getUsers({ role: 'curator', status:'approved' })
         availableCurators.value = data.data
         // availableCurators.value = availableCurators.value.filter(u => u.role === 'curator')
     } finally {

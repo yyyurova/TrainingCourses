@@ -44,9 +44,6 @@
                 <input ref="input" placeholder="Отправить сообщение..." type="text" class="inp-field"
                     @keydown.enter="sendMessage">
             </div>
-            <button class="icon">
-                <img src="/icons/emote-smile.svg" alt="">
-            </button>
             <button class="icon bigger" @click="sendMessage">
                 <img src="/icons/send.svg" alt="">
             </button>

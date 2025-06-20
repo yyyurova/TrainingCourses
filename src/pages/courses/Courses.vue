@@ -44,6 +44,7 @@ const getCoursesByRole = async () => {
         try {
             isLoading.value = true
             courses.value = await getStudentCourses()
+            courses.value.sort(c => -c.id)
         }
         finally {
             isLoading.value = false
@@ -53,6 +54,7 @@ const getCoursesByRole = async () => {
         try {
             isLoading.value = true
             courses.value = await getCuratorCourses()
+            courses.value.sort(c => -c.id)
         }
         finally {
             isLoading.value = false

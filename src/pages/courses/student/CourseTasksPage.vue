@@ -175,18 +175,8 @@ onMounted(async () => {
 //     }
 // }
 
-@media (max-width:930px) {
-    .link {
-        width: 49% !important;
-
-        .card {
-            width: 100% !important;
-        }
-    }
-}
-
 @media (max-width:768px) {
-    .link {
+    .tasks .card {
         width: 100% !important;
     }
 }

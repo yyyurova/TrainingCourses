@@ -1,126 +1,130 @@
 <template>
-    <Loading v-if="isLoading || !course" />
-    <FillCourseMaterialsLayout v-else>
-        <Card class="no-hover fill-material" v-if="material && currentModule">
-            <h1>Заполнение учебных материалов для курса</h1>
+    <FillCourseMaterialsLayout>
+        <Loading v-if="isLoading || !course" />
+        <div class="" v-if="!isLoading && course">
+            <Card class="no-hover fill-material" v-if="material && currentModule">
+                <h1>Заполнение учебных материалов для курса</h1>
 
-            <Card class="no-hover page-name">
-                <input type="text" v-model="pageName">
-            </Card>
+                <Card class="no-hover page-name">
+                    <input type="text" v-model="pageName">
+                </Card>
 
-            <h4>
-                Шаг {{ currentPageIndex + 1 }} : {{ translateType(currentPage?.type) }}
-                <button class="icon"><img src="/icons/x.svg" alt=""></button>
-            </h4>
+                <h4>
+                    Шаг {{ currentPageIndex + 1 }} : {{ translateType(currentPage?.type) }}
+                    <button class="icon"><img src="/icons/x.svg" alt=""></button>
+                </h4>
 
-            <div class="squares-score">
-                <span class="square" :class="{ 'filled': index === currentPageIndex }" @click="goToPage(index)"
-                    v-for="(page, index) in currentModule.pages" :key="index">
-                </span>
-            </div>
-
-            <TextEditorCard v-if="currentPage.type === 1" v-model="currentPageContent" />
-
-            <div class="video" v-else-if="currentPage.type === 2">
-                <div class="radio-inputs">
-                    <label class="radio">
-                        <input type="radio" name="radio" v-model="selectedWay" value="upload">
-                        <span class="name">
-                            Загрузить файл
-                        </span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="radio" v-model="selectedWay" value="other">
-                        <span class="name">
-                            С другого сайта
-                        </span>
-                    </label>
+                <div class="squares-score">
+                    <span class="square" :class="{ 'filled': index === currentPageIndex }" @click="goToPage(index)"
+                        v-for="(page, index) in currentModule.pages" :key="index">
+                    </span>
                 </div>
-                <div v-if="selectedWay === 'other'" class="link">
-                    <p>Ссылка <span class="required">*</span></p>
-                    <input type="url" placeholder="Введите ссылку" v-model="videoLink">
+
+                <TextEditorCard v-if="currentPage.type === 1" v-model="currentPageContent" />
+
+                <div class="video" v-else-if="currentPage.type === 2">
+                    <div class="radio-inputs">
+                        <label class="radio">
+                            <input type="radio" name="radio" v-model="selectedWay" value="upload">
+                            <span class="name">
+                                Загрузить файл
+                            </span>
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="radio" v-model="selectedWay" value="other">
+                            <span class="name">
+                                С другого сайта
+                            </span>
+                        </label>
+                    </div>
+                    <div v-if="selectedWay === 'other'" class="link">
+                        <p>Ссылка <span class="required">*</span></p>
+                        <input type="url" placeholder="Введите ссылку" v-model="videoLink">
+                    </div>
+                    <input type="file" ref="fileInput" style="display: none" @change="handleFileUpload"
+                        accept="video/*">
+
+                    <div v-if="uploadedFiles.length" class="uploaded-files">
+                        <Card class="no-hover" v-for="(file, index) in uploadedFiles" :key="index">
+                            <img src="/icons/video.svg" alt="">
+                            <div class="text">
+                                <p> {{ file.name }}</p>
+                                <p> {{ formatFileSize(file.size) }}</p>
+                            </div>
+                            <button class="icon" @click="removeFile(index)"><img src="/icons/x.svg" alt=""></button>
+                        </Card>
+                    </div>
+                    <button class="blue" @click="fileInput.click()"
+                        :disabled="selectedWay === 'other'">Загрузить</button>
                 </div>
-                <input type="file" ref="fileInput" style="display: none" @change="handleFileUpload" accept="video/*">
 
-                <div v-if="uploadedFiles.length" class="uploaded-files">
-                    <Card class="no-hover" v-for="(file, index) in uploadedFiles" :key="index">
-                        <img src="/icons/video.svg" alt="">
-                        <div class="text">
-                            <p> {{ file.name }}</p>
-                            <p> {{ formatFileSize(file.size) }}</p>
-                        </div>
-                        <button class="icon" @click="removeFile(index)"><img src="/icons/x.svg" alt=""></button>
-                    </Card>
-                </div>
-                <button class="blue" @click="fileInput.click()" :disabled="selectedWay === 'other'">Загрузить</button>
-            </div>
+                <div class="quiz" v-if="currentPage.type === 3">
 
-            <div class="quiz" v-if="currentPage.type === 3">
-
-                <div class="question-list" v-if="quizData.questions?.length">
-                    <div class="question-item" v-for="(question, qIndex) in quizData.questions" :key="qIndex">
-                        <div class="question-header">
-                            <h4>Вопрос {{ qIndex + 1 }}</h4>
-                            <button class="icon" @click="removeQuestion(qIndex)">
-                                <img src="/icons/x.svg" alt="">
-                            </button>
-                        </div>
-
-                        <div class="fill-question">
-                            <p>Заголовок<span class="required">*</span></p>
-                            <input type="text" v-model="question.title">
-                            <p>Описание</p>
-                            <TextEditorCard v-model="question.description" />
-
-                            <h4>Настройка</h4>
-                            <p>Количество правильных ответов:</p>
-                            <div class="radio-inputs">
-                                <label class="radio">
-                                    <input type="radio" :name="'radio-' + qIndex" :value="true"
-                                        v-model="question.is_group">
-                                    <span class="name">
-                                        Несколько
-                                        <img src="/icons/checkbox.svg" alt="">
-                                    </span>
-                                </label>
-                                <label class="radio">
-                                    <input type="radio" :name="'radio-' + qIndex" :value="false"
-                                        v-model="question.is_group">
-                                    <span class="name">
-                                        Один
-                                        <img src="/icons/radio.svg" alt="">
-                                    </span>
-                                </label>
+                    <div class="question-list" v-if="quizData.questions?.length">
+                        <div class="question-item" v-for="(question, qIndex) in quizData.questions" :key="qIndex">
+                            <div class="question-header">
+                                <h4>Вопрос {{ qIndex + 1 }}</h4>
+                                <button class="icon" @click="removeQuestion(qIndex)">
+                                    <img src="/icons/x.svg" alt="">
+                                </button>
                             </div>
 
-                            <div class="answers">
-                                <Answer v-for="(option, index) in question.options" :key="index"
-                                    :input-type="question.is_group ? 'several' : 'one'" :option="option.title"
-                                    :index="index" :is-correct="option.is_right === 1"
-                                    @remove="() => removeAnswer(qIndex, index)"
-                                    @update:option="(val) => updateOption(qIndex, index, val)"
-                                    @update:correct="(data) => updateCorrectAnswers(qIndex, data)" />
-                            </div>
+                            <div class="fill-question">
+                                <p>Заголовок<span class="required">*</span></p>
+                                <input type="text" v-model="question.title">
+                                <p>Описание</p>
+                                <TextEditorCard v-model="question.description" />
 
-                            <button class="transparent border" @click="() => addAnswer(qIndex)">
-                                Добавить вариант ответа
-                                <img src="/icons/plus-black.svg" alt="">
-                            </button>
+                                <h4>Настройка</h4>
+                                <p>Количество правильных ответов:</p>
+                                <div class="radio-inputs">
+                                    <label class="radio">
+                                        <input type="radio" :name="'radio-' + qIndex" :value="true"
+                                            v-model="question.is_group">
+                                        <span class="name">
+                                            Несколько
+                                            <img src="/icons/checkbox.svg" alt="">
+                                        </span>
+                                    </label>
+                                    <label class="radio">
+                                        <input type="radio" :name="'radio-' + qIndex" :value="false"
+                                            v-model="question.is_group">
+                                        <span class="name">
+                                            Один
+                                            <img src="/icons/radio.svg" alt="">
+                                        </span>
+                                    </label>
+                                </div>
+
+                                <div class="answers">
+                                    <Answer v-for="(option, index) in question.options" :key="index"
+                                        :input-type="question.is_group ? 'several' : 'one'" :option="option.title"
+                                        :index="index" :is-correct="option.is_right === 1"
+                                        @remove="() => removeAnswer(qIndex, index)"
+                                        @update:option="(val) => updateOption(qIndex, index, val)"
+                                        @update:correct="(data) => updateCorrectAnswers(qIndex, data)" />
+                                </div>
+
+                                <button class="transparent border" @click="() => addAnswer(qIndex)">
+                                    Добавить вариант ответа
+                                    <img src="/icons/plus-black.svg" alt="">
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <button class="blue" @click="addNewQuestion">
-                    Добавить вопрос
-                    <img src="/icons/plus.svg" alt="">
-                </button>
+                    <button class="blue" @click="addNewQuestion">
+                        Добавить вопрос
+                        <img src="/icons/plus.svg" alt="">
+                    </button>
+                </div>
+            </Card>
+            <div class="save-block">
+                <button class="blue" @click="saveCourse">Сохранить изменения</button>
+                <button class="transparent border" @click="goToCourses">Вернуться к списку курсов</button>
             </div>
-        </Card>
-        <div class="save-block">
-            <button class="blue" @click="saveCourse">Сохранить изменения</button>
-            <button class="transparent border" @click="goToCourses">Вернуться к списку курсов</button>
         </div>
-        <SaveChanges v-if="showSaveChangesModal" @cancel="closeModal" @confirm="saveCourse" />
+        <SaveChanges v-if="showSaveChangesModal" @cancel="closeModal" @confirm="saveCourse" @discard="discardChanges" />
         <Popup v-if="showPopup" :text="popupText" @close="closePopup" :is-success="isSuccess" />
     </FillCourseMaterialsLayout>
 </template>
@@ -155,7 +159,11 @@ const course = ref(null);
 const material = ref(null);
 const isLoading = ref(false);
 
+const isInitializing = ref(true);
+
 const hasChanges = ref(false);
+
+const nextRoute = ref(null);
 
 const currentModule = ref(null);
 const currentPage = ref(null);
@@ -187,6 +195,16 @@ const openSaveChangesModal = () => {
     showSaveChangesModal.value = true
 }
 
+const discardChanges = () => {
+    hasChanges.value = false;
+    if (nextRoute.value !== null) {
+        const index = nextRoute.value;
+        nextRoute.value = null;
+        goToPage(index);
+    }
+    closeModal();
+};
+
 const translateType = (type) => {
     switch (type) {
         case 1: return 'Текст';
@@ -204,33 +222,13 @@ const goToPage = async (index) => {
     if (!currentModule.value) return;
 
     const page = currentModule.value.pages[index];
-    if (page) {
+    if (page && !hasChanges.value) {
         router.push(`/course-fill-materials/${course.value.id}/module/${currentModule.value.id}/page/${page.id}`);
     }
+
+    nextRoute.value = index;
+    openSaveChangesModal()
 };
-
-// const handleFileUpload = (e) => {
-//     const files = e.target.files;
-//     if (!files.length) return;
-
-//     const file = files[0];
-//     const reader = new FileReader();
-
-//     reader.onload = (event) => {
-//         const fileObj = {
-//             id: Date.now(),
-//             name: file.name,
-//             size: file.size,
-//             type: file.type,
-//             base64: event.target.result // Сохраняем файл как base64
-//         };
-
-//         uploadedFiles.value = [fileObj];
-//     };
-
-//     reader.readAsDataURL(file);
-//     e.target.value = '';
-// };
 
 const removeFile = (index) => {
     uploadedFiles.value.splice(index, 1);
@@ -285,6 +283,7 @@ const loadPageQuestion = async (pageId) => {
 
 const loadPageContent = async () => {
     if (!currentPage.value) return;
+    isInitializing.value = true;
 
     await loadPageQuestion(currentPage.value.id);
 
@@ -347,6 +346,7 @@ const loadPageContent = async () => {
             addNewQuestion();
         }
     }
+    isInitializing.value = false;
 };
 
 const saveCourse = async () => {
@@ -361,18 +361,22 @@ const saveCourse = async () => {
         if (currentPage.value.type === 1) {
             const description = currentPageContent.value;
             if (currentQuestion.value?.id) {
+                isLoading.value = true
                 await updateQuestion(
                     currentPage.value.id,
                     currentQuestion.value.id,
                     pageName.value, // Убедитесь, что передаёте title
                     description
                 );
+                isLoading.value = false
             } else {
+                isLoading.value = true
                 await createQuestion(
                     currentPage.value.id,
                     pageName.value, // Убедитесь, что передаёте title
                     description
                 );
+                isLoading.value = false
             }
         }
         else if (currentPage.value.type === 2) {
@@ -386,6 +390,7 @@ const saveCourse = async () => {
             }
 
             if (currentQuestion.value?.id) {
+                isLoading.value = true
                 await updateQuestion(
                     currentPage.value.id,
                     currentQuestion.value.id,
@@ -394,7 +399,9 @@ const saveCourse = async () => {
                     false,
                     attachments
                 );
+                isLoading.value = false
             } else {
+                isLoading.value = true
                 await createQuestion(
                     currentPage.value.id,
                     pageName.value, // Убедитесь, что передаёте title
@@ -402,6 +409,7 @@ const saveCourse = async () => {
                     false, // is_group
                     attachments
                 );
+                isLoading.value = false
             }
         }
         else if (currentPage.value.type === 3) {
@@ -410,6 +418,7 @@ const saveCourse = async () => {
                 let questionId;
                 try {
                     if (question.id) {
+                        isLoading.value = true
                         const response = await updateQuestion(
                             currentPage.value.id,
                             question.id,
@@ -417,14 +426,17 @@ const saveCourse = async () => {
                             question.description,
                             question.is_group
                         );
+                        isLoading.value = false
                         questionId = question.id;
                     } else {
+                        isLoading.value = true
                         const response = await createQuestion(
                             currentPage.value.id,
                             question.title,
                             question.description,
                             question.is_group
                         );
+                        isLoading.value = false
 
                         if (response && response.data && response.data.id) {
                             questionId = response.data.id;
@@ -450,24 +462,26 @@ const saveCourse = async () => {
                 for (const option of question.options) {
                     try {
                         if (option.id && currentVariantIds.includes(option.id)) {
+                            isLoading.value = true
                             await updateVariant(
                                 questionId,
                                 option.id,
                                 option.title,
                                 option.is_right ? 1 : 0
                             );
-
+                            isLoading.value = false
                             const index = currentVariantIds.indexOf(option.id);
                             if (index !== -1) {
                                 currentVariantIds.splice(index, 1);
                             }
                         } else {
+                            isLoading.value = true
                             const response = await createVariant(
                                 questionId,
                                 option.title,
                                 option.is_right ? 1 : 0
                             );
-
+                            isLoading.value = false
                             if (response && response.data && response.data.id) {
                                 option.id = response.data.id;
                             }
@@ -493,32 +507,21 @@ const saveCourse = async () => {
             await loadCurrentPage()
         }
 
-        isSuccess.value = true
-        popupText.value = 'Изменения успешно сохранены';
-        showPopup.value = true;
-        isSaved.value = true;
+        showMessage('Изменения успешно сохранены',true)
 
-        setTimeout(() => {
-            showPopup.value = false;
-        }, 5000);
-
+        if (nextRoute.value !== null) {
+            const index = nextRoute.value;
+            nextRoute.value = null;
+            const page = currentModule.value.pages[index];
+            router.push(`/course-fill-materials/${course.value.id}/module/${currentModule.value.id}/page/${page.id}`);
+        }
     } catch (err) {
         if (err.status === 413) {
-            isSuccess.value = false;
-            popupText.value = 'Слишком большой размер прикрепленного файла';
-            showPopup.value = true;
-            setTimeout(() => {
-                showPopup.value = false;
-            }, 5000);
+            showMessage('Слишком большой размер прикрепленного файла', false)
         }
         else {
             console.error('Ошибка сохранения:', err);
-            isSuccess.value = false;
-            popupText.value = 'Ошибка при сохранении: ' + (err.message || err);
-            showPopup.value = true;
-            setTimeout(() => {
-                showPopup.value = false;
-            }, 5000);
+            showMessage('Ошибка при сохранении: ' + (err.message || err), false)
         }
     }
 };
@@ -608,6 +611,13 @@ const closePopup = () => {
     showPopup.value = false;
 };
 
+const showMessage = (text, success) => {
+    popupText.value = text;
+    isSuccess.value = success;
+    showPopup.value = true;
+    setTimeout(() => showPopup.value = false, 5000);
+};
+
 const fetchCourse = async () => {
     try {
         course.value = await getCourse(route.params.courseId);
@@ -665,6 +675,7 @@ onMounted(async () => {
 });
 
 watch([() => currentPageContent.value, () => videoLink.value, () => uploadedFiles.value, () => quizData.value], () => {
+    if (isInitializing.value || !currentPage.value) return;
     hasChanges.value = true;
 }, { deep: true });
 

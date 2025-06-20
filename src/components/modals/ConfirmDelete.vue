@@ -31,7 +31,7 @@ defineEmits(['confirm', 'cancel']);
 
     .top-row {
         padding: 10px;
-        width: 400px;
+        width: 100%;
         margin-bottom: 10px;
         display: flex;
         align-items: center;

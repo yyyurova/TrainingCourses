@@ -11,7 +11,7 @@
             <Card v-for="practicant in practicants" :key="practicant.id" @click="openTasks(practicant)">
                 <img v-if="practicant.image" :src="practicant.image" alt="">
                 <AvatarLetter v-else :name="practicant.name" />
-                {{ practicant.name }}
+             <p>   {{ practicant.name }}</p>
             </Card>
         </div>
         <Loading v-if="isLoading" />
@@ -108,7 +108,10 @@ onMounted(fetchPracticants)
         flex-direction: row;
         align-items: center;
         gap: 10px;
-
+p{
+    flex:1;
+    word-break:break-all
+}
         img {
             width: 36px;
             height: auto;
@@ -129,14 +132,14 @@ onMounted(fetchPracticants)
         outline: none;
     }
 }
-
+@media(max-width:1280px){
+.practicants .card{
+    width: calc(50% - 5px) !important;
+}
+}
 @media (max-width: 960px) {
     .card.search {
         width: 100% !important;
-    }
-
-    .practicants .card {
-        width: calc(50% - 5px);
     }
 }
 </style>

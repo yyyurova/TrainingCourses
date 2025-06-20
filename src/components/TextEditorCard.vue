@@ -89,7 +89,6 @@ const closeModal = () => {
     if (showLinkModal.value) { showLinkModal.value = false }
 }
 
-
 const addImage = () => {
     const input = document.createElement('input');
     input.type = 'file';

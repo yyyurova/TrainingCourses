@@ -26,7 +26,8 @@
                     <div class="dropdown">
                         <div v-for="user in users" :key="user.id" class="item" @click="toggleMember(user)">
                             <input type="checkbox" :checked="isSelected(user)" @click.stop="toggleMember(user)">
-                            <img :src="user.avatar || '/icons/Avatar.svg'" :alt="user.name">
+                            <img v-if="user.image" :src="user.image" :alt="user.name">
+                            <AvatarLetter v-else :name="user.name"/>
                             <span>{{ user.name }}</span>
                         </div>
                     </div>
@@ -53,7 +54,9 @@
 
 <script setup>
 import { ref } from 'vue';
+
 import TextEditorCard from '@/components/TextEditorCard.vue';
+import AvatarLetter from '@/components/AvatarLetter.vue';
 
 const emit = defineEmits(['cancel', 'draft', 'create'])
 defineProps({

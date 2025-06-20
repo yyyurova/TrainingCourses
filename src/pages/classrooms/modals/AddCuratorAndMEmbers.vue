@@ -56,9 +56,9 @@ const selectedCurator = ref(null);
 
 const fetchUsers = async () => {
     try {
-        students.value = (await getUsers({ role: 'user' })).data
+        students.value = (await getUsers({ role: 'user' ,status:'approved'})).data
 
-        curators.value = (await getUsers({ role: 'curator' })).data
+        curators.value = (await getUsers({ role: 'curator',status:'approved' })).data
         // users.value = (await getUsers()).data;
         // students.value = users.value.filter(u => u.role === 'user')
         // curators.value = users.value.filter(u => u.role === 'curator')

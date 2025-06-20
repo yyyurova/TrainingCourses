@@ -40,7 +40,7 @@
 
         <CreateClassroom v-if="showCreateModal" @cancel="closeModal" @next="openAddModal" />
 
-        <AddCuratorAndMEmbers v-if="showAddcuretorAndMembersModal" @cancel="closeModal" @save="handleSave" />
+        <AddCuratorAndMEmbers v-if="showAddCuratorAndMembersModal" @cancel="closeModal" @save="handleSave" />
     </Layout>
 </template>
 
@@ -65,7 +65,7 @@ const isLoading = ref(false)
 const showConfirmDeleteModal = ref(false)
 const showEditModal = ref(false)
 const showCreateModal = ref(false)
-const showAddcuretorAndMembersModal = ref(false)
+const showAddCuratorAndMembersModal = ref(false)
 
 const selectedClassroom = ref(null)
 
@@ -79,7 +79,7 @@ const closeModal = () => {
     if (showConfirmDeleteModal.value) { showConfirmDeleteModal.value = false }
     if (showEditModal.value) { showEditModal.value = false }
     if (showCreateModal.value) { showCreateModal.value = false }
-    if (showAddcuretorAndMembersModal.value) { showAddcuretorAndMembersModal.value = false }
+    if (showAddCuratorAndMembersModal.value) { showAddCuratorAndMembersModal.value = false }
 }
 
 const closePopup = () => {
@@ -121,13 +121,9 @@ const openAddModal = async (classroomData) => {
         });
         createdClassroomId.value = response.id;
         closeModal();
-        showAddcuretorAndMembersModal.value = true;
+        showAddCuratorAndMembersModal.value = true;
     } catch (error) {
-        popupText.value = 'Ошибка при создании класса';
-        showPopup.value = true;
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000);
+        showMessage('Ошибка при создании класса', false)
     } finally {
         isLoading.value = false;
     }
@@ -144,16 +140,11 @@ const handleSave = async (data) => {
             await addUsersToClass(createdClassroomId.value, data.members);
         }
 
-        popupText.value = 'Класс успешно создан';
-        showPopup.value = true;
-        setTimeout(() => {
-            showPopup.value = false
-        }, 4000);
+        showMessage('Класс успешно создан', true)
         closeModal();
         await fetchClassrooms();
     } catch (error) {
-        popupText.value = 'Ошибка при сохранении данных';
-        showPopup.value = true;
+        showMessage('Ошибка при сохранении данных', false)
     } finally {
         isLoading.value = false;
     }
@@ -166,12 +157,12 @@ const deleteClassroom = async () => {
         closeModal()
         await deleteClass(selectedClassroom.value.id)
         await fetchClassrooms()
-        popupText.value = 'Учебный класс удален'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
-    } finally {
+
+        showMessage('Учебный класс удален', true)
+    } catch {
+        showMessage('Не удалось удалить учебный класс', false)
+    }
+    finally {
         isLoading.value = false
     }
 }
@@ -182,13 +173,11 @@ const editClassroom = async (updatedClassroom) => {
         closeModal()
         await editClass(updatedClassroom.id, updatedClassroom)
         await fetchClassrooms()
-        popupText.value = 'Изменения сохранены'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
+
+        showMessage('Изменения сохранены', true)
     } catch (err) {
         console.log(err)
+        showMessage('Не удлось сохранить изменения', false)
     }
 }
 
@@ -197,11 +186,7 @@ const fetchClassrooms = async () => {
     try {
         classrooms.value = await getClassrooms();
     } catch (error) {
-        popupText.value = 'Ошибка загрузки классов';
-        showPopup.value = true;
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000);
+        showMessage('Ошибка загрузки классов', false)
     } finally {
         isLoading.value = false;
     }
@@ -223,7 +208,7 @@ const save = async () => {
         // Добавляем участников
         await addUsersToClass(createdClassroomId.value, classroomMembers.value);
 
-        showMessage('Класс успешно создан', false)
+        showMessage('Класс успешно создан', true)
 
         await fetchClassrooms();
     } catch (error) {

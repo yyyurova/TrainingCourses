@@ -6,7 +6,7 @@
                 <AvatarLetter v-else :name="chat.title" />
                 <p class="partner-name">{{ chat.title }}</p>
             </div>
-            <button class="icon" @click="$emit('delete', chat.id)">
+            <button class="icon" @click.stop="$emit('delete', chat.id)">
                 <img src="/icons/delete.svg" alt="">
             </button>
         </div>

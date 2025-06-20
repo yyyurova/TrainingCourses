@@ -33,6 +33,17 @@ html {
   margin: 0;
   padding: 0;
 
+  main:has(.mobile-header) {
+    height: 100vh !important;
+
+    .content {
+      margin: 20px !important;
+    }
+    .container {
+      height: auto;
+    }
+  }
+
   h1,
   h2,
   h3,

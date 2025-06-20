@@ -84,6 +84,13 @@ const closePopup = () => {
     popupText.value = ''
 }
 
+const showMessage = (text, success) => {
+    popupText.value = text;
+    isSuccess.value = success;
+    showPopup.value = true;
+    setTimeout(() => showPopup.value = false, 5000);
+};
+
 const openCreateCourseModal = () => {
     showCreateCourseModal.value = true
 }
@@ -104,21 +111,13 @@ const deleteCourse = async () => {
         closeModal()
         await apiDeleteCourse(selectedCourse.value.id)
         courses.value = courses.value.filter(c => c.id !== selectedCourse.value.id)
-        popupText.value = 'Курс удален'
-        showPopup.value = true
-        isSuccess.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
+
+        showMessage('Курс удален', true)
     } catch (error) {
         console.error('Error deleting course:', error)
         closeModal()
-        isSuccess.value = false
-        popupText.value = 'Ошибка при удалении курса'
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
+
+        showMessage('Ошибка при удалении курса', false)
     }
 }
 
@@ -158,21 +157,11 @@ const editCourse = async (updatedCourse) => {
                 photo: response.data.photo || courses.value[index].photo
             };
         }
-        isSuccess.value = true
-        popupText.value = 'Изменения сохранены';
-        showPopup.value = true;
-        setTimeout(() => {
-            showPopup.value = false;
-        }, 5000);
-    } catch (err) {
 
+        showMessage('Изменения сохранены', true)
+    } catch (err) {
         console.error('Error updating course:', err);
-        isSuccess.value = false
-        popupText.value = 'Не удалось сохранить изменения';
-        showPopup.value = true;
-        setTimeout(() => {
-            showPopup.value = false;
-        }, 5000);
+        showMessage('Не удалось сохранить изменения', false)
     }
 };
 

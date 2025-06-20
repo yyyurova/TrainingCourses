@@ -15,15 +15,19 @@ const router = useRouter();
 
 onMounted(async () => {
     try {
+        // const code = route.query.code;
+        // const state = route.query.state;
 
-        const params = {
-            code: route.query.code,
-            state: route.query.state || null,
-        };
-
-        const resp = await handleGoogleCallback(params);
-        console.log(resp)
-        localStorage.setItem('token', resp.access_token);
+        // if (!code || !state) {
+        //     throw new Error('Authorization code missing');
+        // }
+      const params = {
+        code: route.query.code,
+        state: route.query.state || null,
+      };
+      const resp = await handleGoogleCallback(params);
+      console.log(resp)
+      localStorage.setItem('token', resp.access_token);
 
         localStorage.setItem('user', JSON.stringify({
             id: resp.id,

@@ -157,7 +157,6 @@ const handleSubmit = async () => {
                     errors.value.all = errorData.message;
                 }
             } else {
-                // Другие ошибки (например, проблемы с сетью)
                 errors.value.all = 'Произошла ошибка при регистрации. Пожалуйста, попробуйте позже.';
                 console.error('Registration error:', err);
             }
@@ -168,7 +167,6 @@ const handleSubmit = async () => {
 const signInWithGoogle = async () => {
     try {
         googleUrl.value = await getLoginUrls();
-        // googleUrl.value = urls.google_url;
         if (googleUrl.value) {
             window.location.href = googleUrl.value.google_url;
         }
@@ -188,6 +186,7 @@ onMounted(() => {
     }
 })
 </script>
+
 <style scoped lang="scss">
 .form {
     width: 460px;

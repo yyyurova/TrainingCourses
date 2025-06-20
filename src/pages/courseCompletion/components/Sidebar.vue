@@ -1,7 +1,10 @@
 <template>
-    <aside class="sidebar">
-        <div class="logo">
-            <img src="/icons/logo.svg" alt="Logo">
+    <aside class="sidebar" :class="{ 'sidebar-mobile': isMobile, 'active': isActive }">
+        <div class="top-row">
+            <div class="logo">
+                <img src="/icons/logo.svg" alt="Logo">
+            </div>
+            <button class="close-sidebar icon" v-if="isMobile" @click="$emit('close')">×</button>
         </div>
         <h3>{{ course?.title || 'Название курса' }}</h3>
         <button class="transparent border" @click="goBack">
@@ -36,6 +39,13 @@
 <script setup>
 import { inject, ref, watch, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
+const props = defineProps({
+    isMobile: Boolean,
+    isActive: Boolean,
+});
+
+const emit = defineEmits(['close']);
 
 const route = useRoute()
 const router = useRouter()
@@ -132,6 +142,45 @@ onMounted(initOpenModules)
     min-height: 100vh;
     box-sizing: border-box;
     overflow-y: auto;
+
+    &.sidebar-mobile {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1001;
+        transform: translateX(-100%);
+        width: 95%;
+        height: 100vh;
+        overflow-x: auto;
+
+        &.active {
+            transform: translateX(0);
+        }
+    }
+
+    .top-row {
+        padding-top: 10px;
+        padding-right: 20px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+
+        button.close-sidebar {
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .logo {
+            padding: 0 20px;
+
+            img {
+                width: 68px;
+                height: 78px;
+            }
+        }
+    }
 
     h3 {
         font-weight: 600;

@@ -32,9 +32,9 @@ const allUsers = ref([])
 const classroomMembers = ref([]);
 
 const fetchUsers = async () => {
-    const data = await getUsers({ role: 'user' })
+    const data = await getUsers({ role: 'user', status:'approved' })
     allUsers.value = data.data
-    allUsers.value = allUsers.value.filter(u => u.role === 'user')
+    // allUsers.value = allUsers.value.filter(u => u.role === 'user')
     allUsers.value = allUsers.value.filter(user =>
         !members.value.some(member => member.id === user.id)
     );

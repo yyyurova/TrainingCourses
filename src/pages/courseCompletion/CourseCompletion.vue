@@ -8,7 +8,7 @@
             <h1 class="moduleName">
                 {{ currentModule.title }}
                 <span class="score">{{ completedPages + " из " + currentModule.pages.length + " шагов пройдено"
-                }}</span>
+                    }}</span>
             </h1>
             <h2 v-if="currentPageData" class="pageName">{{ currentPageData.title }}</h2>
             <div class="squares-score">
@@ -302,7 +302,7 @@ const nextPage = async () => {
     goToPage(nextPageId);
 };
 
-const goToNextModule = () => {
+const goToNextModule = async () => {
     endOfModule.value = false;
     if (!material.value) return;
 
@@ -314,6 +314,8 @@ const goToNextModule = () => {
         if (nextPageId) {
             currentModuleId.value = nextModule.id;
             currentPageId.value = nextPageId;
+
+            await loadPageContent()
             router.push({
                 name: 'CourseCompletionPage',
                 params: {
@@ -411,9 +413,12 @@ const checkQuiz = async () => {
 watch(() => route.params, async (newParams) => {
     if (newParams.moduleId && Number(newParams.moduleId) !== Number(currentModuleId.value)) {
         currentModuleId.value = Number(newParams.moduleId);
+
         const newModule = material.value?.find(m => m.id === currentModuleId.value);
         if (newModule?.pages?.length) {
             currentPageId.value = newModule.pages[0].id;
+
+            await loadPageContent()
             await router.replace({
                 params: {
                     pageId: currentPageId.value
@@ -423,13 +428,11 @@ watch(() => route.params, async (newParams) => {
     } else if (newParams.pageId && Number(newParams.pageId) !== Number(currentPageId.value)) {
         currentPageId.value = Number(newParams.pageId);
         await loadPageContent();
-        console.log(currentPageData.value)
     }
 }, { immediate: true, deep: true });
 
 onMounted(async () => {
     await fetchMaterial()
-    console.log(currentPageData.value)
 });
 
 provide('material', material);
@@ -544,6 +547,13 @@ provide('activity', activity)
     button {
         width: 200px;
         height: 43px;
+    }
+}
+
+@media (max-width: 768px) {
+    .moduleName {
+        flex-direction: column;
+        align-items: flex-start !important;
     }
 }
 </style>

@@ -95,23 +95,22 @@ const closePopup = () => {
     popupText.value = ''
 }
 
+const showMessage = (text, success) => {
+    popupText.value = text;
+    isSuccess.value = success;
+    showPopup.value = true;
+    setTimeout(() => showPopup.value = false, 5000);
+};
+
 const publishCourse = async () => {
     try {
         closeModal();
         const data = await pulichCourse(course.value.id, { title: course.value.title, published: true })
         router.push('/courses')
-        popupText.value = 'Курс успешно опубликован';
-        showPopup.value = true;
-        setTimeout(() => {
-            showPopup.value = false
-        }, 5000)
+
+        showMessage('Курс успешно опубликован', true)
     } catch {
-        popupText.value = 'Не удалось опубликовать курс'
-        isSuccess.value = false
-        showPopup.value = true
-        setTimeout(() => {
-            showPopup.value = false
-        }, 4000);
+        showMessage('Не удалось опубликовать курс', false)
     }
 }
 
@@ -234,7 +233,9 @@ onMounted(() => {
 
         img {
             width: 40px;
-            height: auto;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: cover;
         }
 
         .course-name {
