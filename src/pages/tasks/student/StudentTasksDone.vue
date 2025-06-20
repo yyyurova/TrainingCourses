@@ -14,7 +14,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { getTasks } from '@/api/modules/tasks.api';
+import { getTasks } from '@/api/modules/tasks';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';

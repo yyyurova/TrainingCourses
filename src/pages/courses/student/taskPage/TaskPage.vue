@@ -20,7 +20,7 @@
 <script setup>
 import { onMounted, provide, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { getTask, getTaskChat } from '@/api/modules/tasks.api';
+import { getTask, getTaskChat } from '@/api/modules/tasks';
 import { getUserId } from '@/utils/auth';
 
 import Layout from '@/layouts/Layout.vue';

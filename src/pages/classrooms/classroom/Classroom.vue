@@ -70,7 +70,7 @@ import {
     deleteUserFromClass,
     addCuratorToClass,
     deleteCuratorFromClass
-} from '@/api/modules/classrooms.api';
+} from '@/api/modules/classrooms';
 
 import Layout from '@/layouts/Layout.vue';
 import Popup from '@/components/Popup.vue';

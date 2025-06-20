@@ -15,7 +15,7 @@
 <script setup>
 import { useRoute } from 'vue-router';
 import { onMounted, ref } from 'vue';
-import { getModules, getModulePage } from '@/api/modules/studentMaterials.api';
+import { getModules, getModulePage } from '@/api/modules/studentMaterials';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';

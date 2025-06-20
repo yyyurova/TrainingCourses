@@ -79,7 +79,7 @@
 <script setup>
 import { inject, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { sendTask, deleteAttachment as apiDeleteAttachment } from '@/api/modules/tasks.api';
+import { sendTask, deleteAttachment as apiDeleteAttachment } from '@/api/modules/tasks';
 import { getUserId } from '@/utils/auth';
 
 import Card from '@/components/Card.vue';

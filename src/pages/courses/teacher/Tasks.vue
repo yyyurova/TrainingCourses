@@ -4,18 +4,18 @@
 
         <div v-if="course">
             <Navbar :elements="navbarItems" />
-            
+
             <button class="blue" @click="openCreateTaskModal" :disabled="!practicants || practicants.length === 0"
                 :title="!practicants || practicants.length === 0 ? 'В курсе нет практикантов' : ''">
                 Создать задание
                 <img src="/icons/plus.svg" alt="">
             </button>
-            
+
             <div class="tasks" v-if="!isLoading && tasks">
                 <TaskCard v-for="task in tasks" :task="task" :key="task.id" @click="goToWorks(task.id)"
                     @delete="openDeleteModal(task)" @edit="openEditModal(task)" />
             </div>
-            
+
             <div class="no-items" v-if="tasks.length === 0 && !isLoading">
                 <h2>В этом курсе пока нет заданий</h2>
             </div>
@@ -36,9 +36,9 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { getCourse } from '@/api/modules/courses.api';
-import { getPracticants } from '@/api/modules/curarorStudents.api';
-import { getTasksByCourse, createTask as apiCreateTask, deleteTask as apiDeleteTask, updateTask, createChatForTask } from '@/api/modules/tasks.api';
+import { getCourse } from '@/api/modules/courses';
+import { getPracticants } from '@/api/modules/curarorStudents';
+import { getTasksByCourse, createTask as apiCreateTask, deleteTask as apiDeleteTask, updateTask, createChatForTask } from '@/api/modules/tasks';
 
 import CreateTask from './components/modals/CreateTask.vue';
 import Layout from '@/layouts/Layout.vue';

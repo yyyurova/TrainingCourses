@@ -81,7 +81,7 @@
 <script setup>
 import { onMounted, ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { getCourse } from '@/api/modules/courses.api';
+import { getCourse } from '@/api/modules/courses';
 import { getTasksStatistics, getTestsStatistics } from '@/api/modules/activity';
 
 import Layout from '@/layouts/Layout.vue';

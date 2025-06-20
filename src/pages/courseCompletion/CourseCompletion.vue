@@ -8,7 +8,7 @@
             <h1 class="moduleName">
                 {{ currentModule.title }}
                 <span class="score">{{ completedPages + " из " + currentModule.pages.length + " шагов пройдено"
-                    }}</span>
+                }}</span>
             </h1>
 
             <h2 v-if="currentPageData" class="pageName">{{ currentPageData.title }}</h2>
@@ -75,9 +75,9 @@
 import { computed, onMounted, ref, watch, provide, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getCourseActivity } from '@/api/modules/activity';
-import { getCourse } from '@/api/modules/courses.api';
-import { getModules, getModulePage } from '@/api/modules/studentMaterials.api';
-import { sendAnswer } from '@/api/modules/studentAnswers.api';
+import { getCourse } from '@/api/modules/courses';
+import { getModules, getModulePage } from '@/api/modules/studentMaterials';
+import { sendAnswer } from '@/api/modules/studentAnswers';
 
 import CourseCompletionLayout from '@/layouts/CourseCompletionLayout.vue';
 import Card from '@/components/Card.vue';

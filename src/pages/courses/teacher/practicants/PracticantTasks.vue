@@ -37,8 +37,8 @@
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { checkOverdueDeadline } from '@/utils/utils';
-import { deleteTask as apiDeleteTask, updateTask } from '@/api/modules/tasks.api';
-import { getPracticantTasks } from '@/api/modules/curarorStudents.api';
+import { deleteTask as apiDeleteTask, updateTask } from '@/api/modules/tasks';
+import { getPracticantTasks } from '@/api/modules/curarorStudents';
 
 import Layout from '@/layouts/Layout.vue';
 import TaskCard from '../components/TaskCard.vue';

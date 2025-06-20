@@ -19,26 +19,26 @@
             <div class="dropdown">
                 <div v-for="member in filteredMembers" :key="member.id" class="item">
                     <input type="checkbox" :checked="isSelected(member)" @click="toggleMember(member)">
-                    
+
                     <img v-if="member.avatar" :src="member.avatar" :alt="member.name">
-                    
+
                     <AvatarLetter v-else :name="member.name" />
-                    
+
                     <span>{{ member.name }}</span>
                 </div>
             </div>
             <div class="selected-members" v-if="selectedMembers.length > 0">
                 <Card class="no-hover" v-for="member in selectedMembers" :key="member.id">
                     <img src="/icons/Avatar.svg" alt="">
-                   
+
                     <span>{{ member.name }}</span>
-                   
+
                     <button class="icon" @click="removeMember(member)">
                         <img src="/icons/x.svg" alt="Удалить">
                     </button>
                 </Card>
             </div>
-            
+
             <div class="modal-buttons">
                 <button class="transparent" @click="emit('cancel')">Отмена</button>
                 <button class="blue" @click="add">{{ rightButtonText }}</button>
@@ -49,7 +49,7 @@
 
 <script setup>
 import { ref, computed, inject, onMounted } from 'vue';
-import { getUsers } from '@/api/modules/users.api';
+import { getUsers } from '@/api/modules/users';
 import { getUserId } from '@/utils/auth';
 
 import Card from '@/components/Card.vue';
@@ -113,14 +113,14 @@ const clearSearch = () => {
 };
 
 const fetchUsers = async () => {
-    allUsers.value =  await getUsers({ status:'approved' })
+    allUsers.value = await getUsers({ status: 'approved' })
     allUsers.value = allUsers.value.filter(u => u.id)
 };
 
 const add = () => {
     if (selectedMembers.value.length === 0) return;
 
-    emit('add', selectedMembers.value); 
+    emit('add', selectedMembers.value);
     selectedMembers.value = [];
 };
 

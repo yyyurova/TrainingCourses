@@ -70,7 +70,7 @@
 import { format } from '@formkit/tempo';
 import { computed, watch, ref, onMounted, nextTick } from 'vue';
 import { createMessage, getChatMessages } from '@/api/modules/chat';
-import { getTaskChat } from '@/api/modules/tasks.api';
+import { getTaskChat } from '@/api/modules/tasks';
 
 import Card from '@/components/Card.vue';
 import AvatarLetter from '@/components/AvatarLetter.vue';

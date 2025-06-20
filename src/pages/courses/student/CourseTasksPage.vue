@@ -1,9 +1,9 @@
 <template>
     <Layout>
         <h1>Задания</h1>
-       
+
         <Navbar :elements="navbarItems" />
-       
+
         <div class="tasks" v-if="tasks && !isLoading && tasks.length > 0">
             <Card v-for="task in tasks" :key="task.id" @click="goToTask(task.id)">
                 <img src="/icons/task.svg" alt="">
@@ -11,7 +11,7 @@
                     <p class="name-of-task">
                         {{ task.name }}
                     </p>
-                   
+
                     <p class="bottom-row">
                         <span :class="{ 'overdue': checkOverdueDeadline(task.until) }">
                             {{ format(task.until, { date: 'long' }) }}
@@ -21,12 +21,12 @@
                 </div>
             </Card>
         </div>
-        
+
         <div class="no-tasks" v-else-if="tasks && tasks.length === 0 && !isLoading">
             <h2>Домашних заданий нет</h2>
             <p>Здесь будут появляться домашние задания от вашего куратора</p>
         </div>
-        
+
         <Loading v-else-if="isLoading" />
     </Layout>
 </template>
@@ -36,8 +36,8 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { format } from '@formkit/tempo';
 import { checkOverdueDeadline } from '@/utils/utils';
-import { getCourse } from '@/api/modules/courses.api';
-import { getTasks } from '@/api/modules/tasks.api';
+import { getCourse } from '@/api/modules/courses';
+import { getTasks } from '@/api/modules/tasks';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';

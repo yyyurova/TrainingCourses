@@ -51,7 +51,7 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
-import { getClassrooms, deleteClass, createClassroom, addCuratorToClass, addUsersToClass, editClass } from '@/api/modules/classrooms.api';
+import { getClassrooms, deleteClass, createClassroom, addCuratorToClass, addUsersToClass, editClass } from '@/api/modules/classrooms';
 
 import Layout from '@/layouts/Layout.vue';
 import Card from '@/components/Card.vue';

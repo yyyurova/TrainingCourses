@@ -28,8 +28,8 @@
 <script setup>
 import { inject, onMounted, ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { getPracticants } from '@/api/modules/curarorStudents.api';
-import { getCourse } from '@/api/modules/courses.api';
+import { getPracticants } from '@/api/modules/curarorStudents';
+import { getCourse } from '@/api/modules/courses';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';

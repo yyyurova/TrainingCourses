@@ -53,7 +53,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getActiveDays } from '@/api/modules/activity';
-import { getCourse } from '@/api/modules/courses.api';
+import { getCourse } from '@/api/modules/courses';
 
 import Loading from '@/components/Loading.vue';
 import Layout from '@/layouts/Layout.vue';

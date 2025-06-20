@@ -1,6 +1,6 @@
 <template>
     <aside class="sidebar" :class="{ 'sidebar-mobile': isMobile, 'active': isActive }">
-       
+
         <div class="top-row">
             <div class="logo">
                 <img src="/icons/logo.svg" alt="Logo">
@@ -23,7 +23,7 @@
                         </div>
                         <div v-if="item.list && courses?.length > 0" class="courses-list"
                             :class="{ 'active': isCoursesListOpen }">
-                            
+
                             <RouterLink v-for="course in courses" :key="course.id" :to="getCourseLink(course)"
                                 class="course-link" :class="{
                                     'router-link-active': currentCourseId === course.id.toString(),
@@ -35,7 +35,7 @@
                             </RouterLink>
                         </div>
                     </RouterLink>
-                   
+
                     <button v-else class="link transparent"
                         @click="item.name === 'createTask' ? onCreateTask?.() : null">
                         <div class="link-content">
@@ -54,7 +54,7 @@
             <img v-if="user.image" class="avatar" :src="user.image" alt="User-Avatar">
             <AvatarLetter v-else :name="user.name" />
             <span>{{ user.name }}</span>
-           
+
             <button class="icon">
                 <img src="/icons/menu-vertical.svg" alt="">
             </button>
@@ -87,7 +87,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { resetRoleRoutes } from '@/router';
 import { getCurrentUser } from '@/utils/auth';
 import { logout } from '@/utils/auth';
-import { editProfile } from '@/api/modules/profile.api';
+import { editProfile } from '@/api/modules/profile';
 
 import ConfirmDelete from './modals/ConfirmDelete.vue';
 import EditUser from './modals/EditUser.vue';

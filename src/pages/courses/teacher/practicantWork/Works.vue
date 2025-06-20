@@ -62,7 +62,7 @@
 import { onMounted, provide, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { format } from '@formkit/tempo';
-import { getTask, completeTask, cancelTask as apiCancelTask, assignTask as apiAssignTask } from '@/api/modules/tasks.api';
+import { getTask, completeTask, cancelTask as apiCancelTask, assignTask as apiAssignTask } from '@/api/modules/tasks';
 
 import Layout from '@/layouts/Layout.vue';
 import Card from '@/components/Card.vue';

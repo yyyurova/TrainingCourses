@@ -1,9 +1,9 @@
 <template>
     <Layout>
         <h1>Оценки</h1>
-       
+
         <Navbar :elements="navbarItems" />
-       
+
         <div v-if="students && students.length > 0 && !isLoading">
             <h3>Студенты</h3>
 
@@ -11,9 +11,9 @@
                 <Student v-for="student in students" :student="student" :key="student.id" @goToWorks="goToWorks" />
             </div>
         </div>
-       
+
         <Loading v-else-if="isLoading" />
-       
+
         <div v-else-if="(!students && !isLoading) || (students.length === 0 && !isLoading)" class="no-marks">
             <h2>Выставленных оценок нету</h2>
             <p>Посмотрите присланные работы практикантов и выставьте оценки за них</p>
@@ -25,8 +25,8 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getPracticants } from '@/api/modules/curarorStudents.api';
-import { getTasksByCourse } from '@/api/modules/tasks.api';
+import { getPracticants } from '@/api/modules/curarorStudents';
+import { getTasksByCourse } from '@/api/modules/tasks';
 
 import Layout from '@/layouts/Layout.vue';
 import Navbar from '@/components/Navbar.vue';

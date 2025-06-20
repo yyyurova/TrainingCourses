@@ -14,7 +14,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { getTasks } from '@/api/modules/tasks.api';
+import { getTasks } from '@/api/modules/tasks';
 import { getUserId } from '@/utils/auth';
 import { checkOverdueDeadline } from '@/utils/utils';
 
