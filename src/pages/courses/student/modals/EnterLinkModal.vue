@@ -2,8 +2,11 @@
     <div class="modal">
         <div class="modal-content">
             <h2>Добавить ссылку</h2>
+
             <label for="link-input">Ссылка</label><br>
+
             <input v-model="link" type="text" autocomplete="off">
+
             <div class="modal-buttons">
                 <button @click="cancel" class="transparent">Отмена</button>
                 <button @click="add" class="blue">Добавить</button>
@@ -24,15 +27,12 @@ const cancel = () => {
     link.value = ''
 }
 
-// EnterLinkModal.vue
 const add = () => {
     let correctedLink = link.value.trim();
 
     try {
-        // Базовая валидация URL
         new URL(correctedLink);
     } catch {
-        // Если URL невалидный, добавляем https://
         if (!correctedLink.startsWith('http://') && !correctedLink.startsWith('https://')) {
             correctedLink = 'https://' + correctedLink;
         }
@@ -46,7 +46,6 @@ const add = () => {
 <style scoped lang="scss">
 .modal-content {
     width: 400px !important;
-
 
     input {
         width: 100%;

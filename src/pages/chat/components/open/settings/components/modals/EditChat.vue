@@ -3,6 +3,7 @@
         <div class="modal-content">
             <div class="modal__inner">
                 <h2>Изменение группы</h2>
+
                 <Card v-if="!file" class="no-hover">
                     <img class="avatar" :src="getAvatarUrl(selectedChat.avatar)" alt="">
                     <input type="file" accept="image/*" style="display: none;">
@@ -12,15 +13,19 @@
                         <img src="/icons/paperclip.svg" alt="">
                     </button>
                 </Card>
+
                 <Card v-if="file" class="no-hover">
                     <img :src="file.preview" alt="Загруженное изображение" style="max-width: 100%; max-height: 200px;">
                     <button class="transparent border" @click="deleteImage">Удалить</button>
                 </Card>
+
                 <p>Название группы<span class="required">*</span></p>
+
                 <input ref="nameInput" type="text" autocomplete="off" placeholder="Введите название" v-model="title">
 
                 <div class="modal-buttons">
                     <button class="transparent border" @click="$emit('cancel')">Отмена</button>
+
                     <button class="blue" @click="save" :disabled="isLoading">
                         {{ isLoading ? 'Сохранение...' : 'Сохранить' }}
                     </button>
@@ -43,9 +48,7 @@ const editChat = inject('editChat');
 const file = ref(null);
 const nameInput = ref(null);
 const isLoading = ref(false);
-
 const limitMessage = ref('')
-
 const title = ref(selectedChat.value.title);
 
 onBeforeUnmount(() => {
@@ -64,6 +67,7 @@ const deleteImage = () => {
 const save = async () => {
     if (limitMessage.value !== '') { return }
     const titleValue = title.value.trim();
+
     if (!titleValue) {
         nameInput.value.style.border = '1px solid red';
         return;
@@ -84,7 +88,6 @@ const save = async () => {
 
 const getAvatarUrl = (avatarPath) => {
     if (!avatarPath) return '/avatar.png';
-
     return `https://api-course.hellishworld.ru${avatarPath}`;
 }
 

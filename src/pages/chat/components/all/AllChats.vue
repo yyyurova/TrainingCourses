@@ -3,11 +3,13 @@
 
         <div class="top">
             <h1>Чаты</h1>
+
             <button class="blue" @click="openCreateGroupModal">Создать группу
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M4 12H20M12 4V20" stroke="#F5F5F5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </button>
+
             <Card class="no-hover">
                 <img src="/icons/search.svg" alt="">
                 <input v-model="nameInput" @input="searchChat" autocomplete="off" type="text"
@@ -45,7 +47,6 @@
 
 <script setup>
 import { inject, ref } from 'vue';
-import { addMembersToChat } from '@/api/modules/chat.api';
 
 import Card from '@/components/Card.vue';
 import DialogCard from './components/DialogCard.vue';
@@ -57,7 +58,6 @@ import AddUserModal from '../open/components/modals/AddUserModal.vue';
 
 const emit = defineEmits(['openDialog'])
 
-const chats = inject('chats')
 const nameInput = ref('')
 
 const showConfirmDeleteModal = ref(false)
@@ -66,14 +66,13 @@ const showChooseMembersModal = ref(false)
 
 const isLoading = inject('isLoading')
 const originalChats = inject('originalChats')
+const chats = inject('chats')
 
 const selectedToDeleteChat = ref(null)
 const createdChat = ref(null);
 
 const createChat = inject('createChat')
-
 const deleteChatInjection = inject('deleteChat')
-
 const addMembers = inject('addMembers')
 
 const closeModal = () => {

@@ -24,12 +24,6 @@
                             <label :for="'user-' + user.id">{{ user.name }}</label>
                         </div>
                     </div>
-                    <!-- <div class="users-list">
-                        <div v-for="user in students" :key="user.id" class="user-item">
-                            <input type="checkbox" :id="'user-' + user.id" :value="user" v-model="classroomMembers">
-                            <label :for="'user-' + user.id">{{ user.name }}</label>
-                        </div>
-                    </div> -->
                 </div>
 
                 <div class="modal-buttons">
@@ -47,7 +41,6 @@ import { getUsers } from '@/api/modules/adminUsers.api';
 
 const emit = defineEmits(['cancel', 'save']);
 
-const users = ref([]);
 const students = ref([])
 const curators = ref([])
 
@@ -56,12 +49,8 @@ const selectedCurator = ref(null);
 
 const fetchUsers = async () => {
     try {
-        students.value = (await getUsers({ role: 'user' ,status:'approved'})).data
-
-        curators.value = (await getUsers({ role: 'curator',status:'approved' })).data
-        // users.value = (await getUsers()).data;
-        // students.value = users.value.filter(u => u.role === 'user')
-        // curators.value = users.value.filter(u => u.role === 'curator')
+        students.value = (await getUsers({ role: 'user', status: 'approved' })).data
+        curators.value = (await getUsers({ role: 'curator', status: 'approved' })).data
     } catch (error) {
         console.error('Ошибка загрузки пользователей:', error);
     }

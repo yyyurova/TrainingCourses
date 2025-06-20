@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import {  computed } from 'vue';
 import TextEditorCard from '@/components/TextEditorCard.vue';
 
 const props = defineProps({

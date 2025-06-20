@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue';
+import { ref, onMounted } from 'vue';
 import { getUsers } from '@/api/modules/adminUsers.api';
 
 import Loading from '@/components/Loading.vue';
@@ -42,9 +42,8 @@ const isLoading = ref(false)
 const fetchUsers = async () => {
     try {
         isLoading.value = true
-        const data = await getUsers({ role: 'curator', status:'approved' })
+        const data = await getUsers({ role: 'curator', status: 'approved' })
         availableCurators.value = data.data
-        // availableCurators.value = availableCurators.value.filter(u => u.role === 'curator')
     } finally {
         isLoading.value = false
     }

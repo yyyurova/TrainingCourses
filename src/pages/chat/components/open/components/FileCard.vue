@@ -1,10 +1,12 @@
 <template>
     <Card class="no-hover">
         <img src="/icons/file.svg" alt="">
+
         <div class="file-info">
             <p class="file-name">{{ file.name }}</p>
             <p class="file-size">{{ file.size }}</p>
         </div>
+
         <button class="icon" @click="handleDelete">
             <img src="/icons/x.svg" alt="">
         </button>
@@ -24,6 +26,7 @@ const handleDelete = () => {
     emit('deleteFile', props.file)
 }
 </script>
+
 <style scoped lang="scss">
 .card {
     display: flex;

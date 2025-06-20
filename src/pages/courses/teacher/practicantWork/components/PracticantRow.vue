@@ -1,13 +1,18 @@
 <template>
     <div class="practicant-row">
         <img v-if="practicant.avatar" class="avatar" :src="practicant.avatar" alt="">
+
         <AvatarLetter v-else :name="practicant.name" />
+
         <span>{{ practicant.name }}</span>
+
         <input min="1" max="10" :disabled="action === 'Назначить' || selectedPracticant?.id !== practicant.id"
             v-model="localMark" class="mark" type="number" @input="handleInput">
+
         <button class="icon" @click.stop="showAction = !showAction" ref="actionButton">
             <img src="/icons/menu-vertical.svg" alt="">
         </button>
+
         <div class="action" v-if="showAction" ref="actionMenu">
             <ul class="list">
                 <li class="element" @click.stop="$emit('actionWithPracticant', taskId, practicant.id)">
@@ -38,7 +43,6 @@ const actionButton = ref(null);
 const actionMenu = ref(null);
 
 const handleInput = () => {
-    // Обновляем только локальное значение, не отправляем на сервер
     emit('update:practicantMark', localMark.value);
 };
 
@@ -72,7 +76,6 @@ onUnmounted(() => {
     align-items: center;
     gap: 10px;
     padding: 5px 20px;
-    // border-radius: ;
 
     span:not(.avatar-letter) {
         flex: 1
@@ -103,7 +106,6 @@ onUnmounted(() => {
         border-radius: 8px;
         z-index: 1000;
         position: absolute;
-        // bottom: calc(100% + 10px);
         top: 0;
         right: 0;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -125,7 +127,6 @@ onUnmounted(() => {
                     line-height: 20px;
                     letter-spacing: 0px;
                 }
-
             }
         }
     }

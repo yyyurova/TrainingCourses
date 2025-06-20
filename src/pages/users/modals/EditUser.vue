@@ -41,8 +41,6 @@
 <script setup>
 import { ref, defineProps, defineEmits, watch } from 'vue';
 
-// const showPopup = ref(false)
-
 const props = defineProps({
     user: {
         type: Object,
@@ -64,8 +62,6 @@ const form = ref({
     email: '',
     role: '',
     status: '',
-    // password: props.user.password,
-    // image: props.user.image || '/image.png'
 });
 
 const validate = () => {

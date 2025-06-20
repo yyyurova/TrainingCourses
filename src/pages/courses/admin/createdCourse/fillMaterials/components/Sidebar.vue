@@ -8,6 +8,7 @@
         </div>
 
         <p class="course-name">{{ course.name }}</p>
+        
         <RouterLink :to="`/course-fill-content/${course.id}`">
             <button class="transparent go-back">
                 <img src="/icons/arrow.svg" class="arrow-left" alt="">
@@ -213,7 +214,6 @@ onBeforeUnmount(() => {
                     &.active-page .page-content {
                         background: #E9F2FF;
                         font-weight: 500;
-                        // color: #513DEB;
                     }
                 }
             }

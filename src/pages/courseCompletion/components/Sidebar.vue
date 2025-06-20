@@ -6,7 +6,9 @@
             </div>
             <button class="close-sidebar icon" v-if="isMobile" @click="$emit('close')">×</button>
         </div>
+
         <h3>{{ course?.title || 'Название курса' }}</h3>
+
         <button class="transparent border" @click="goBack">
             <img src="/icons/arrow.svg" class="arrow-left" alt="">
             Вернуться к курсу
@@ -116,11 +118,9 @@ watch(
     () => [material.value, currentModuleId.value],
     () => {
         if (material.value && currentModuleId.value) {
-            // Закрываем все модули
             Object.keys(openModules.value).forEach(key => {
                 openModules.value[key] = false
             })
-            // Открываем текущий модуль
             openModules.value[currentModuleId.value] = true
         }
     },
@@ -231,7 +231,6 @@ onMounted(initOpenModules)
                     font-size: 16px;
                     line-height: 20px;
                     letter-spacing: 0px;
-                    // text-align: center;
                 }
             }
 

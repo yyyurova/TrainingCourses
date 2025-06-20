@@ -6,14 +6,17 @@
             </div>
             <button class="burger-menu" @click="toggleSidebar">☰</button>
         </div>
+
         <div class="container">
             <Sidebar :isMobile="isMobile" :isActive="sidebarVisible" @close="sidebarVisible = false" />
+
             <div class="content">
                 <div class="content__inner">
                     <slot></slot>
                 </div>
             </div>
         </div>
+
         <div class="sidebar-overlay" v-if="isMobile && sidebarVisible" @click="toggleSidebar"></div>
     </main>
 </template>

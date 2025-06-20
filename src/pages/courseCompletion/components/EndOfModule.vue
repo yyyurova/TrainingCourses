@@ -1,8 +1,11 @@
 <template>
     <div class="block">
         <img src="/icons/module-reward.svg" alt="">
+
         <h1>Вы завершили данный модуль</h1>
+
         <p>Данный модуль завершён, переходите к следующему для изучения нового материала</p>
+
         <button class="blue" @click="$emit('next')">Следующий модуль</button>
     </div>
 </template>

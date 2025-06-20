@@ -1,11 +1,13 @@
 <template>
     <aside class="sidebar" :class="{ 'sidebar-mobile': isMobile, 'active': isActive }">
+       
         <div class="top-row">
             <div class="logo">
                 <img src="/icons/logo.svg" alt="Logo">
             </div>
             <button class="close-sidebar icon" v-if="isMobile" @click="$emit('close')">×</button>
         </div>
+
         <div class="navigation">
             <template v-for="(section, sectionIndex) in sidebarContent[user.role]" :key="sectionIndex">
                 <h1 v-if="section.header">{{ section.header }}</h1>
@@ -21,6 +23,7 @@
                         </div>
                         <div v-if="item.list && courses?.length > 0" class="courses-list"
                             :class="{ 'active': isCoursesListOpen }">
+                            
                             <RouterLink v-for="course in courses" :key="course.id" :to="getCourseLink(course)"
                                 class="course-link" :class="{
                                     'router-link-active': currentCourseId === course.id.toString(),
@@ -32,6 +35,7 @@
                             </RouterLink>
                         </div>
                     </RouterLink>
+                   
                     <button v-else class="link transparent"
                         @click="item.name === 'createTask' ? onCreateTask?.() : null">
                         <div class="link-content">
@@ -41,16 +45,20 @@
                                 src="/icons/arrow.svg" alt="">
                         </div>
                     </button>
+
                 </template>
             </template>
         </div>
+
         <div class="user" @click="showUserActions = !showUserActions">
             <img v-if="user.image" class="avatar" :src="user.image" alt="User-Avatar">
             <AvatarLetter v-else :name="user.name" />
             <span>{{ user.name }}</span>
+           
             <button class="icon">
                 <img src="/icons/menu-vertical.svg" alt="">
             </button>
+
             <div class="card-user" v-if="showUserActions">
                 <ul class="list">
                     <li class="element" @click="openEditModal">
@@ -100,7 +108,6 @@ const route = useRoute();
 const router = useRouter();
 const isCoursesListOpen = ref(false);
 
-// const courses = inject('courses')
 let courses
 
 const showUserActions = ref(false);
@@ -122,7 +129,6 @@ const currentCourseId = computed(() => {
 
 const sidebarContent = {
     admin: [
-
         {
             title: 'Курсы',
             name: 'courses',

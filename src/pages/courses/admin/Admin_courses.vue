@@ -1,15 +1,19 @@
 <template>
     <Layout>
         <h1>Курсы</h1>
+
         <button class="blue" @click="openCreateCourseModal">
             <span>Новый курс</span>
             <img src="/icons/plus.svg" alt="">
         </button>
+
         <div class="courses">
             <Card v-for="course in courses" :key="course.id" @click="goToCourse(course)">
                 <div class="top">
                     <img v-if="course.photo" class="avatar" width :src="course.photo" alt="avatar">
+
                     <AvatarLetter v-else :name="course.title" />
+
                     <span class="name-of-course">{{ course.title }}</span>
 
                     <div class="action-buttons">
@@ -23,6 +27,7 @@
                 </div>
             </Card>
         </div>
+
         <CreateCourse v-if="showCreateCourseModal" @cancel="closeModal" @create="createCourse" />
 
         <EditCourse v-if="showEditCourseModal" @cancel="closeModal" @edit="editCourse" :course="selectedCourse" />
@@ -39,8 +44,8 @@
 
 <script setup>
 import { useRouter } from "vue-router";
-import { inject, onMounted, provide, ref } from "vue";
-import { getCourses, deleteCourse as apiDeleteCourse, editCourse as apiEditCourse, createCourse as apiCreateCourse } from "@/api/modules/adminCourses.api";
+import { inject, provide, ref } from "vue";
+import { deleteCourse as apiDeleteCourse, editCourse as apiEditCourse, createCourse as apiCreateCourse } from "@/api/modules/adminCourses.api";
 
 import Layout from '@/layouts/Layout.vue'
 import Card from '@/components/Card.vue'
@@ -52,6 +57,7 @@ import Popup from "@/components/Popup.vue";
 import ConfirmDelete from "@/components/modals/ConfirmDelete.vue";
 import EditCourse from "./modals/EditCourse.vue";
 
+const isLoading = inject('isLoading');
 const courses = inject('courses')
 
 const showCreateCourseModal = ref(false)
@@ -65,8 +71,6 @@ const popupText = ref('')
 const isSuccess = ref(true)
 
 const selectedCourse = ref(null)
-
-const isLoading = inject('isLoading');
 
 const goToCourse = (course) => {
     selectedCourse.value = course
@@ -165,10 +169,6 @@ const editCourse = async (updatedCourse) => {
     }
 };
 
-// onMounted(async () => {
-//     await fetchCourses()
-// })
-
 provide('courses', courses)
 </script>
 
@@ -185,14 +185,12 @@ button.blue {
 
     .card {
         width: calc(50% - 5px);
-
         cursor: pointer;
 
         .top {
             width: 100%;
             display: flex;
             gap: 10px;
-            // justify-content: space-between;
             align-items: flex-start;
 
             .name-of-course {

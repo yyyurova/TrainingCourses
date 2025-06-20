@@ -15,20 +15,13 @@ const router = useRouter();
 
 onMounted(async () => {
     try {
-        // const code = route.query.code;
-        // const state = route.query.state;
+        const params = {
+            code: route.query.code,
+            state: route.query.state || null,
+        };
+        const resp = await handleGoogleCallback(params);
 
-        // if (!code || !state) {
-        //     throw new Error('Authorization code missing');
-        // }
-      const params = {
-        code: route.query.code,
-        state: route.query.state || null,
-      };
-      const resp = await handleGoogleCallback(params);
-      console.log(resp)
-      localStorage.setItem('token', resp.access_token);
-
+        localStorage.setItem('token', resp.access_token);
         localStorage.setItem('user', JSON.stringify({
             id: resp.id,
             name: resp.name,
@@ -36,20 +29,22 @@ onMounted(async () => {
             email: resp.email,
             image: resp.image
         }));
+
         if (resp.status === 'rejected') {
             await nextTick()
             router.push('/denied')
             return
         }
+
         if (resp.status === 'pending') {
             await nextTick()
             router.push('/waiting')
             return
         }
+
         addRoleRoutes(resp.role);
         await nextTick()
         router.push('/courses');
-
     } catch (error) {
         console.error('Google login failed:', error);
     }

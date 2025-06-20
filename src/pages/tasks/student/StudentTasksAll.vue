@@ -1,9 +1,13 @@
 <template>
     <Layout>
         <h1>Задания</h1>
+
         <Navbar :elements="navbarItems" />
+
         <Loading v-if="isLoading" />
+
         <Tasks v-else :tasks="tasks" />
+
         <h3 v-if="tasks.length === 0 && !isLoading">У вас нет текущих заданий</h3>
     </Layout>
 </template>
@@ -25,7 +29,6 @@ const isLoading = ref(false)
 const fetchCurrentTasks = async () => {
     try {
         isLoading.value = true
-        // const courses = await getCourses()
         tasks.value = await getTasks()
         tasks.value = tasks.value.filter(task => !checkOverdueDeadline(task.until))
         tasks.value = tasks.value.map(task => {

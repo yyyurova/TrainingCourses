@@ -1,10 +1,13 @@
 <template>
     <Layout>
         <h1>Успеваемость</h1>
+        
         <Navbar :elements="navbarItems" />
+        
         <div v-if="!isLoading">
             <div class="tests" v-if="testsStatiscics">
                 <h3>Тесты</h3>
+               
                 <div class="success">
                     <div class="row">
                         <Card class="center no-hover">
@@ -12,17 +15,20 @@
                             <p class="number">{{ testsStatiscics.tests }}</p>
                         </Card>
                     </div>
+               
                     <div class="row">
                         <Card class="no-hover">
                             <p class="label">Процент пройденных тестов</p>
                             <p class="number">{{ testsStatiscics.doneTests }}%</p>
                             <p class="period">За последние 4 недели</p>
                         </Card>
+               
                         <Card class="no-hover">
                             <p class="label">Процент не пройденных тестов</p>
                             <p class="number">{{ testsStatiscics.notDoneTests }}%</p>
                             <p class="period">За последние 4 недели</p>
                         </Card>
+               
                         <Card class="no-hover">
                             <p class="label">Средний балл за тесты</p>
                             <p class="number">{{ testsStatiscics.averageMark }}</p>
@@ -41,6 +47,7 @@
                             <p class="number">{{ tasksStatistics.tasks }}</p>
                         </Card>
                     </div>
+               
                     <div class="row">
                         <Card class="no-hover">
                             <p class="label">Процент сделанных домашних заданий</p>
@@ -50,12 +57,14 @@
                                 100 : 0 }}%</p>
                             <p class="period">За последние 4 недели</p>
                         </Card>
+               
                         <Card class="no-hover">
                             <p class="label">Процент не сделанных домашних заданий</p>
                             <p class="number">{{ tasksStatistics.not_done !== 0 ?
                                 tasksStatistics.not_done / tasksStatistics.tasks * 100 : 0 }}%</p>
                             <p class="period">За последние 4 недели</p>
                         </Card>
+               
                         <Card class="no-hover">
                             <p class="label">Средний балл</p>
                             <p class="number">{{ tasksStatistics.average_mark || 0 }}</p>
@@ -72,7 +81,6 @@
 <script setup>
 import { onMounted, ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { mockUser } from '@/mocks/user';
 import { getCourse } from '@/api/modules/courses.api';
 import { getTasksStatistics, getTestsStatistics } from '@/api/modules/activity.api';
 
@@ -87,9 +95,6 @@ const testsStatiscics = ref(null)
 
 const route = useRoute();
 const isLoading = ref(false)
-
-const passedTests = Math.round(mockUser.tests.pass / mockUser.tests.all * 100)
-const failedTests = Math.round((mockUser.tests.all - mockUser.tests.pass) / mockUser.tests.all * 100)
 
 const navbarItems = computed(() => {
     if (!course.value) return [];
@@ -106,7 +111,6 @@ const fetchCourse = async (id) => {
         course.value = await getCourse(id);
 
         tasksStatistics.value = await getTasksStatistics(course.value.id)
-
         testsStatiscics.value = await getTestsStatistics(course.value.id)
     } finally {
         isLoading.value = false;
@@ -122,7 +126,6 @@ onMounted(() => {
 watch(() => course.value, () => {
     document.title = course.value.title
 })
-
 </script>
 
 <style scoped lang="scss">
@@ -168,7 +171,6 @@ h3 {
             }
         }
 
-
         .label {
             display: flex;
             align-items: center;
@@ -177,7 +179,6 @@ h3 {
             font-size: 16px;
             line-height: 20px;
             letter-spacing: 0%;
-            /* text-align: center; */
             color: #292929;
         }
 

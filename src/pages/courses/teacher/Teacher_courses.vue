@@ -1,5 +1,5 @@
 <template>
-    <router-view v-if="$route.params.courseId" /> <!-- Рендерим страницу курса -->
+    <router-view v-if="$route.params.courseId" />
 
     <Layout v-else>
         <h1>Курсы</h1>
@@ -22,8 +22,7 @@
 
 <script setup>
 import { useRouter } from "vue-router";
-import { inject, onMounted, provide, ref } from "vue";
-import { getCourses } from "@/api/modules/courses.api";
+import { inject, provide, ref } from "vue";
 
 import Layout from '@/layouts/Layout.vue'
 import Card from '@/components/Card.vue'
@@ -33,15 +32,13 @@ import AvatarLetter from "@/components/AvatarLetter.vue";
 import Popup from "@/components/Popup.vue";
 
 const courses = inject('courses')
+const isLoading = inject('isLoading');
 
 const router = useRouter()
 
 const showPopup = ref(false)
 const popupText = ref('')
-
 const selectedCourse = ref(null)
-
-const isLoading = inject('isLoading');
 
 const goToCourse = (course) => {
     selectedCourse.value = course
@@ -65,14 +62,12 @@ button.blue {
 
     .card {
         width: calc(50% - 5px);
-
         cursor: pointer;
 
         .top {
             width: 100%;
             display: flex;
             gap: 10px;
-            // justify-content: space-between;
             align-items: flex-start;
 
             .name-of-course {

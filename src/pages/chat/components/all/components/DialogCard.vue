@@ -3,9 +3,12 @@
         <div class="dialog-card-header">
             <div class="header-left-part">
                 <img v-if="chat.avatar" :src="chat.avatar">
+
                 <AvatarLetter v-else :name="chat.title" />
+
                 <p class="partner-name">{{ chat.title }}</p>
             </div>
+
             <button class="icon" @click.stop="$emit('delete', chat.id)">
                 <img src="/icons/delete.svg" alt="">
             </button>
@@ -16,6 +19,7 @@
                     <img v-if="chat.latest_message.attachments.length > 0" src="/icons/file.svg" alt="">
                     {{ chat.latest_message.message !== 'null' ? chat.latest_message.message : '' }}
                 </p>
+
                 <p class="date">{{ format(chat.latest_message.created_at, 'short') }}</p>
             </div>
             <span v-if="chat.unviewed" class="circle">{{ chat.unviewed }}</span>
@@ -87,7 +91,6 @@ const props = defineProps({
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                // max-width: 100%;
                 font-weight: 400;
                 font-size: 16px;
                 line-height: 20px;

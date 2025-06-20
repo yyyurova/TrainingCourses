@@ -8,10 +8,12 @@
 
             <div class="block">
                 <h2>Практиканты</h2>
+
                 <button class="transparent border" @click="openAddUserModal">
                     Добавить практикантов
                     <img src="/icons/plus-black.svg" alt="">
                 </button>
+
                 <div class="practicants">
                     <Card v-for="member in classroom.members" :key="member.id">
                         <img v-if="member.avatar" :src="member.avatar" alt="">
@@ -26,11 +28,13 @@
 
             <div class="block">
                 <h2>Куратор</h2>
+
                 <button class="transparent border" :disabled="classroom.curator.name" @click="openAddCuratorModal">
                     Добавить куратора
                     <img src="/icons/plus-black.svg" alt="" v-if="!classroom.curator.name">
                     <img src="/icons/plus-gray.svg" alt="" v-else>
                 </button>
+
                 <Card v-if="classroom.curator.name">
                     <img v-if="classroom.curator.avatar" :src="classroom.curator.avatar" alt="">
                     <AvatarLetter v-else :name="classroom.curator.name" />
@@ -82,7 +86,6 @@ const route = useRoute()
 const classroom = ref(null)
 const members = ref([])
 const memberToDelete = ref(null)
-// const allUsers = ref([])
 const isLoading = ref(false)
 
 const showAddUsersModal = ref(false)

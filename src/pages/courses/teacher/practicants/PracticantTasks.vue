@@ -5,6 +5,7 @@
             <AvatarLetter v-else :name="practicant.name" />
             <h1>{{ practicant.name }}</h1>
         </div>
+
         <select ref="taskFilter" @change="filterTasks">
             <option value="all" selected>Все задания</option>
             <option value="overdue">Пропущен срок сдачи</option>
@@ -17,13 +18,17 @@
         </div>
 
         <Loading v-if="isLoading" />
+
         <div v-if="nothingFoundMessage && tasks.length === 0 && !isLoading" class="no-items">
             <p>{{ nothingFoundMessage }}</p>
         </div>
+
         <Popup v-if="showPopup" :text="popupText" :is-success="isSuccess" @close-popup="closePopup" />
+
         <ConfirmDelete v-if="showDeleteModal" @confirm="deleteTask(taskToDelete.id)" @cancel="closeModal"
             question="Удалить задание?" right-button-text="Удалить"
             text="Оценки, комментарии и информация о задании будут удалены" />
+
         <EditTask v-if="showEditModal" :task="taskToEdit" @cancel="closeModal" @save="editTask" />
     </Layout>
 </template>
@@ -98,9 +103,7 @@ const fetchData = async () => {
         practicant.value = { name: localStorage.getItem('practicantName'), image: localStorage.getItem('practicantImage') }
         tasks.value = await getPracticantTasks(route.params.courseId, route.params.practicantId)
         originalTasks.value = tasks.value
-        // if (tasks.value?.length === 0) {
-        //     nothingFoundMessage.value = 'У данного учащегося нет заданий.'
-        // }
+
         if (tasks.value && tasks.value.students) {
             practicant.value = tasks.value[0].students.find(s => s.id == route.params.practicantId)
         }

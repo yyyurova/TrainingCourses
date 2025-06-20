@@ -3,10 +3,10 @@
         <h3>Комментарий к заданию</h3>
         <div class="chat-about-task">
             <div v-if="messages.length > 0" class="messages-in-task" id="messages">
-                <!-- <p class="day">Сегодня</p> -->
                 <div class="spacer"></div>
                 <Message v-for="message in messages" :key="message.id" :message="message" />
             </div>
+
             <Loading v-else-if="isLoading" />
 
             <div class="no-items" v-else>
@@ -21,11 +21,13 @@
                 <button class="icon" @click="fileUpload">
                     <img class="small" src="/icons/paperclip.svg" alt="">
                 </button>
+
                 <div class="center">
                     <p v-if="limitMessage.length > 0" class="limit-message">{{ limitMessage }}</p>
                     <input autocomplete="off" ref="messageInput" @keypress.enter="sendMessage"
                         placeholder="Добавить комментарий к заданию" type="text" class="inp-field">
                 </div>
+
                 <button class="icon" @click="sendMessage">
                     <img src="/icons/send.svg" alt="">
                 </button>
@@ -43,10 +45,6 @@ import FileCard from '@/pages/chat/components/open/components/FileCard.vue';
 import Message from '@/components/Message.vue';
 import Loading from '@/components/Loading.vue';
 
-// const route = useRoute()
-
-// Используем taskId как chatId для комментариев к заданию
-// const chatId = computed(() => props.taskId);
 const props = defineProps({ chat: Object })
 
 const chatId = computed(() => props.chat?.id);
@@ -79,7 +77,6 @@ const fetchMessages = async () => {
         nextTick(() => { scrollToBottom() });
     }
 };
-
 
 const fileUpload = () => {
     const fileInput = document.createElement('input');
@@ -132,7 +129,6 @@ const sendMessage = async () => {
     }
 
     try {
-        // Используем createMessage, но передаем taskId как chatId
         await createMessage(
             props.chat.id,
             text || null,
@@ -163,9 +159,8 @@ watch(
             fetchMessages();
         }
     },
-    { immediate: true } // Вызовет fetchMessages сразу, если chat уже есть
+    { immediate: true }
 );
-
 </script>
 
 <style scoped lang="scss">
@@ -187,13 +182,10 @@ watch(
         flex-direction: column;
         width: 100%;
         max-height: 400px;
-        /* Максимальная высота всего блока чата */
         min-height: 200px;
-        /* Минимальная высота */
 
         .messages-in-task {
             flex: 1;
-            /* Занимает все доступное пространство */
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -202,7 +194,6 @@ watch(
 
             .spacer {
                 flex: 1;
-                /* Помогает с прокруткой */
             }
         }
 
@@ -251,14 +242,12 @@ watch(
             .center {
                 flex: 1;
                 min-width: 0;
-                /* Предотвращает переполнение */
 
                 .limit-message {
                     padding-left: 5px;
                     color: red;
                     font-size: 12px;
                     white-space: normal;
-                    /* Разрешаем перенос текста */
                 }
             }
 
@@ -274,7 +263,6 @@ watch(
             outline: none;
             width: 100%;
             min-width: 0;
-            /* Предотвращает переполнение */
         }
     }
 }

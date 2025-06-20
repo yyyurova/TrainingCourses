@@ -2,6 +2,7 @@
     <AuthLayout>
         <form @submit.prevent="handleSubmit" class="form" novalidate>
             <img src="/icons/logo.svg" alt="Логотип">
+
             <h1 id="header">Регистрация</h1>
 
             <div class="field">
@@ -27,10 +28,13 @@
                 </div>
                 <span v-if="errors.password" class="error">{{ errors.password }}</span>
             </div>
+
             <span v-if="errors.all" class="error">{{ errors.all }}</span>
+
             <button type="submit" class="blue wide" :disabled="!isFormFilled">Зарегистрироваться</button>
 
             <div class="separator">или</div>
+
             <div class="google-container">
                 <button class="transparent border wide" @click.prevent="signInWithGoogle">
                     Войти через Google
@@ -48,10 +52,11 @@
 </template>
 
 <script setup>
-import AuthLayout from '@/layouts/AuthLayout.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { register, getLoginUrls } from '@/api/modules/auth.api';
+
+import AuthLayout from '@/layouts/AuthLayout.vue';
 
 const name = ref('')
 const email = ref('')
@@ -117,11 +122,8 @@ const router = useRouter()
 const handleSubmit = async () => {
     if (validateForm()) {
         try {
-            const resp = await register(
-                name.value,
-                email.value,
-                password.value
-            )
+            const resp = await register(name.value, email.value, password.value)
+
             localStorage.setItem('token', resp.data.data.access_token)
             localStorage.setItem('user', JSON.stringify({
                 id: resp.data.data.id,
@@ -236,7 +238,6 @@ onMounted(() => {
         color: #292929;
         position: relative;
         margin: 20px 0;
-
 
         &::before,
         &::after {

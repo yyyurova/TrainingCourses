@@ -35,6 +35,7 @@
                         v-model:practicant-mark="practicant.mark" />
                 </div>
             </Card>
+
             <Card class="no-hover right">
                 <div class="info">
                     <h2>{{ task.name }}</h2>

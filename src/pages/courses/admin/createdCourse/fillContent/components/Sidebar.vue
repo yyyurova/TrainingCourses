@@ -15,29 +15,34 @@
 
         <button :title="course.published === 1 ? 'Курс уже опубликован' : ''" :disabled="course.published === 1"
             class="blue wide" @click="publishCourse">Опубликовать курс</button>
+
         <RouterLink to="/courses">
             <button class="transparent wide">
                 <img class="arrow-left" src="/icons/arrow.svg" alt="">
                 Вернуться к списку курсов</button>
         </RouterLink>
+
         <div class="navigation">
             <RouterLink class="link" :to="`/course-fill-content/${course.id}`">
                 Содержание курса
             </RouterLink>
-            <!-- <RouterLink class="link" :to="`/course-fill-materials/${course.id}`">
-                Заполнить учебные материалы для курса
-            </RouterLink> -->
+
             <div class="link" @click="goToFillCourse">
                 Заполнить учебные материалы для курса
             </div>
         </div>
+
         <div class="user" @click="showUserActions = !showUserActions">
             <img v-if="user.avatar" class="avatar" :src="user.avatar" alt="User-Avatar">
+
             <AvatarLetter v-else :name="user.name" />
+
             <span>{{ user.name }}</span>
+
             <button class="icon">
                 <img src="/icons/menu-vertical.svg" alt="">
             </button>
+
             <div class="card-user" v-if="showUserActions">
                 <ul class="list">
                     <li class="element" @click="openEditModal">
@@ -54,6 +59,7 @@
 
     <ConfirmDelete v-if="showConfirmExit" right-button-text="Выйти" question="Выйти из профиля?"
         text="Вы потеряете доступ к функционалу сервиса." @cancel="closeModal" @confirm="exitFromProfile" />
+
     <EditUser v-if="showEditModal" @cancel="closeModal" @save="saveUserChanges" />
 </template>
 
@@ -64,7 +70,7 @@ import { useRouter } from 'vue-router';
 import { logout } from '@/utils/auth';
 import { resetRoleRoutes } from '@/router';
 import { editProfile } from '@/api/modules/profile.api';
-import { editCourse, pulichCourse } from '@/api/modules/adminCourses.api';
+import { pulichCourse } from '@/api/modules/adminCourses.api';
 
 import EditUser from '@/components/modals/EditUser.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
@@ -105,7 +111,7 @@ const showMessage = (text, success) => {
 const publishCourse = async () => {
     try {
         closeModal();
-        const data = await pulichCourse(course.value.id, { title: course.value.title, published: true })
+        await pulichCourse(course.value.id, { title: course.value.title, published: true })
         router.push('/courses')
 
         showMessage('Курс успешно опубликован', true)

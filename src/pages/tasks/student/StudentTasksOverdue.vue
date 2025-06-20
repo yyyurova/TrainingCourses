@@ -1,9 +1,13 @@
 <template>
     <Layout>
         <h1>Задания</h1>
+
         <Navbar :elements="navbarItems" />
+
         <Loading v-if="isLoading" />
+
         <Tasks v-if="tasks.length > 0" :tasks="tasks" />
+
         <h3 v-if="tasks.length === 0 && !isLoading">Вы не пропустили срок сдачи ни одного задания</h3>
     </Layout>
 </template>
