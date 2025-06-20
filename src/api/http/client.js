@@ -1,13 +1,12 @@
 import axios from 'axios';
 
 const client = axios.create({
-    baseURL: 'https://api-course.hellishworld.ru/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL,
     headers: {
         Accept: "application/json"
     }
 });
 
-// Добавляем интерцептор запросов для динамического обновления токена
 client.interceptors.request.use(config => {
     const token = localStorage.getItem('token');
     if (token) {

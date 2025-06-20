@@ -24,7 +24,6 @@ const props = defineProps({
     currentPage: Number,
     perPage: {
         type: Number,
-        default: 15 // Устанавливаем значение по умолчанию из метаданных API
     }
 });
 

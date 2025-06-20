@@ -12,12 +12,12 @@ import AccessRejected from "@/pages/auth/AccessRejected.vue";
 
 const baseRoutes = [
     {
-        path: '/',
+        path: import.meta.env.VITE_BASE_URL,
         name: 'Authorization',
         component: Login,
         meta: {
             title: 'Вход',
-            requiresAuth: false // Явно помечаем публичные маршруты
+            requiresAuth: false
         }
     },
     {
@@ -133,7 +133,7 @@ router.beforeEach(async (to, from, next) => {
     const token = localStorage.getItem('token');
     const role = getUserRole();
 
-    document.title = to.meta?.title || 'Training Courses';
+    document.title = to.meta?.title || import.meta.env.VITE_DEFAULT_TITLE;
 
     if (to.meta.requiresAuth === false) {
         return next();

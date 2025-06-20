@@ -13,7 +13,7 @@
 
         <Loading v-if="isLoading || getUserRole() === null" />
 
-        <Pagination v-else :totalItems="totalItems" :currentPage="currentPage" :perPage="15"
+        <Pagination v-else :totalItems="totalItems" :currentPage="currentPage" :perPage="defaultPerPage"
             @update:currentPage="updateCurrentPage" />
 
         <ConfirmDelete v-if="showConfirmModal" :question="modalConfig.question" :text="modalConfig.text"
@@ -49,6 +49,8 @@ import SelectRole from './modals/SelectRole.vue'
 import CreateUser from './modals/CreateUser.vue'
 import EditUser from './modals/EditUser.vue'
 import Popup from '@/components/Popup.vue'
+
+const defaultPerPage = parseInt(import.meta.env.VITE_PAGINATION_LIMIT)
 
 const users = ref([])
 
@@ -94,7 +96,7 @@ const fetchUsers = async () => {
 
         const params = {
             page: currentPage.value,
-            per_page: 15
+            per_page: defaultPerPage
         };
 
         if (filters.value.role) params.role = filters.value.role;
