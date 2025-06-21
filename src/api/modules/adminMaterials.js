@@ -134,12 +134,10 @@ export const updateQuestion = async (pageId, questionId, title, description, is_
     try {
         const formData = new FormData();
 
-        // Добавляем текстовые поля
         formData.append('title', title);
         if (description) formData.append('description', description);
         if (is_group) formData.append('is_group', is_group);
 
-        // Добавляем файлы (если есть)
         if (attachments && attachments.length > 0) {
             attachments.forEach((file) => {
                 formData.append('attachments[]', file);

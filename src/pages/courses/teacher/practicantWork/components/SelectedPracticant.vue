@@ -99,7 +99,6 @@ const localMark = ref(props.mark || '');
 const files = computed(() => {
     return props.practicant.files.filter(f => f.type !== 'link')
 })
-
 const links = computed(() => {
     return props.practicant.files.filter(f => f.type === 'link')
 })
@@ -112,6 +111,9 @@ const formatFileSize = (sizeInMB) => {
     return `${sizeInMB.toFixed(2)} MB`;
 };
 
+// const deleteFromSelected = () => {
+//     emit('delete', props.practicant)
+// }
 const updateMark = () => {
     emit('update:mark', localMark.value);
 };
@@ -309,10 +311,13 @@ watch(() => props.practicant, async (newPr) => {
         flex-direction: column;
         width: 100%;
         max-height: 400px;
+        /* Максимальная высота всего блока чата */
         min-height: 200px;
+        /* Минимальная высота */
 
         .messages-in-task {
             flex: 1;
+            /* Занимает все доступное пространство */
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -321,6 +326,7 @@ watch(() => props.practicant, async (newPr) => {
 
             .spacer {
                 flex: 1;
+                /* Помогает с прокруткой */
             }
         }
 
@@ -369,12 +375,14 @@ watch(() => props.practicant, async (newPr) => {
             .center {
                 flex: 1;
                 min-width: 0;
+                /* Предотвращает переполнение */
 
                 .limit-message {
                     padding-left: 5px;
                     color: red;
                     font-size: 12px;
                     white-space: normal;
+                    /* Разрешаем перенос текста */
                 }
             }
 
@@ -390,6 +398,7 @@ watch(() => props.practicant, async (newPr) => {
             outline: none;
             width: 100%;
             min-width: 0;
+            /* Предотвращает переполнение */
         }
     }
 }

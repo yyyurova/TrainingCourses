@@ -11,6 +11,7 @@
                         <button class="icon">
                             <img src="/icons/file.svg" alt="">
                         </button>
+                        <!-- <p>{{ attachment.url }}</p> -->
                         <a :href="attachment.url">{{ attachment.name }}</a>
                     </div>
                 </div>

@@ -13,7 +13,6 @@
                             </svg>
                         </button>
                     </Card>
-
                     <Card v-if="filters.status">
                         <span>Статус</span>
                         <button class="icon" @click="removeFilter('status')">
@@ -24,7 +23,6 @@
                             </svg>
                         </button>
                     </Card>
-
                     <Card v-if="filters.email">
                         <span>Email</span>
                         <button class="icon" @click="removeFilter('email')">
@@ -35,7 +33,6 @@
                             </svg>
                         </button>
                     </Card>
-
                     <Card class="card" v-if="filters.name">
                         <span>Имя</span>
                         <button class="icon" @click="removeFilter('name')">
@@ -47,7 +44,6 @@
                         </button>
                     </Card>
                 </div>
-
                 <button class="blue" @click="resetFilters">Сбросить все фильтры</button>
             </div>
         </td>
@@ -69,6 +65,15 @@ const removeFilter = (type) => {
     filters.value[type] = null;
 };
 
+// const resetFilters = () => {
+//     filters.value.role = null;
+//     filters.value.status = null;
+//     filters.value.email = null;
+//     filters.value.name = null;
+
+//     // Эмитим событие для сброса в дочерних компонентах
+//     // emit('reset-filters');
+// };
 const resetFilters = inject('resetFilters')
 
 const users = inject('users')

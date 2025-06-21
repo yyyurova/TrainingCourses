@@ -106,7 +106,6 @@ export const addMembersToChat = async (chatId, userIds) => {
         });
     } catch (error) {
         console.error('Ошибка добавления участников:', error);
-        // throw error;
     }
 };
 
@@ -122,5 +121,8 @@ export const getChatAttachments = async (chatId) => {
     try {
         const response = await client.get(`${ENDPOINTS.CHAT}/${chatId}/files`)
         return response.data.data
-    } catch (error) { console.log(error); return [] }
+    } catch (error) {
+        console.log(error);
+        return []
+    }
 }

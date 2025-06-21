@@ -24,4 +24,5 @@ export const isCurrentUser = (userId) => {
 export const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    // Дополнительные действия при выходе
 };

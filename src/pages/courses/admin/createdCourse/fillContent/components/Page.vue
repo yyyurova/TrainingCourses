@@ -1,7 +1,6 @@
 <template>
     <Card v-if="page" class="no-hover">
         <h3 class="number">{{ (moduleIndex + 1) + '.' + (pageIndex + 1) }}</h3>
-
         <div class="input-container">
             <input type="text" class="name" :value="page.title" @input="$emit('update:name', $event.target.value)"
                 @blur="checkEmptyness">

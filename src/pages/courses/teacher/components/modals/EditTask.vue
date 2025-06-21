@@ -12,8 +12,6 @@
                 <div class="group">
                     <p>Описание</p>
                     <TextEditorCard v-model="task.text" />
-
-                    <textarea v-html="task.text" v-model="task.text" autocomplete="off"></textarea>
                 </div>
 
                 <div class="group">
@@ -31,7 +29,7 @@
 </template>
 
 <script setup>
-import {  computed } from 'vue';
+import { computed } from 'vue';
 import TextEditorCard from '@/components/TextEditorCard.vue';
 
 const props = defineProps({

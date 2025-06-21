@@ -3,7 +3,6 @@
         <div>
             <div class="search-block">
                 <input @input="handleInput" v-model="nameInput" type="text" placeholder="Введите имя для поиска">
-
                 <button class="icon" @click="handleClick(nameInput)">
                     <img src="/icons/search.svg" alt="">
                 </button>

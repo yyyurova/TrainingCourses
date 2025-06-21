@@ -76,6 +76,8 @@ const errors = ref({
 })
 
 const validate = () => {
+    let isValid = true;
+
     errors.value = {
         name: taskName.value.value.trim() === '',
         description: description.value.trim() === '',
@@ -103,6 +105,7 @@ const create = () => {
 }
 
 const saveAsDraft = () => {
+    // Для черновика проверка не обязательна
     const assignedTo = selectedUsers.value.map(u => Number(u.id))
 
     const task = {

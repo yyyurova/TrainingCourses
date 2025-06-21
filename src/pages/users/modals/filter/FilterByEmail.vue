@@ -3,7 +3,6 @@
         <div>
             <div class="search-block">
                 <input @click.stop="" v-model="emailInput" type="email" placeholder="Введите email для поиска">
-                
                 <button class="icon" @click="handleClick(emailInput)">
                     <img src="/icons/search.svg" alt="">
                 </button>

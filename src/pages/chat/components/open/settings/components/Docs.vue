@@ -3,7 +3,6 @@
         <a :href="doc.path" v-for="(doc, index) in docs" :key="index">
             <Card class="no-hover">
                 <img src="/icons/file.svg" alt="">
-
                 <div class="info">
                     <p class="file-name">{{ doc.name }}</p>
                     <p class="file-size">{{ formatFileSize(doc.size) }}</p>
@@ -11,7 +10,6 @@
             </Card>
         </a>
     </div>
-
     <div class="no-items" v-else>
         <p>В этом чате нет документов</p>
     </div>
@@ -39,8 +37,10 @@ const formatFileSize = (sizeInMB) => {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    // padding-bottom: 10px;
     max-height: 100%;
     overflow-x: auto;
+
 
     a {
         text-decoration: none;

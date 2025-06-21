@@ -3,11 +3,9 @@
     <div v-else>
         <Layout>
             <h1 v-if="courses && courses.length > 0">Курсы</h1>
-
             <div v-if="!isLoading && courses?.length === 0" class="no-items">
                 <p> У вас нет доступных курсов</p>
             </div>
-
             <div class="courses" v-if="courses && courses.length > 0">
                 <Card v-for="course in courses" :key="course.id" @click="goToCourse(course.id)">
                     <div class="top">
@@ -18,15 +16,16 @@
                     <button class="blue" @click.stop="continueStudy(course.id)">Продолжить обучение</button>
                 </Card>
             </div>
-
             <Loading v-if="isLoading" />
         </Layout>
+
     </div>
 </template>
 
 <script setup>
-import { inject, provide } from 'vue';
+import { inject, onMounted, provide, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { getCourses } from '@/api/modules/courses';
 
 import Loading from '@/components/Loading.vue';
 import Layout from '@/layouts/Layout.vue';
@@ -71,6 +70,7 @@ provide('courses', courses)
             width: 100%;
             display: flex;
             gap: 10px;
+            // justify-content: space-between;
             align-items: center;
 
             .name-of-course {

@@ -6,7 +6,6 @@
                     <th class="id">
                         <span>ID</span>
                     </th>
-
                     <th class="name" @click.stop="toggleNameFilter">
                         <p>
                             <span> Имя и Фамилия</span>
@@ -14,7 +13,6 @@
                         </p>
                         <FilterByName v-if="showFilter.name" @filter="(value) => handleFilter('name', value)" />
                     </th>
-
                     <th class="email" @click.stop="toggleEmailFilter">
                         <p>
                             <span>Электронная почта</span>
@@ -22,7 +20,6 @@
                         </p>
                         <FilterByEmail v-if="showFilter.email" @filter="(value) => handleFilter('email', value)" />
                     </th>
-
                     <th class="status" @click.stop="toggleStatusFilter">
                         <p>
                             <span>Статус</span>
@@ -30,7 +27,6 @@
                         </p>
                         <FilterByStatus v-if="showFilter.status" @filter="(value) => handleFilter('status', value)" />
                     </th>
-
                     <th class="role" @click.stop="toggleRoleFilter">
                         <p>
                             <span>Роль</span>
@@ -38,40 +34,31 @@
                         </p>
                         <FilterByRole v-if="showFilter.role" @filter="(value) => handleFilter('role', value)" />
                     </th>
-
                     <th class="date">
                         <p>
                             <span>Дата создания</span>
                         </p>
                     </th>
-
                     <th class="actions"><span>Действия</span></th>
                 </tr>
                 <FilterRow />
             </thead>
-
             <tbody v-if="!isLoading">
                 <tr v-for="user in users" :key="user.id">
                     <td>{{ user.id }}</td>
-
                     <td>{{ user.name }}</td>
-
                     <td>{{ user.email }}</td>
-
                     <td>
                         <p :style="{ backgroundColor: statusBackgrounds[user.status] }">{{ translateStatus(user.status)
-                            }}</p>
+                        }}</p>
                     </td>
-
                     <td>
                         {{ translateStatus(user.status) === 'Доступ не одобрен' || translateStatus(user.status) ===
                             'Новый пользователь' ? '-' :
                             translateRole(user.role)
                         }}
                     </td>
-
                     <td>{{ format(user.created_at, { date: 'long', time: 'short' }) }}</td>
-
                     <td>
                         <div class="action-buttons">
                             <button :class="button.class" @click="handleAction(button.class, user)" class="icon"

@@ -111,7 +111,6 @@ export const getClassroomMembers = async (classroomId) => {
 export const editClass = async (classId, newClass) => {
     try {
         await client.patch(`${ENDPOINTS.ADMIN_CLASS}/${classId}`, newClass);
-        // return response.data.data
     } catch (error) {
         console.error('Ошибка :', error);
         return null;

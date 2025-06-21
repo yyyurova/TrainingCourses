@@ -4,7 +4,7 @@
     <Layout v-else>
         <h1>Курсы</h1>
 
-        <div class="courses">
+        <div class="courses" v-if="courses?.length > 0">
             <Card v-for="course in courses" :key="course.id" @click="goToCourse(course)">
                 <div class="top">
                     <img v-if="course.photo" class="avatar" width :src="course.photo" alt="avatar">
@@ -12,6 +12,10 @@
                     <span class="name-of-course">{{ course.title }}</span>
                 </div>
             </Card>
+        </div>
+
+        <div class="no-items" v-else>
+            <p>У вас нет доступных курсов</p>
         </div>
         <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" />
 
@@ -22,7 +26,7 @@
 
 <script setup>
 import { useRouter } from "vue-router";
-import { inject, provide, ref } from "vue";
+import { inject } from "vue";
 
 import Layout from '@/layouts/Layout.vue'
 import Card from '@/components/Card.vue'
@@ -32,13 +36,15 @@ import AvatarLetter from "@/components/AvatarLetter.vue";
 import Popup from "@/components/Popup.vue";
 
 const courses = inject('courses')
-const isLoading = inject('isLoading');
 
 const router = useRouter()
 
 const showPopup = ref(false)
 const popupText = ref('')
+
 const selectedCourse = ref(null)
+
+const isLoading = inject('isLoading');
 
 const goToCourse = (course) => {
     selectedCourse.value = course
@@ -62,12 +68,14 @@ button.blue {
 
     .card {
         width: calc(50% - 5px);
+
         cursor: pointer;
 
         .top {
             width: 100%;
             display: flex;
             gap: 10px;
+            // justify-content: space-between;
             align-items: flex-start;
 
             .name-of-course {
@@ -87,6 +95,10 @@ button.blue {
             }
         }
     }
+}
+
+.no-items {
+    margin-top: 40px;
 }
 
 @media (max-width:768px) {

@@ -1,19 +1,17 @@
 <template>
     <Layout>
         <h1>Задания</h1>
-
         <Navbar :elements="navbarItems" />
-
         <Loading v-if="isLoading" />
-
         <Tasks :tasks="tasks" />
-
         <h3 v-if="tasks.length === 0 && !isLoading">Вы не выполнили ни одного задания</h3>
     </Layout>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import axios from 'axios';
+import { getCourses } from '@/api/modules/courses';
 import { getTasks } from '@/api/modules/tasks';
 
 import Layout from '@/layouts/Layout.vue';
@@ -23,6 +21,7 @@ import Loading from '@/components/Loading.vue';
 import { getUserId } from '@/utils/auth';
 
 const tasks = ref([])
+const currentDate = new Date()
 const isLoading = ref(false)
 
 const fetchCurrentTasks = async () => {

@@ -1,7 +1,7 @@
 import './assets/main.scss'
 import './assets/modals.scss'
 import { createApp } from 'vue'
-import { router } from './router'
+import { router, initRouter } from './router'
 import App from './App.vue'
 
 import VCalendar from 'v-calendar';
@@ -11,5 +11,7 @@ const app = createApp(App)
 
 app.use(VCalendar, {})
 app.use(router)
+
+// initRouter()
 
 app.mount('#app')

@@ -1,9 +1,7 @@
 <template>
     <Layout>
         <h1>Оценки</h1>
-
         <Navbar :elements="navbarItems" />
-
         <div v-if="students && students.length > 0 && !isLoading">
             <h3>Студенты</h3>
 
@@ -11,9 +9,7 @@
                 <Student v-for="student in students" :student="student" :key="student.id" @goToWorks="goToWorks" />
             </div>
         </div>
-
         <Loading v-else-if="isLoading" />
-
         <div v-else-if="(!students && !isLoading) || (students.length === 0 && !isLoading)" class="no-marks">
             <h2>Выставленных оценок нету</h2>
             <p>Посмотрите присланные работы практикантов и выставьте оценки за них</p>
@@ -23,7 +19,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getPracticants } from '@/api/modules/curarorStudents';
 import { getTasksByCourse } from '@/api/modules/tasks';
@@ -117,6 +113,7 @@ h3 {
 }
 
 .students {
+    // width: 870px;
     margin: 10px 0;
     border-radius: 8px;
     border: 1px solid #D9D9D9;

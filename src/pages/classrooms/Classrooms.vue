@@ -5,9 +5,7 @@
             <span>Создать учебный класс</span>
             <img src="/icons/plus.svg" alt="">
         </button>
-
         <Loading v-if="isLoading" />
-
         <div class="classrooms" v-if="classrooms && !isLoading">
             <Card v-for="classroom in classrooms" :key="classroom.id" @click="goToClassroom(classroom.id)">
                 <div class="left">
@@ -22,7 +20,6 @@
                         {{ classroom.members ? classroom.members.length : 0 }}
                     </p>
                 </div>
-
                 <div class="right">
                     <button class="icon edit" @click.stop="openEeditModal(classroom)">
                         <img src="/icons/pen.svg" alt="">
@@ -33,7 +30,6 @@
                 </div>
             </Card>
         </div>
-
         <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить учебный класс?"
             text="Студенты и куратор потеряют доступ к курсу" right-button-text="Удалить" @confirm="deleteClassroom"
             @cancel="closeModal" />
@@ -197,15 +193,19 @@ const fetchClassrooms = async () => {
 };
 
 const createdClassroomId = ref(null);
+
+
 const save = async () => {
     try {
         isLoading.value = true;
 
+        // Добавляем куратора (первый выбранный пользователь с ролью куратора)
         const curator = classroomMembers.value.find(member => member.role === 'curator');
         if (curator) {
             await addCuratorToClass(createdClassroomId.value, curator.id);
         }
 
+        // Добавляем участников
         await addUsersToClass(createdClassroomId.value, classroomMembers.value);
 
         showMessage('Класс успешно создан', true)

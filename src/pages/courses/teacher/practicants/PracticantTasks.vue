@@ -14,7 +14,7 @@
 
         <div class="tasks" v-if="tasks && tasks.length > 0 && !isLoading">
             <TaskCard v-for="task in tasks" :key="task.id" :task="task" @delete="openDeleteModal(task)"
-                :practicantId="route.params.practicantId" @edit="openEditModal(task)" />
+                @click="goToWorks(task.id)" :practicantId="route.params.practicantId" @edit="openEditModal(task)" />
         </div>
 
         <Loading v-if="isLoading" />
@@ -24,18 +24,16 @@
         </div>
 
         <Popup v-if="showPopup" :text="popupText" :is-success="isSuccess" @close-popup="closePopup" />
-
         <ConfirmDelete v-if="showDeleteModal" @confirm="deleteTask(taskToDelete.id)" @cancel="closeModal"
             question="Удалить задание?" right-button-text="Удалить"
             text="Оценки, комментарии и информация о задании будут удалены" />
-
         <EditTask v-if="showEditModal" :task="taskToEdit" @cancel="closeModal" @save="editTask" />
     </Layout>
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { checkOverdueDeadline } from '@/utils/utils';
 import { deleteTask as apiDeleteTask, updateTask } from '@/api/modules/tasks';
 import { getPracticantTasks } from '@/api/modules/curarorStudents';
@@ -68,10 +66,15 @@ const taskToDelete = ref(null)
 const isLoading = ref(false)
 
 const route = useRoute()
+const router = useRouter()
 
 const closeModal = () => {
     if (showDeleteModal.value) { showDeleteModal.value = false }
     if (showEditModal.value) { showEditModal.value = false }
+}
+
+const goToWorks = (id) => {
+    router.push(`/courses/${route.params.courseId}/works/${id}`)
 }
 
 const openEditModal = (task) => {
@@ -134,7 +137,7 @@ const editTask = async (updatedTask) => {
     try {
         isLoading.value = true;
         closeModal();
-        await updateTask(updatedTask.id, updatedTask)
+        await updateTask(updatedTask.id, updatedTask, route.params.courseId)
         await fetchData()
 
         showMessage('Задание успешно изменено', true)
@@ -147,6 +150,8 @@ const editTask = async (updatedTask) => {
 };
 
 const filterTasks = () => {
+    const practicantId = parseInt(route.params.practicantId);
+
     switch (taskFilter.value.value) {
         case 'all':
             nothingFoundMessage.value = ''
@@ -164,15 +169,17 @@ const filterTasks = () => {
             break
         case 'done':
             nothingFoundMessage.value = ''
-            tasks.value = originalTasks.value.filter(task =>
-                task.marks &&
-                Object.prototype.toString.call(task.marks) === '[object Object]' &&
-                Object.values(task.marks).some(mark => mark != null)
-            )
+            tasks.value = originalTasks.value.filter(task => {
+                if (!task.students || !Array.isArray(task.students)) return false;
+
+                const student = task.students.find(s => s.id === practicantId);
+                return student && student.done === 1;
+            });
+
             if (tasks.value.length === 0) {
-                nothingFoundMessage.value = 'Этот учащийся пока ничего не сдавал'
+                nothingFoundMessage.value = 'Этот учащийся пока ничего не сдавал';
             }
-            break
+            break;
     }
 }
 

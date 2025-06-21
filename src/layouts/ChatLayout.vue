@@ -1,4 +1,5 @@
 <template>
+
     <div class="container">
         <div class="mobile-header" v-if="isMobile">
             <div class="logo">
@@ -8,7 +9,6 @@
                 ☰
             </button>
         </div>
-
         <Sidebar :isMobile="isMobile" :isActive="sidebarVisible" @close="sidebarVisible = false" />
 
         <div class="content">
@@ -16,7 +16,6 @@
                 <slot></slot>
             </div>
         </div>
-
         <div class="sidebar-overlay" v-if="isMobile && sidebarVisible" @click="toggleSidebar"></div>
     </div>
 </template>

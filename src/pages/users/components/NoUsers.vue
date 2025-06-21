@@ -1,7 +1,6 @@
 <template>
     <div class="no-users">
         <h2>Пользователи не найдены</h2>
-        
         <button @click="resetFilters" class="blue">Сбросить все фильтры</button>
     </div>
 </template>

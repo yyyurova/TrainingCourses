@@ -3,7 +3,6 @@
         <RouterLink class="link" v-for="task in tasks" :key="task.id" :to="`/tasks/${task.id}`">
             <Card>
                 <img src="/icons/task.svg" alt="">
-
                 <div class="text">
                     <p class="name-of-task">
                         {{ task.name }}
@@ -45,6 +44,7 @@ const props = defineProps({
         width: fit-content;
 
         .card {
+            height: 100%;
             width: 477px;
             display: flex;
             align-items: flex-start;
@@ -66,6 +66,8 @@ const props = defineProps({
                 .course-name {
                     font-size: 14px;
                     color: #969696;
+
+                    // color: ;
                 }
 
                 p span {
@@ -80,6 +82,7 @@ const props = defineProps({
                     font-size: 16px;
                     line-height: 20px;
                     letter-spacing: 0px;
+
                     display: -webkit-box;
                     -webkit-line-clamp: 2;
                     -webkit-box-orient: vertical;

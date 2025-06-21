@@ -2,9 +2,7 @@
     <AuthLayout>
         <form @submit.prevent="handleSubmit" action="" class="form authorization" novalidate>
             <img src="/icons/logo.svg" alt="Логотип">
-
             <h1 id="header">Вход</h1>
-
             <div class="field">
                 <label for="email">Электронная почта<span class="required">*</span></label>
                 <input name="email" autocomplete="email" v-model="email" type="email" class="email credintals"
@@ -14,25 +12,18 @@
 
             <div class="field">
                 <label for="password">Пароль<span class="required">*</span></label>
-
                 <div class="pass-container">
                     <input name="password" autocomplete="off" v-model="password" ref="passwordInput" type="password"
                         class="password credintals" required>
                     <img @click="switchPasswordVisibility" ref="eye" class="eye" src="/icons/eye-closed.svg" alt="">
                 </div>
-
                 <span v-if="errors.password" class="error">{{ errors.password }}</span>
             </div>
-
             <span v-if="errors.all" class="error">{{ errors.all }}</span>
-
             <button type="submit" class="blue wide" :disabled="!(email.trim() && password.trim())">Войти</button>
-
             <div class="separator">или</div>
-
             <div class="google-container">
                 <span v-if="errors.google" class="error">{{ errors.google }}</span>
-
                 <button class="transparent border wide" @click.prevent="signInWithGoogle">
                     Войти через Google
                     <img src="/icons/google.svg" alt="Google Icon">
@@ -53,18 +44,14 @@ import { nextTick, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { login, getLoginUrls } from '@/api/modules/auth';
 import { addRoleRoutes } from '@/router';
-
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
 const email = ref('');
 const password = ref('');
 const errors = ref({});
 const passwordInput = ref(null);
-
 const eye = ref(null);
-
 const router = useRouter();
-
 const googleUrl = ref('');
 
 const switchPasswordVisibility = () => {
@@ -104,8 +91,8 @@ const handleSubmit = async () => {
 
     try {
         const resp = await login(email.value, password.value);
-
         localStorage.setItem('token', resp.data.data.access_token);
+
         localStorage.setItem('user', JSON.stringify({
             id: resp.data.data.id,
             name: resp.data.data.name,
@@ -114,19 +101,16 @@ const handleSubmit = async () => {
             image: resp.data.data.image,
             status: resp.data.data.status
         }));
-
         if (resp.data.data.status === 'rejected') {
             await nextTick()
             router.push('/denied')
             return
         }
-
         if (resp.data.data.status === 'pending') {
             await nextTick()
             router.push('/waiting')
             return
         }
-
         addRoleRoutes(resp.data.data.role);
         await nextTick()
         router.push('/courses');
@@ -139,6 +123,7 @@ const handleSubmit = async () => {
 const signInWithGoogle = async () => {
     try {
         googleUrl.value = await getLoginUrls();
+        // googleUrl.value = urls.google_url;
         if (googleUrl.value) {
             window.location.href = googleUrl.value.google_url;
         }

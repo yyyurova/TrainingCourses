@@ -16,12 +16,7 @@ export const register = async (name, email, password) => {
         email: email,
         password: password,
     });
-    // } catch (error) {
-    //     console.error('Ошибка:', error);
-    //     return error;
-    // }
-}
-    ;
+};
 
 export const getLoginUrls = async () => {
     try {

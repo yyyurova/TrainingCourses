@@ -2,7 +2,6 @@
     <div class="module">
         <Card class="no-hover">
             <h3 class="number">{{ num }}.</h3>
-
             <div class="input-container">
                 <input @blur="checkEmptyness" type="text" class="name" :value="mod.name"
                     @input="$emit('update:name', $event.target.value)">
@@ -14,15 +13,12 @@
                     @click="isPagesListOpen = !isPagesListOpen">
                     <img :class="isPagesListOpen ? 'arrow-down' : 'arrow-up'" src="/icons/arrow.svg" alt="">
                 </button>
-
                 <button class="icon" @click="$emit('delete-module')">
                     <img src="/icons/x.svg" alt="">
                 </button>
             </div>
         </Card>
-
         <p v-if="mod.noPages" class="no-pages">Добавьте хотя бы одну страницу в модуль</p>
-
         <Transition>
             <div class="pages" v-if="mod.pages && mod.pages.length && isPagesListOpen">
                 <Page v-for="(page, pageIndex) in mod.pages" :key="pageIndex" :page="page" :module-index="moduleIndex"
@@ -39,7 +35,6 @@
 
 <script setup>
 import { defineProps, defineEmits, ref } from 'vue';
-
 import Card from '@/components/Card.vue';
 import Page from './Page.vue';
 
@@ -60,6 +55,7 @@ const emit = defineEmits([
 ]);
 
 const addPage = () => {
+    // if (props.mod.pages.length > 0) { isPagesListOpen.value = true }
     emit('add-page', props.mod.id);
     isPagesListOpen.value = true
 };

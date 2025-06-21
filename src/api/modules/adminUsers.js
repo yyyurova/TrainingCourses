@@ -25,8 +25,7 @@ export const getUser = async (userId) => {
 
 export const deleteUser = async (userId) => {
     try {
-        await client.delete(`${ENDPOINTS.ADMIN_USERS}/${userId}`);
-        // return response.data.data
+        return await client.delete(`${ENDPOINTS.ADMIN_USERS}/${userId}`);
     } catch (error) {
         console.error('Ошибка :', error);
         return null;
@@ -35,8 +34,7 @@ export const deleteUser = async (userId) => {
 
 export const editUser = async (userId, newUser) => {
     try {
-        await client.patch(`${ENDPOINTS.ADMIN_USERS}/${userId}`, newUser);
-        // return response.data.data
+        return await client.patch(`${ENDPOINTS.ADMIN_USERS}/${userId}`, newUser);
     } catch (error) {
         console.error('Ошибка :', error);
         return null;
@@ -45,8 +43,7 @@ export const editUser = async (userId, newUser) => {
 
 export const createUser = async (newUser) => {
     try {
-        await client.post(`${ENDPOINTS.ADMIN_USERS}`, newUser);
-        // return response.data.data
+        return await client.post(`${ENDPOINTS.ADMIN_USERS}`, newUser);
     } catch (error) {
         console.error('Ошибка :', error);
         return null;

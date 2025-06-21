@@ -2,7 +2,6 @@
     <div class="modal">
         <div class="modal-content" @click.stop>
             <h2>Добавление участников в группу</h2>
-
             <Card class="no-hover search-block">
                 <input v-model="nameInput" @input="handleInput" type="text" autocomplete="off"
                     placeholder="Начните вводить имя">
@@ -15,30 +14,23 @@
                         stroke="#292929" stroke-linecap="round" />
                 </svg>
             </Card>
-
             <div class="dropdown">
                 <div v-for="member in filteredMembers" :key="member.id" class="item">
                     <input type="checkbox" :checked="isSelected(member)" @click="toggleMember(member)">
-
                     <img v-if="member.avatar" :src="member.avatar" :alt="member.name">
-
                     <AvatarLetter v-else :name="member.name" />
-
                     <span>{{ member.name }}</span>
                 </div>
             </div>
             <div class="selected-members" v-if="selectedMembers.length > 0">
                 <Card class="no-hover" v-for="member in selectedMembers" :key="member.id">
                     <img src="/icons/Avatar.svg" alt="">
-
                     <span>{{ member.name }}</span>
-
                     <button class="icon" @click="removeMember(member)">
                         <img src="/icons/x.svg" alt="Удалить">
                     </button>
                 </Card>
             </div>
-
             <div class="modal-buttons">
                 <button class="transparent" @click="emit('cancel')">Отмена</button>
                 <button class="blue" @click="add">{{ rightButtonText }}</button>
@@ -120,7 +112,7 @@ const fetchUsers = async () => {
 const add = () => {
     if (selectedMembers.value.length === 0) return;
 
-    emit('add', selectedMembers.value);
+    emit('add', selectedMembers.value); // Передаем выбранных пользователей
     selectedMembers.value = [];
 };
 

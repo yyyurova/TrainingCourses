@@ -21,7 +21,6 @@
         <div v-else-if="searchQuery.trim() !== ''" class="no-items">
             <p>Нет результатов по запросу</p>
         </div>
-
         <div v-else class="no-items">
             <p>В этом чате нет участников</p>
         </div>
@@ -33,7 +32,7 @@
 </template>
 
 <script setup>
-import { inject, ref, computed, provide } from 'vue';
+import { inject, ref, computed, onMounted, provide } from 'vue';
 import { deleteMember as apiDeleteMember, getChat } from '@/api/modules/chat';
 
 import MemberCard from './MemberCard.vue';
@@ -104,7 +103,6 @@ const deleteMember = async (member) => {
 }
 
 let searchTimeout = null;
-
 const handleSearch = () => {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
@@ -112,6 +110,7 @@ const handleSearch = () => {
 };
 
 provide('members', chat.members)
+
 </script>
 
 <style scoped lang="scss">

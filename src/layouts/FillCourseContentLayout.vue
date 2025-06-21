@@ -6,7 +6,6 @@
             </div>
             <button class="burger-menu" @click="toggleSidebar">☰</button>
         </div>
-
         <div class="container">
             <Sidebar :isMobile="isMobile" :isActive="sidebarVisible" @close="sidebarVisible = false" />
 
@@ -25,6 +24,8 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 import Sidebar from '@/pages/courses/admin/createdCourse/fillContent/components/Sidebar.vue'
+
+// import Sidebar from '@/pages/courses/admin/createdCourse/components/Sidebar.vue'
 
 const isMobile = ref(false)
 const sidebarVisible = ref(false)

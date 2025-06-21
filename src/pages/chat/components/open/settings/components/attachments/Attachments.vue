@@ -3,6 +3,9 @@
         <div class="images-grid">
             <div class="image-card" v-for="(img, index) in images" :key="'img-' + index" @click="showImage(img)">
                 <div class="preview-container">
+                    <!-- <SVGPreview v-if="img.path.endWith('.svg')" :content="img.svgContent" /> -->
+                    <!-- <img v-else :src="img.path" :alt="img.name" class="preview-image"> -->
+
                     <img :src="img.path" :alt="img.name" class="preview-image">
                 </div>
             </div>
@@ -12,17 +15,18 @@
     <div class="no-items" v-else>
         <p>В этом чате нет фотографий</p>
     </div>
-
     <ImageModal v-if="showImageModal" :image="selectedImage" @close="showImageModal = false" />
 </template>
 
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, onMounted, inject } from 'vue';
+import { decodeUtf8 } from '@/utils/utils';
 
 import ImageModal from './modals/ImageModal.vue';
+import SVGPreview from './SVGPreview.vue';
 
 const images = inject('images')
-
+console.log(images)
 const showImageModal = ref(false);
 const selectedImage = ref(null);
 

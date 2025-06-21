@@ -1,18 +1,15 @@
 <template>
     <Card class="task">
         <img src="/icons/list-right.svg" alt="">
-
         <div class="text">
             <p class="name">{{ task.name }}</p>
             <p class="deadline" :class="{ 'overdue': checkOverdueDeadline(task.until) }">{{
                 format(task.until, 'short') }}</p>
         </div>
-
         <div class="action-buttons">
             <button class="icon" @click.stop="editTask">
                 <img src="/icons/pen.svg" alt="">
             </button>
-
             <button class="icon" @click.stop="deleteTask">
                 <img src="/icons/delete.svg" alt="">
             </button>

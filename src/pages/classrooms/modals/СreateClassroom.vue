@@ -3,7 +3,6 @@
         <div class="modal-content">
             <div class="modal__inner">
                 <h2>Создать учебный класс</h2>
-
                 <div class="form-group">
                     <label>Название<span class="required">*</span></label>
                     <input v-model="classroomName" type="text" autocomplete="off" required>
@@ -14,7 +13,6 @@
                     <input :value="classroomCourse?.title || ''" @blur="handleCourseBlur($event)"
                         @focus="showCoursesDropdown = true; handleDropdownPosition($event)" type="text"
                         placeholder="Начните вводить название курса">
-
                     <div v-show="showCoursesDropdown" class="dropdown courses">
                         <div v-for="course in courses" :key="course.id" class="item"
                             @mousedown="classroomCourse = course">
@@ -35,7 +33,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { getCourses } from '@/api/modules/adminCourses';
 
 import AvatarLetter from '@/components/AvatarLetter.vue';
@@ -57,6 +55,7 @@ const cancel = () => {
 
 const next = () => {
     if (!classroomName.value || !classroomCourse.value) {
+        // Можно добавить обработку ошибки
         return;
     }
 
@@ -88,6 +87,7 @@ const handleCourseBlur = (event) => {
         const dropdown = input.nextElementSibling
         if (!dropdown) return
 
+        // const rect = input.getBoundingClientRect()
         dropdown.style.top = `0px`
         dropdown.style.left = `0px`
     }, 100);
@@ -98,7 +98,6 @@ onMounted(async () => {
     await fetchCourses()
 })
 </script>
-
 <style scoped lang="scss">
 .form-group {
     position: static;

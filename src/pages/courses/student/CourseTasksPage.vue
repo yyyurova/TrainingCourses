@@ -1,9 +1,7 @@
 <template>
     <Layout>
         <h1>Задания</h1>
-
         <Navbar :elements="navbarItems" />
-
         <div class="tasks" v-if="tasks && !isLoading && tasks.length > 0">
             <Card v-for="task in tasks" :key="task.id" @click="goToTask(task.id)">
                 <img src="/icons/task.svg" alt="">
@@ -11,7 +9,6 @@
                     <p class="name-of-task">
                         {{ task.name }}
                     </p>
-
                     <p class="bottom-row">
                         <span :class="{ 'overdue': checkOverdueDeadline(task.until) }">
                             {{ format(task.until, { date: 'long' }) }}
@@ -21,12 +18,10 @@
                 </div>
             </Card>
         </div>
-
         <div class="no-tasks" v-else-if="tasks && tasks.length === 0 && !isLoading">
             <h2>Домашних заданий нет</h2>
             <p>Здесь будут появляться домашние задания от вашего куратора</p>
         </div>
-
         <Loading v-else-if="isLoading" />
     </Layout>
 </template>
@@ -81,6 +76,7 @@ const fetchTasks = async () => {
         tasks.value = await getTasks({ course: course.value.id })
         tasks.value.sort(t => -t.id)
         console.log(tasks.value)
+        // tasks.value = tasks.value.filter(task => new Date(task.until) < new Date())
     } finally {
         isLoading.value = false;
     }
@@ -90,6 +86,11 @@ onMounted(async () => {
     await fetchCourse()
     await fetchTasks();
 });
+
+// watch(() => course.value, () => {
+//     document.title = course.value.title
+// })
+
 </script>
 
 <style scoped lang="scss">
@@ -126,6 +127,7 @@ onMounted(async () => {
 
     .card {
         width: calc(50% - 5px);
+
         display: flex;
         align-items: flex-start;
         flex-direction: row;
@@ -155,6 +157,7 @@ onMounted(async () => {
                 font-size: 16px;
                 line-height: 20px;
                 letter-spacing: 0px;
+
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
@@ -164,6 +167,13 @@ onMounted(async () => {
         }
     }
 }
+
+
+// @media (max-width:1280px) {
+//     .card {
+//         width: 460px !important;
+//     }
+// }
 
 @media (max-width:768px) {
     .tasks .card {

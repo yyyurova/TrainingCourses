@@ -5,38 +5,30 @@
                 <button class="icon back" @click="leaveSettings">
                     <img class="arrow-left" src="/icons/arrow.svg" alt="">
                 </button>
-
                 <div class="center">
                     <div class="top">
                         <img v-if="selectedChat.avatar" :src="getAvatarUrl(selectedChat.avatar)">
                         <AvatarLetter v-else :name="selectedChat.title" />
                         <p class="grop-name">{{ selectedChat.title }}</p>
                     </div>
-
                     <p v-if="selectedChat.is_group === 1" class="am-members">{{ pluralizeParticipants }}</p>
                 </div>
-
                 <button v-if="selectedChat.is_group === 1" class="icon big" @click="openShowEditChatModal">
                     <img src="/icons/settings.svg" alt="">
                 </button>
-
                 <button v-else class="icon big" @click="openConfirmDeleteModal">
                     <img src="/icons/delete.svg" alt="">
                 </button>
             </div>
         </div>
-
         <Navbar :elements="navbarItems" ref="navbar" />
-
         <div class="settings-tab" :style="{ maxHeight: contentHeight + 'px' }">
             <component :is="component"></component>
         </div>
     </div>
-
     <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить чат?"
         text="Удалённую переписку нельзя будет восстановить" right-button-text="Удалить"
         @confirm="deleteChat(selectedChat.id)" @cancel="closeModal" />
-
     <EditChat v-if="showEditChatModal" @cancel="closeModal" />
 </template>
 
@@ -57,13 +49,10 @@ import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
 import EditChat from './components/modals/EditChat.vue';
 
 const selectedChat = inject('selectedChat')
-const settingsIsOpen = inject('settingsIsOpen')
-const deleteChat = inject('deleteChat')
-
 const route = useRoute()
 const router = useRouter()
-
 const component = shallowRef(null);
+const settingsIsOpen = inject('settingsIsOpen')
 const contentHeight = ref(0);
 
 const header = ref(null)
@@ -75,6 +64,8 @@ const images = ref([])
 const showEditChatModal = ref(false)
 const showConfirmDeleteModal = ref(false)
 
+const deleteChat = inject('deleteChat')
+
 const openConfirmDeleteModal = () => {
     showConfirmDeleteModal.value = true
 }
@@ -82,6 +73,7 @@ const openConfirmDeleteModal = () => {
 const fetchFiles = async () => {
     try {
         const data = await getChatAttachments(selectedChat.value.id)
+        console.log(data)
         docs.value = data.files
         images.value = data.images
     } catch (err) { console.log(err) }
@@ -113,6 +105,7 @@ const calculateContentHeight = () => {
 
 const getAvatarUrl = (avatarPath) => {
     if (!avatarPath) return '/avatar.png';
+
     return `https://api-course.hellishworld.ru${avatarPath}`;
 }
 
@@ -137,6 +130,7 @@ const navbarItems = computed(() => {
 
 const leaveSettings = () => {
     router.back()
+    // router.push(`/chat/${selectedChat.value.id}`)
     settingsIsOpen.value = false
 }
 
@@ -173,6 +167,7 @@ provide('images', images)
         border-bottom: 1px solid #D9D9D9;
 
         .chat-header__inner {
+            // width: 100%;
             display: flex;
             justify-content: space-between;
             margin: 60px 10px 20px 20px;

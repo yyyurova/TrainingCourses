@@ -3,11 +3,9 @@
         <div class="modal-content">
             <div class="modal__inner">
                 <h2>Создать курс</h2>
-
                 <div class="form-group">
                     <Card class="no-hover">
                         <img :src="courseImagePreview" alt="Course image" id="course-image">
-
                         <div class="modal-buttons">
                             <button class="transparent" type="button" @click="triggerFileInput">Загрузить</button>
                             <button class="transparent" type="button" @click="removeImage">Удалить</button>
@@ -16,12 +14,10 @@
                         </div>
                     </Card>
                 </div>
-
                 <div class="form-group">
                     <label>Название<span class="required">*</span></label>
                     <input v-model="courseName" type="text" autocomplete="off" required :class="{ 'error': nameError }">
                 </div>
-
                 <div class="modal-buttons">
                     <button class="transparent" @click="cancel">Отмена</button>
                     <button class="blue" @click="create">Создать</button>
@@ -38,7 +34,7 @@ import Card from '@/components/Card.vue';
 const emit = defineEmits(['cancel', 'create']);
 
 const courseName = ref('');
-const courseImageFile = ref(null);
+const courseImageFile = ref(null); // Теперь храним File объект вместо base64
 const courseImagePreview = ref('/avatar.png');
 const fileInput = ref(null);
 const nameError = ref(false);
@@ -51,8 +47,9 @@ const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    courseImageFile.value = file;
+    courseImageFile.value = file; // Сохраняем файл
 
+    // Создаем превью
     const reader = new FileReader();
     reader.onload = (e) => {
         courseImagePreview.value = e.target.result;

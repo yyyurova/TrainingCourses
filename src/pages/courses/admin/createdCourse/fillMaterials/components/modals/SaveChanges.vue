@@ -2,9 +2,7 @@
     <div class="modal">
         <div class="modal-content">
             <h2>Сохранить изменения?</h2>
-
             <p>Вы отредактировали урок, но не сохранили его</p>
-
             <div class="modal-buttons">
                 <button class="transparent" @click="$emit('cancel')">Отмена</button>
                 <button class="blue" @click="$emit('confirm')">Сохранить</button>

@@ -2,7 +2,6 @@
     <div class="modal">
         <div class="modal-content">
             <h2>Созданиe шага</h2>
-
             <div class="radio-inputs">
                 <label class="radio">
                     <input type="radio" name="radio" v-model="selectedType" value="text">
@@ -11,7 +10,6 @@
                         <img src="/icons/type-text.svg" alt="">
                     </span>
                 </label>
-
                 <label class="radio">
                     <input type="radio" name="radio" v-model="selectedType" value="video">
                     <span class="name">
@@ -19,7 +17,6 @@
                         <img src="/icons/type-video.svg" alt="">
                     </span>
                 </label>
-
                 <label class="radio">
                     <input type="radio" name="radio" v-model="selectedType" value="quiz">
                     <span class="name">
@@ -28,7 +25,6 @@
                     </span>
                 </label>
             </div>
-
             <div class="modal-buttons">
                 <button class="transparent" @click="$emit('cancel')">Отмена</button>
                 <button class="blue" @click="handleCreate">Создать шаг</button>

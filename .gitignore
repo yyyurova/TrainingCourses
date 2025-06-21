@@ -30,8 +30,8 @@ coverage
 *.tsbuildinfo
 
 # Environment files
-.env                
-.env.development    
-.env.production     
+.env
+.env.development
+.env.production
 
 !.env.example

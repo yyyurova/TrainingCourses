@@ -2,16 +2,13 @@
     <div class="module" @click="toggleInfo">
         <div class="row">
             <p>Модуль {{ (moduleIndex + 1) + '. ' + module.title }}</p>
-
             <button class="icon">
                 <img src="/icons/arrow.svg" :class="isOpen ? 'arrow-down' : 'arrow-right'" alt="">
             </button>
         </div>
-
         <div class="pages" v-if="isOpen && module.pages">
             <div class="page" v-for="page in module.pages" :key="page.id">
                 <p class="title">Шаг {{ (module.pages.indexOf(page) + 1) + '. ' + page.title }}</p>
-
                 <div v-if="page.questions.length > 0">
                     <div v-for="question in page.questions" :key="question.id" v-html="question.description"></div>
                 </div>
@@ -29,6 +26,11 @@ const props = defineProps({
     module: Object,
     moduleIndex: Number
 });
+
+// const truncateText = (text, maxLength) => {
+//     if (!text) return '';
+//     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+// };
 
 const toggleInfo = () => {
     isOpen.value = !isOpen.value

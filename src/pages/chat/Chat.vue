@@ -3,12 +3,9 @@
         <div class="chat-block">
             <AllChats @open-dialog="openDialog"
                 :class="{ 'mobile-hidden': isMobileView && (selectedChat || settingsIsOpen), 'mobile-full': isMobileView && !selectedChat }" />
-
             <OpenEmpty v-if="!selectedChat && !isMobileView" />
-
             <OpenDialog v-if="selectedChat && !settingsIsOpen" @openSettings="openSettings" :isMobile="isMobileView"
                 @backToAllChats="goBackToChats" :class="{ 'mobile-full': isMobileView && selectedChat }" />
-
             <ChatSettings v-if="selectedChat && settingsIsOpen" :class="{ 'mobile-full': isMobileView }" />
         </div>
     </ChatLayout>

@@ -1,7 +1,6 @@
 <template>
     <FillCourseMaterialsLayout>
         <Loading v-if="isLoading || !course" />
-
         <div class="" v-if="!isLoading && course">
             <Card class="no-hover fill-material" v-if="material && currentModule">
                 <h1>Заполнение учебных материалов для курса</h1>
@@ -31,7 +30,6 @@
                                 Загрузить файл
                             </span>
                         </label>
-
                         <label class="radio">
                             <input type="radio" name="radio" v-model="selectedWay" value="other">
                             <span class="name">
@@ -39,12 +37,10 @@
                             </span>
                         </label>
                     </div>
-
                     <div v-if="selectedWay === 'other'" class="link">
                         <p>Ссылка <span class="required">*</span></p>
                         <input type="url" placeholder="Введите ссылку" v-model="videoLink">
                     </div>
-
                     <input type="file" ref="fileInput" style="display: none" @change="handleFileUpload"
                         accept="video/*">
 
@@ -63,6 +59,7 @@
                 </div>
 
                 <div class="quiz" v-if="currentPage.type === 3">
+
                     <div class="question-list" v-if="quizData.questions?.length">
                         <div class="question-item" v-for="(question, qIndex) in quizData.questions" :key="qIndex">
                             <div class="question-header">
@@ -184,6 +181,7 @@ const quizData = ref({
 });
 
 const pageName = ref('')
+const isSaved = ref(false);
 const showSaveChangesModal = ref(false);
 
 const isSuccess = ref(true)
@@ -252,6 +250,9 @@ const fetchMaterial = async () => {
         const modules = await getModules(course.value.id);
         modules.sort((a, b) => a.id - b.id);
 
+        // for (const module of modules) {
+        //     module.pages = await getPagesForModule(module.id);
+        // }
         for (const module of modules) {
             const pages = await getPagesForModule(module.id);
             pages.sort((a, b) => a.id - b.id);
@@ -287,14 +288,17 @@ const loadPageContent = async () => {
     await loadPageQuestion(currentPage.value.id);
 
     if (currentPage.value.type === 1) {
+        // Текстовая страница
         currentPageContent.value = currentQuestion.value?.description || '';
     }
     else if (currentPage.value.type === 2) {
+        // Видео страница
         selectedWay.value = 'other';
         videoLink.value = '';
         uploadedFiles.value = [];
 
         if (currentQuestion.value?.description) {
+            // Пытаемся извлечь ссылку из iframe
             const parser = new DOMParser();
             const doc = parser.parseFromString(currentQuestion.value.description, 'text/html');
             const iframe = doc.querySelector('iframe');
@@ -306,6 +310,7 @@ const loadPageContent = async () => {
             }
         }
 
+        // Проверяем, есть ли прикрепленные файлы
         if (currentQuestion.value?.attachments?.length) {
             selectedWay.value = 'upload';
             uploadedFiles.value = currentQuestion.value.attachments.map(att => ({
@@ -324,7 +329,7 @@ const loadPageContent = async () => {
                     id: q.id,
                     title: q.title,
                     description: q.description || '',
-                    is_group: q.is_group || false,
+                    is_group: q.is_group || false, // Используем новое поле из API
                     options: variants.map(v => ({
                         id: v.id,
                         title: v.title,
@@ -360,7 +365,7 @@ const saveCourse = async () => {
                 await updateQuestion(
                     currentPage.value.id,
                     currentQuestion.value.id,
-                    pageName.value,
+                    pageName.value, // Убедитесь, что передаёте title
                     description
                 );
                 isLoading.value = false
@@ -368,7 +373,7 @@ const saveCourse = async () => {
                 isLoading.value = true
                 await createQuestion(
                     currentPage.value.id,
-                    pageName.value,
+                    pageName.value, // Убедитесь, что передаёте title
                     description
                 );
                 isLoading.value = false
@@ -399,9 +404,9 @@ const saveCourse = async () => {
                 isLoading.value = true
                 await createQuestion(
                     currentPage.value.id,
-                    pageName.value,
+                    pageName.value, // Убедитесь, что передаёте title
                     description,
-                    false,
+                    false, // is_group
                     attachments
                 );
                 isLoading.value = false
@@ -417,7 +422,7 @@ const saveCourse = async () => {
                         const response = await updateQuestion(
                             currentPage.value.id,
                             question.id,
-                            question.title,
+                            question.title, // Убедитесь, что передаёте title
                             question.description,
                             question.is_group
                         );
@@ -526,7 +531,7 @@ const generateVideoIframe = (url) => {
     if (videoId) {
         return `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
     }
-    return url;
+    return url; // Если не YouTube ссылка, возвращаем как есть
 };
 
 const extractVideoId = (url) => {
@@ -539,7 +544,7 @@ const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
 
-    uploadedFiles.value = files.map(file => file);
+    uploadedFiles.value = files.map(file => file); // Сохраняем оригинальные File объекты
     e.target.value = '';
 };
 
@@ -548,6 +553,7 @@ const addNewQuestion = () => {
         id: null,
         title: '',
         description: '',
+        // is_group: false,
         options: [],
     });
 };
@@ -629,7 +635,7 @@ watch(route, async (newRoute, oldRoute) => {
 });
 
 const loadCurrentPage = async () => {
-    hasChanges.value = false;
+    hasChanges.value = false; // Сбрасываем флаг изменений
 
     if (material.value?.modules) {
         const moduleId = parseInt(route.params.moduleId, 10);
@@ -653,6 +659,7 @@ const loadCurrentPage = async () => {
 onBeforeRouteLeave((to, from, next) => {
     if (hasChanges.value) {
         openSaveChangesModal();
+        // Нужно сохранить целевой маршрут для перехода после сохранения
         next(false);
     } else {
         next();
@@ -733,6 +740,7 @@ provide('material', material);
     }
 
     .card.name {
+        // margin: 20px 0;
         width: 100%;
         padding: 12px 20px;
 
@@ -755,6 +763,7 @@ provide('material', material);
     }
 
     .squares-score {
+        // margin: 10px 0;
         display: flex;
         gap: 8px;
 
@@ -802,6 +811,7 @@ provide('material', material);
 
         .uploaded-files {
             display: flex;
+            // flex-direction: column;
             flex-wrap: wrap;
             gap: 10px;
 

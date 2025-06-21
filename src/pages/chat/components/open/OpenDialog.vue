@@ -8,14 +8,10 @@
                         <button v-if="isMobile" class="icon" @click="() => emit('backToAllChats')">
                             <img class="arrow-left" src="/icons/arrow.svg" alt="">
                         </button>
-
                         <img v-if="selectedChat.avatar" class="avatar" :src="getAvatarUrl(selectedChat.avatar)">
-
                         <AvatarLetter v-else :name="selectedChat.title" />
-
                         <h1>{{ selectedChat.title }}</h1>
                     </div>
-
                     <p v-if="selectedChat.is_group === 1" class="am-members">{{ pluralizeParticipants }}</p>
                 </div>
 
@@ -23,21 +19,17 @@
                     <button class="icon" @click.stop="openAddModal">
                         <img src="/icons/add.svg" alt="">
                     </button>
-
                     <button class="icon" @click.stop="openConfirmDeleteModal">
                         <img src="/icons/delete.svg" alt="">
                     </button>
                 </div>
             </div>
         </div>
-
         <div v-if="messages.length > 0" class="messages-in-chat">
             <div class="spacer"></div>
             <Message v-for="message in messages" :key="message.id" :message="message" />
         </div>
-
         <Loading v-else-if="isLoading" />
-
         <NoMessages v-else />
 
         <div v-if="attachedFiles.length > 0" class="files">
@@ -47,13 +39,11 @@
             <button class="icon" @click="fileUpload">
                 <img src="/icons/paperclip.svg" alt="">
             </button>
-
             <div class="center">
                 <p v-if="limitMessage.length > 0" class="limit-message">{{ limitMessage }}</p>
                 <input ref="input" placeholder="Отправить сообщение..." type="text" class="inp-field"
                     @keydown.enter="sendMessage">
             </div>
-
             <button class="icon bigger" @click="sendMessage">
                 <img src="/icons/send.svg" alt="">
             </button>
@@ -62,7 +52,6 @@
     <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить чат?"
         text="Удалённую переписку нельзя будет восстановить" right-button-text="Удалить"
         @confirm="deleteChat(selectedChat.id)" @cancel="closeModal" />
-
     <AddUserModal v-if="showAddModal" :members="selectedChat.members" @cancel="closeModal" @add="addToExistingChat"
         right-button-text="Добавить" />
 </template>
@@ -81,6 +70,8 @@ import AvatarLetter from '@/components/AvatarLetter.vue';
 import Loading from '@/components/Loading.vue';
 
 const emit = defineEmits(['openSettings', 'backToAllChats'])
+const deleteChat = inject('deleteChat')
+const addMembers = inject('addMembers');
 
 defineProps({ isMobile: Boolean })
 
@@ -88,8 +79,6 @@ defineOptions({
     inheritAttrs: false
 })
 
-const deleteChat = inject('deleteChat')
-const addMembers = inject('addMembers');
 const selectedChat = inject('selectedChat')
 const input = ref(null)
 const limitMessage = ref('')
@@ -123,6 +112,7 @@ const fetchMessages = async () => {
 
 const getAvatarUrl = (avatarPath) => {
     if (!avatarPath) return '/avatar.png';
+
     return `https://api-course.hellishworld.ru${avatarPath}`;
 }
 
@@ -158,6 +148,7 @@ const fileUpload = () => {
     fileInput.type = 'file';
     fileInput.multiple = true;
 
+    // Указываем разрешённые MIME типы и расширения
     fileInput.accept = '.jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt';
 
     fileInput.onchange = (e) => {
@@ -190,16 +181,23 @@ const formatFileSize = (bytes) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
+const toBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+    });
+};
+
 const sendMessage = async () => {
     const text = input.value.value.trim();
 
     if (!text && attachedFiles.value.length === 0) return;
-
     if (text.split('').length > 2048) {
         limitMessage.value = 'Длина сообщения не должна превышать 2048 символов'
         return
     } else { limitMessage.value = '' }
-
     if (attachedFiles.value.length > 10) {
         limitMessage.value = 'Вы можете прикрепить не более 10 файлов'
         return
@@ -280,6 +278,7 @@ onMounted(async () => {
             margin: 60px 10px 20px 20px;
             cursor: pointer;
             position: relative;
+
 
             .f-row {
                 display: flex;
@@ -392,6 +391,7 @@ onMounted(async () => {
 
 @media (max-width:1280px) {
     .open {
+
         .dialog-header__inner {
             margin: 15px 10px 10px 20px !important;
 

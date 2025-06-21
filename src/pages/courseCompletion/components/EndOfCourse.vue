@@ -1,11 +1,8 @@
 <template>
     <div class="block">
         <img src="/icons/course-reward.svg" alt="">
-
         <h1>Вы успешно завершили курс!</h1>
-
         <p>Поздравляю! Данный курс успешно завершён. Переходите на страницу курсов и выбирайте следующий</p>
-
         <button class="blue" @click="goToCourses">Страница курсов</button>
     </div>
 </template>
@@ -19,7 +16,6 @@ const goToCourses = () => {
     router.push('/courses')
 }
 </script>
-
 <style scoped lang="scss">
 .block {
     display: flex;
