@@ -12,11 +12,13 @@
                     </div>
                     <button class="blue" @click="continueStudy(course.id)">Продолжить обучение</button>
                 </Card>
+               
                 <Card class="teacher" v-if="teacherName">
                     <div class="top">
                         <p>Куратор</p>
                         <span class="teacher-name">{{ teacherName }}</span>
                     </div>
+                  
                     <button class="transparent border">Написать сообщение</button>
                 </Card>
             </div>
@@ -37,6 +39,7 @@
         </div>
 
         <Loading v-if="isLoading" />
+        
         <div v-if="!course && !isLoading">
             <p>Курс не найден</p>
         </div>
@@ -172,7 +175,6 @@ h2 {
         display: flex;
         gap: 10px;
 
-
         .card {
             width: 50%;
 
@@ -204,14 +206,12 @@ h2 {
             }
         }
 
-
         button {
             margin: 10px 0;
             height: 46px;
         }
     }
 }
-
 
 .card:has(.calendar) {
     width: 100%;
@@ -268,7 +268,6 @@ h2 {
         }
 
         .vc-day {
-            // cursor: pointer;
             min-height: 44px;
             padding: 8px;
             border-radius: 4px;
@@ -305,7 +304,6 @@ h2 {
             flex-direction: column;
             justify-content: center;
 
-
             .day-number {
                 display: block;
                 font-size: 16px;
@@ -318,7 +316,6 @@ h2 {
                 height: 20px;
             }
         }
-
     }
 }
 

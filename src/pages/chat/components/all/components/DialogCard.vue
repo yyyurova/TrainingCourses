@@ -6,10 +6,12 @@
                 <AvatarLetter v-else :name="chat.title" />
                 <p class="partner-name">{{ chat.title }}</p>
             </div>
+
             <button class="icon" @click.stop="$emit('delete', chat.id)">
                 <img src="/icons/delete.svg" alt="">
             </button>
         </div>
+
         <div class="dialog-content" v-if="chat.latest_message">
             <div class="text">
                 <p class="message-preview">
@@ -87,7 +89,6 @@ const props = defineProps({
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                // max-width: 100%;
                 font-weight: 400;
                 font-size: 16px;
                 line-height: 20px;

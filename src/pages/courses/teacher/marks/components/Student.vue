@@ -11,7 +11,6 @@ const props = defineProps({
 
 const emit = defineEmits(['goToWorks']);
 
-// Используем computed вместо мутации пропса
 const filteredTasks = computed(() =>
     props.student.tasks.filter(t => t.mark !== null)
 );
@@ -40,7 +39,7 @@ const truncateText = (text, maxLength) => {
                 <img src="/icons/arrow.svg" :class="isOpen ? 'arrow-down' : 'arrow-right'" alt="">
             </button>
         </div>
-        <!-- Используем filteredTasks и добавляем класс для анимации -->
+
         <div :class="['table-container', { open: isOpen }]" v-if="isOpen">
             <table>
                 <thead>
@@ -50,6 +49,7 @@ const truncateText = (text, maxLength) => {
                         <th class="mark-col">Оценка</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     <tr v-for="(task, index) in filteredTasks" :key="index" @click="goToWorks(task.taskId, $event)">
                         <td class="title">{{ truncateText(task.name, 70) }}</td>

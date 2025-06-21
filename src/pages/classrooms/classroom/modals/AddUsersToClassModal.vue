@@ -34,7 +34,6 @@ const classroomMembers = ref([]);
 const fetchUsers = async () => {
     const data = await getUsers({ role: 'user', status: 'approved' })
     allUsers.value = data.data
-    // allUsers.value = allUsers.value.filter(u => u.role === 'user')
     allUsers.value = allUsers.value.filter(user =>
         !members.value.some(member => member.id === user.id)
     );
@@ -52,22 +51,6 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
-// .card {
-//     width: 100%;
-
-//     img {
-//         width: 100%;
-//         height: auto;
-//         max-height: 200px;
-//         object-fit: cover;
-//     }
-
-//     button {
-//         border: 1px solid #513DEB;
-//     }
-// }
-
-
 .dropdown {
     max-height: 100px;
 }

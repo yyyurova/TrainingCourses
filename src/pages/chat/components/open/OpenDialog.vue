@@ -25,33 +25,41 @@
                 </div>
             </div>
         </div>
+
         <div v-if="messages.length > 0" class="messages-in-chat">
             <div class="spacer"></div>
             <Message v-for="message in messages" :key="message.id" :message="message" />
         </div>
+
         <Loading v-else-if="isLoading" />
+
         <NoMessages v-else />
 
         <div v-if="attachedFiles.length > 0" class="files">
             <FileCard v-for="file in attachedFiles" :key="file.name" :file="file" @delete-file="deleteFile" />
         </div>
+
         <div class="input-field">
             <button class="icon" @click="fileUpload">
                 <img src="/icons/paperclip.svg" alt="">
             </button>
+
             <div class="center">
                 <p v-if="limitMessage.length > 0" class="limit-message">{{ limitMessage }}</p>
                 <input ref="input" placeholder="Отправить сообщение..." type="text" class="inp-field"
                     @keydown.enter="sendMessage">
             </div>
+
             <button class="icon bigger" @click="sendMessage">
                 <img src="/icons/send.svg" alt="">
             </button>
         </div>
     </div>
+
     <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить чат?"
         text="Удалённую переписку нельзя будет восстановить" right-button-text="Удалить"
         @confirm="deleteChat(selectedChat.id)" @cancel="closeModal" />
+
     <AddUserModal v-if="showAddModal" :members="selectedChat.members" @cancel="closeModal" @add="addToExistingChat"
         right-button-text="Добавить" />
 </template>
@@ -112,7 +120,6 @@ const fetchMessages = async () => {
 
 const getAvatarUrl = (avatarPath) => {
     if (!avatarPath) return '/avatar.png';
-
     return `https://api-course.hellishworld.ru${avatarPath}`;
 }
 
@@ -148,7 +155,6 @@ const fileUpload = () => {
     fileInput.type = 'file';
     fileInput.multiple = true;
 
-    // Указываем разрешённые MIME типы и расширения
     fileInput.accept = '.jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt';
 
     fileInput.onchange = (e) => {
@@ -166,7 +172,6 @@ const fileUpload = () => {
                 size: formatFileSize(file.size),
                 file: file
             });
-
         });
     };
 
@@ -179,15 +184,6 @@ const formatFileSize = (bytes) => {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
-
-const toBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
-    });
 };
 
 const sendMessage = async () => {
@@ -278,7 +274,6 @@ onMounted(async () => {
             margin: 60px 10px 20px 20px;
             cursor: pointer;
             position: relative;
-
 
             .f-row {
                 display: flex;

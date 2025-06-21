@@ -24,20 +24,23 @@
             <RouterLink class="link" :to="`/course-fill-content/${course.id}`">
                 Содержание курса
             </RouterLink>
-            <!-- <RouterLink class="link" :to="`/course-fill-materials/${course.id}`">
-                Заполнить учебные материалы для курса
-            </RouterLink> -->
+
             <div class="link" @click="goToFillCourse">
                 Заполнить учебные материалы для курса
             </div>
         </div>
+
         <div class="user" @click="showUserActions = !showUserActions">
             <img v-if="user.avatar" class="avatar" :src="user.avatar" alt="User-Avatar">
+
             <AvatarLetter v-else :name="user.name" />
+
             <span>{{ user.name }}</span>
+
             <button class="icon">
                 <img src="/icons/menu-vertical.svg" alt="">
             </button>
+
             <div class="card-user" v-if="showUserActions">
                 <ul class="list">
                     <li class="element" @click="openEditModal">
@@ -54,6 +57,7 @@
 
     <ConfirmDelete v-if="showConfirmExit" right-button-text="Выйти" question="Выйти из профиля?"
         text="Вы потеряете доступ к функционалу сервиса." @cancel="closeModal" @confirm="exitFromProfile" />
+
     <EditUser v-if="showEditModal" @cancel="closeModal" @save="saveUserChanges" />
 </template>
 
@@ -64,7 +68,7 @@ import { useRouter } from 'vue-router';
 import { logout } from '@/utils/auth';
 import { resetRoleRoutes } from '@/router';
 import { editProfile } from '@/api/modules/profile';
-import { editCourse, pulichCourse } from '@/api/modules/adminCourses';
+import { pulichCourse } from '@/api/modules/adminCourses';
 
 import EditUser from '@/components/modals/EditUser.vue';
 import ConfirmDelete from '@/components/modals/ConfirmDelete.vue';
@@ -105,7 +109,7 @@ const showMessage = (text, success) => {
 const publishCourse = async () => {
     try {
         closeModal();
-        const data = await pulichCourse(course.value.id, { title: course.value.title, published: true })
+        await pulichCourse(course.value.id, { title: course.value.title, published: true })
         router.push('/courses')
 
         showMessage('Курс успешно опубликован', true)
@@ -145,7 +149,6 @@ const saveUserChanges = async (changes) => {
             name: resp.data.name,
             role: resp.data.role,
         }));
-
     }
     if (changes.avatar) user.value.avatar = changes.avatar;
 };

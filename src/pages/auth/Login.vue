@@ -2,7 +2,9 @@
     <AuthLayout>
         <form @submit.prevent="handleSubmit" action="" class="form authorization" novalidate>
             <img src="/icons/logo.svg" alt="Логотип">
+
             <h1 id="header">Вход</h1>
+
             <div class="field">
                 <label for="email">Электронная почта<span class="required">*</span></label>
                 <input name="email" autocomplete="email" v-model="email" type="email" class="email credintals"
@@ -19,9 +21,12 @@
                 </div>
                 <span v-if="errors.password" class="error">{{ errors.password }}</span>
             </div>
+
             <span v-if="errors.all" class="error">{{ errors.all }}</span>
             <button type="submit" class="blue wide" :disabled="!(email.trim() && password.trim())">Войти</button>
+
             <div class="separator">или</div>
+
             <div class="google-container">
                 <span v-if="errors.google" class="error">{{ errors.google }}</span>
                 <button class="transparent border wide" @click.prevent="signInWithGoogle">
@@ -44,6 +49,7 @@ import { nextTick, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { login, getLoginUrls } from '@/api/modules/auth';
 import { addRoleRoutes } from '@/router';
+
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
 const email = ref('');
@@ -123,7 +129,6 @@ const handleSubmit = async () => {
 const signInWithGoogle = async () => {
     try {
         googleUrl.value = await getLoginUrls();
-        // googleUrl.value = urls.google_url;
         if (googleUrl.value) {
             window.location.href = googleUrl.value.google_url;
         }
@@ -180,7 +185,6 @@ onMounted(() => {
         position: relative;
         margin: 20px 0;
 
-
         &::before,
         &::after {
             content: '';
@@ -206,7 +210,6 @@ onMounted(() => {
         gap: 10px;
 
         button {
-
             img {
                 margin: 0;
             }
@@ -287,7 +290,6 @@ onMounted(() => {
         line-height: 130%;
         letter-spacing: 1%;
         width: 600px;
-
     }
 
     .incorrect {

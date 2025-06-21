@@ -1,6 +1,5 @@
 <template>
     <div class="all">
-
         <div class="top">
             <h1>Чаты</h1>
             <button class="blue" @click="openCreateGroupModal">Создать группу
@@ -8,6 +7,7 @@
                     <path d="M4 12H20M12 4V20" stroke="#F5F5F5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </button>
+
             <Card class="no-hover">
                 <img src="/icons/search.svg" alt="">
                 <input v-model="nameInput" @input="searchChat" autocomplete="off" type="text"
@@ -45,7 +45,6 @@
 
 <script setup>
 import { inject, ref } from 'vue';
-import { addMembersToChat } from '@/api/modules/chat';
 
 import Card from '@/components/Card.vue';
 import DialogCard from './components/DialogCard.vue';
@@ -56,6 +55,9 @@ import CreateChatModalVue from './components/modals/CreateChatModal.vue';
 import AddUserModal from '../open/components/modals/AddUserModal.vue';
 
 const emit = defineEmits(['openDialog'])
+const createChat = inject('createChat')
+const addMembers = inject('addMembers')
+const deleteChatInjection = inject('deleteChat')
 
 const chats = inject('chats')
 const nameInput = ref('')
@@ -69,12 +71,6 @@ const originalChats = inject('originalChats')
 
 const selectedToDeleteChat = ref(null)
 const createdChat = ref(null);
-
-const createChat = inject('createChat')
-
-const deleteChatInjection = inject('deleteChat')
-
-const addMembers = inject('addMembers')
 
 const closeModal = () => {
     if (showConfirmDeleteModal.value) { showConfirmDeleteModal.value = false }

@@ -6,9 +6,11 @@
             </div>
             <button class="close-sidebar icon" v-if="isMobile" @click="$emit('close')">×</button>
         </div>
+
         <div class="navigation">
             <template v-for="(section, sectionIndex) in sidebarContent[user.role]" :key="sectionIndex">
                 <h1 v-if="section.header">{{ section.header }}</h1>
+                
                 <template v-for="(item, itemIndex) in section.items || [section]" :key="itemIndex">
                     <RouterLink v-if="item.linkTo" :to="item.linkTo" class="link" @click="handleCourseClick(item)"
                         :class="{ 'router-link-active': isLinkActive(item) }">
@@ -19,6 +21,7 @@
                                 src="/icons/arrow.svg" alt="">
                             <!-- <span v-if="item.counter" class="circle">{{ user[item.name] }}</span> -->
                         </div>
+
                         <div v-if="item.list && courses?.length > 0" class="courses-list"
                             :class="{ 'active': isCoursesListOpen }">
                             <RouterLink v-for="course in courses" :key="course.id" :to="getCourseLink(course)"
@@ -32,6 +35,7 @@
                             </RouterLink>
                         </div>
                     </RouterLink>
+
                     <button v-else class="link transparent"
                         @click="item.name === 'createTask' ? onCreateTask?.() : null">
                         <div class="link-content">
@@ -46,11 +50,15 @@
         </div>
         <div class="user" @click="showUserActions = !showUserActions">
             <img v-if="user.image" class="avatar" :src="user.image" alt="User-Avatar">
+           
             <AvatarLetter v-else :name="user.name" />
+           
             <span>{{ user.name }}</span>
+
             <button class="icon">
                 <img src="/icons/menu-vertical.svg" alt="">
             </button>
+
             <div class="card-user" v-if="showUserActions">
                 <ul class="list">
                     <li class="element" @click="openEditModal">
@@ -73,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted, provide, inject, nextTick } from 'vue';
+import { ref, watch, computed, onMounted, provide, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { resetRoleRoutes } from '@/router';
@@ -100,14 +108,12 @@ const route = useRoute();
 const router = useRouter();
 const isCoursesListOpen = ref(false);
 
-// const courses = inject('courses')
 let courses
 
 const showUserActions = ref(false);
 const showConfirmExit = ref(false);
 const showEditModal = ref(false);
 const user = ref({ role: getCurrentUser().role, name: getCurrentUser().name, image: getCurrentUser().image })
-const loadedCourses = ref(false);
 
 const showPopup = ref(false)
 const popupText = ref('')
@@ -122,7 +128,6 @@ const currentCourseId = computed(() => {
 
 const sidebarContent = {
     admin: [
-
         {
             title: 'Курсы',
             name: 'courses',
@@ -263,7 +268,6 @@ const saveUserChanges = async (changes) => {
 
     } catch (error) {
         console.error('Ошибка при сохранении профиля:', error);
-
         showMessage('Не удалось сохранить изменения', true)
     }
 };
@@ -422,7 +426,6 @@ provide('user', user)
 
             &.active:not(.sidebar) {
                 max-height: 800px;
-                // overflow-y: auto;
                 opacity: 1;
                 margin-top: 10px;
             }

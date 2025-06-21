@@ -1,17 +1,21 @@
 <template>
     <Layout :on-create-task="openCreateTaskModal">
         <h1>Задания</h1>
+
         <div v-if="course">
             <Navbar :elements="navbarItems" />
+
             <button class="blue" @click="openCreateTaskModal" :disabled="!practicants || practicants.length === 0"
                 :title="!practicants || practicants.length === 0 ? 'В курсе нет практикантов' : ''">
                 Создать задание
                 <img src="/icons/plus.svg" alt="">
             </button>
+
             <div class="tasks" v-if="!isLoading && tasks">
                 <TaskCard v-for="task in tasks" :task="task" :key="task.id" @click="goToWorks(task.id)"
                     @delete="openDeleteModal(task)" @edit="openEditModal(task)" />
             </div>
+
             <div class="no-items" v-if="tasks.length === 0 && !isLoading">
                 <h2>В этом курсе пока нет заданий</h2>
             </div>
@@ -22,7 +26,9 @@
         <CreateTask v-if="showCreateTaskModal" @cancel="closeModal" @create="createTask" :users="practicants" />
 
         <Loading v-if="isLoading" />
+
         <Popup v-if="showPopup" :text="popupText" :is-success="isSuccess" @close-popup="closePopup" />
+
         <ConfirmDelete v-if="showDeleteModal" @confirm="deleteTask(taskToDelete.id)" @cancel="closeModal"
             question="Удалить задание?" right-button-text="Удалить"
             text="Оценки, комментарии и информация о задании будут удалены" />
@@ -157,7 +163,6 @@ const createTask = async (task) => {
 
         task = { ...task, course_id: course.value.id }
         const resp = await apiCreateTask(task)
-        console.log(resp)
 
         await fetchTasks()
 

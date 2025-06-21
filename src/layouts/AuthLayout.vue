@@ -26,13 +26,11 @@
         color: #292929;
         margin: 0;
 
-
         .credintals {
             width: 100%;
             border: 1px solid #D9D9D9;
             padding: 12px 20px;
             border-radius: 10px;
-
 
             &:focus {
                 border: 1px solid #513DEB;
@@ -70,7 +68,6 @@
             color: #292929;
             position: relative;
             margin: 20px 0;
-
 
             &::before,
             &::after {

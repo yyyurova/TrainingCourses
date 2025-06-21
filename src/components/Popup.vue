@@ -1,7 +1,9 @@
 <template>
     <div class="confirmation-popup">
         <img :src="isSuccess ? '/icons/checkcircle.svg' : '/icons/attention.svg'" alt="">
+
         <p>{{ text }}</p>
+
         <button class="icon" @click="emit('closePopup')">
             <img src="/icons/x.svg" alt="">
         </button>
@@ -32,7 +34,6 @@ const emit = defineEmits(['closePopup'])
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0px 0px 2px 0px #0000001A;
-
     box-shadow: 0px 2px 2px 0px #00000033;
     width: 300px;
     z-index: 1000;

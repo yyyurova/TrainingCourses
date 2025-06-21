@@ -28,6 +28,7 @@ export const deleteCourse = async (courseId) => {
 
 export const editCourse = async (courseId, updatedCourse) => {
     try {
+        console.log(courseId, updatedCourse)
         const formData = new FormData();
 
         formData.append('title', updatedCourse.title);
@@ -36,8 +37,6 @@ export const editCourse = async (courseId, updatedCourse) => {
 
         if (updatedCourse.photo) {
             formData.append('photo', updatedCourse.photo);
-        } else {
-            formData.append('photo', '');
         }
         const response = await client.post(`${ENDPOINTS.ADMIN_COURSE}/${courseId}`, formData, {
             headers: {

@@ -2,6 +2,7 @@
     <AuthLayout>
         <div class="block">
             <img src="/icons/logo.svg" alt="">
+
             <div class="text">
                 <h1>
                     Заявка на доступ к платформе отклонена

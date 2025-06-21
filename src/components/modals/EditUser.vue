@@ -14,10 +14,12 @@
                         </div>
                     </Card>
                 </div>
+
                 <div class="form-group">
                     <label>Имя и Фамилия <span class="required">*</span></label>
                     <input v-model="userName" type="text" autocomplete="off" required :class="{ 'error': nameError }">
                 </div>
+
                 <div class="modal-buttons">
                     <button type="button" class="transparent" @click="cancel">Отмена</button>
                     <button type="button" class="blue" @click="save">Сохранить</button>

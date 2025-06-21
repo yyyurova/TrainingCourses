@@ -25,14 +25,16 @@
             <p>В этом чате нет участников</p>
         </div>
     </div>
+
     <ConfirmDelete v-if="showConfirmDeleteModal" question="Удалить участника?" right-button-text="Удалить"
         @cancel="closeModal" @confirm="deleteMember(memberToDelete)" />
+
     <AddUserModal v-if="showAddModal" :members="chat.members" @cancel="closeModal" @add="addToExistingChat"
         rightButtonText="Добавить" />
 </template>
 
 <script setup>
-import { inject, ref, computed, onMounted, provide } from 'vue';
+import { inject, ref, computed, provide } from 'vue';
 import { deleteMember as apiDeleteMember, getChat } from '@/api/modules/chat';
 
 import MemberCard from './MemberCard.vue';
@@ -110,7 +112,6 @@ const handleSearch = () => {
 };
 
 provide('members', chat.members)
-
 </script>
 
 <style scoped lang="scss">

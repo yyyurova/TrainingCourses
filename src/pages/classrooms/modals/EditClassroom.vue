@@ -3,11 +3,13 @@
         <div class="modal-content">
             <div class="modal__inner">
                 <h2>Редактировать учебный класс</h2>
+
                 <div class="form-group">
                     <label>Название<span class="required">*</span></label>
                     <input @input="errorName = false" v-model="classroomName" type="text" autocomplete="off" required
                         :class="{ 'error': errorName }">
                 </div>
+
                 <div class="modal-buttons">
                     <button class="transparent" @click="cancel">Отмена</button>
                     <button class="blue" @click="save">Сохранить</button>
@@ -30,7 +32,6 @@ const props = defineProps({
 });
 
 const errorName = ref(false)
-
 const classroomName = ref(props.classroom.title);
 
 const cancel = () => {

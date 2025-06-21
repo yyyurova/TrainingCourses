@@ -6,6 +6,7 @@
             </div>
             <button class="burger-menu" @click="toggleSidebar">☰</button>
         </div>
+
         <div class="container">
             <Sidebar :isMobile="isMobile" :isActive="sidebarVisible" @close="sidebarVisible = false"
                 :onCreateTask="onCreateTask" />

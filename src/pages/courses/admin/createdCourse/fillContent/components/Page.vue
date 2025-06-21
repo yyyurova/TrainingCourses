@@ -63,7 +63,6 @@ const checkEmptyness = (e) => {
         font-size: 14px;
         line-height: 20px;
         letter-spacing: 0px;
-
         border: 1px solid transparent;
         outline: none;
 

@@ -27,10 +27,13 @@
                 </div>
                 <span v-if="errors.password" class="error">{{ errors.password }}</span>
             </div>
+
             <span v-if="errors.all" class="error">{{ errors.all }}</span>
+
             <button type="submit" class="blue wide" :disabled="!isFormFilled">Зарегистрироваться</button>
 
             <div class="separator">или</div>
+
             <div class="google-container">
                 <button class="transparent border wide" @click.prevent="signInWithGoogle">
                     Войти через Google
@@ -48,15 +51,15 @@
 </template>
 
 <script setup>
-import AuthLayout from '@/layouts/AuthLayout.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { register, getLoginUrls } from '@/api/modules/auth';
 
+import AuthLayout from '@/layouts/AuthLayout.vue';
+
 const name = ref('')
 const email = ref('')
 const password = ref('')
-
 const googleUrl = ref('')
 
 const errors = ref({
@@ -200,13 +203,11 @@ onMounted(() => {
     color: #292929;
     margin: 0;
 
-
     .credintals {
         width: 100%;
         border: 1px solid #D9D9D9;
         padding: 12px 20px;
         border-radius: 10px;
-
 
         &:focus {
             border: 1px solid #513DEB;
@@ -236,7 +237,6 @@ onMounted(() => {
         color: #292929;
         position: relative;
         margin: 20px 0;
-
 
         &::before,
         &::after {
@@ -336,7 +336,6 @@ onMounted(() => {
         line-height: 130%;
         letter-spacing: 1%;
         width: 600px;
-
     }
 
     .sign-up {

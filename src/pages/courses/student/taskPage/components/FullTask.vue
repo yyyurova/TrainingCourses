@@ -1,9 +1,13 @@
 <template>
     <Card class="full-task no-hover">
         <h2>Задание</h2>
+
         <p v-if="task.mark" class="mark">Оценка: {{ task.mark }}</p>
+
         <p class="deadline">Срок сдачи: {{ format(task.until, 'short') }}</p>
+
         <p class="name">{{ task.name }}</p>
+
         <p class="content-of-task" v-html="task.text"></p>
     </Card>
 </template>

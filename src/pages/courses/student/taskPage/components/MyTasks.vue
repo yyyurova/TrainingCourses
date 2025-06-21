@@ -5,12 +5,14 @@
         <div v-if="userAttachments.length > 0" class="uploaded-files">
             <Card class="no-hover" v-for="attachment in userAttachments" :key="attachment.id">
                 <img :src="attachment.type === 'link' ? '/icons/link.svg' : '/icons/file.svg'" alt="">
+
                 <div class="file__inner">
                     <a :href="attachment.url" target="_blank" rel="noopener noreferrer">
                         {{ attachment.name || attachment.url }}
                     </a>
                     <p v-if="attachment.size">{{ formatFileSize(attachment.size) }}</p>
                 </div>
+
                 <button v-if="isEditing" class="icon" @click="deleteAttachment(attachment.id)">
                     <img src="/icons/x.svg">
                 </button>
@@ -20,10 +22,12 @@
         <div v-if="uploadedFiles.length > 0" class="uploaded-files">
             <Card class="no-hover" v-for="(file, index) in uploadedFiles" :key="'new-file-' + index">
                 <img src="/icons/file.svg" alt="">
+
                 <div class="file__inner">
                     <a href="#" @click.prevent="downloadFile(file)">{{ file.name }}</a>
                     <p>{{ formatFileSize(file.size) }}</p>
                 </div>
+
                 <button class="icon" @click="removeFile(index)">
                     <img src="/icons/x.svg">
                 </button>
@@ -33,9 +37,11 @@
         <div v-if="enteredLinks.length > 0" class="links">
             <Card class="no-hover" v-for="(link, index) in enteredLinks" :key="'new-link-' + index">
                 <img src="/icons/link.svg">
+
                 <div class="link__inner">
                     <a target="_blank" :href="link">{{ link }}</a>
                 </div>
+
                 <button @click="removeLink(index)" class="icon">
                     <img src="/icons/x.svg">
                 </button>
@@ -49,13 +55,11 @@
                     @link="$emit('openLinkModal')" />
             </button>
 
-            <!-- Если задание не сдано — кнопка "Сдать на проверку" -->
             <button v-if="!isSubmitted" @click="passToCheck"
                 :class="(uploadedFiles?.length === 0 && enteredLinks.length === 0) ? 'unable' : 'blue'">
                 Сдать на проверку
             </button>
 
-            <!-- Если задание уже сдано — показываем "Отменить отправку" или "Сохранить изменения" -->
             <template v-if="isSubmitted">
                 <button v-if="!isEditing" @click="startEditing" class="transparent border">
                     Отменить отправку
@@ -71,9 +75,9 @@
 </template>
 
 <script setup>
-import { inject, ref, watch, computed } from 'vue';
+import { inject, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { sendTask, updateTask, deleteAttachment as apiDeleteAttachment } from '@/api/modules/tasks';
+import { sendTask, deleteAttachment as apiDeleteAttachment } from '@/api/modules/tasks';
 import { getUserId } from '@/utils/auth';
 
 import Card from '@/components/Card.vue';
@@ -94,7 +98,6 @@ const popupText = ref('');
 const isSuccess = ref(true);
 const isEditing = ref(false);
 
-// Находим текущего студента и его вложения
 const currentStudent = computed(() => {
     const userId = getUserId();
     return task.value?.students?.find(s => s.id == userId) || null;
@@ -108,7 +111,6 @@ const isSubmitted = computed(() => {
     return userAttachments.value.length > 0;
 });
 
-// Форматирование данных
 const formatFileSize = (sizeInMB) => {
     const sizeInKB = sizeInMB * 1024;
     if (sizeInMB < 0.1) {
@@ -117,7 +119,6 @@ const formatFileSize = (sizeInMB) => {
     return `${sizeInMB.toFixed(2)} MB`;
 };
 
-// Управление вложениями
 const removeFile = (index) => {
     uploadedFiles.value.splice(index, 1);
 };
@@ -158,10 +159,9 @@ const deleteAttachment = async (attachmentId) => {
         await apiDeleteAttachment(attachmentId);
         await fetchTask(route.params.taskId);
 
-        // Если вложений не осталось, задание считается "не сданным"
         if (userAttachments.value.length === 0) {
             isSubmitted.value = false;
-            isEditing.value = false; // Выходим из режима редактирования
+            isEditing.value = false;
         }
 
         showMessage('Вложение успешно удалено', true);
@@ -172,14 +172,10 @@ const deleteAttachment = async (attachmentId) => {
 
 const updateSubmission = async () => {
     try {
-
-        // uploadedFiles.value = [];
-        // enteredLinks.value = [];
         isEditing.value = false;
 
-        // Проверяем, есть ли ещё вложения
         if (userAttachments.value.length === 0) {
-            isSubmitted.value = false; // Если вложений нет — задание "не сдано"
+            isSubmitted.value = false;
         }
 
         showMessage('Изменения успешно сохранены', true);
@@ -188,12 +184,10 @@ const updateSubmission = async () => {
     }
 };
 
-// Управление режимами редактирования
 const startEditing = () => {
     isEditing.value = true;
 };
 
-// Вспомогательные функции
 const showMessage = (text, success) => {
     popupText.value = text;
     isSuccess.value = success;
@@ -293,7 +287,5 @@ const closePopup = () => {
             }
         }
     }
-
-
 }
 </style>

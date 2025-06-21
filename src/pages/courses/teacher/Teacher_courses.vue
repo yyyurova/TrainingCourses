@@ -17,16 +17,16 @@
         <div class="no-items" v-else>
             <p>У вас нет доступных курсов</p>
         </div>
+
         <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" />
 
         <Loading v-if="isLoading" />
-
     </Layout>
 </template>
 
 <script setup>
 import { useRouter } from "vue-router";
-import { inject } from "vue";
+import { inject, ref, provide } from "vue";
 
 import Layout from '@/layouts/Layout.vue'
 import Card from '@/components/Card.vue'
@@ -68,14 +68,12 @@ button.blue {
 
     .card {
         width: calc(50% - 5px);
-
         cursor: pointer;
 
         .top {
             width: 100%;
             display: flex;
             gap: 10px;
-            // justify-content: space-between;
             align-items: flex-start;
 
             .name-of-course {

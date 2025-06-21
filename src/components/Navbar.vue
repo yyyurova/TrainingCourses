@@ -52,7 +52,6 @@ defineProps({
                 text-decoration: none;
             }
 
-
             &>.router-link-active::after {
                 content: '';
                 display: block;
@@ -63,7 +62,6 @@ defineProps({
                 bottom: -10px;
                 left: 0;
             }
-
         }
     }
 }

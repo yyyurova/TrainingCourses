@@ -3,6 +3,7 @@
         <div class="modal-content">
             <div class="modal__inner">
                 <h2>Изменение группы</h2>
+
                 <Card v-if="!file" class="no-hover">
                     <img class="avatar" :src="getAvatarUrl(selectedChat.avatar)" alt="">
                     <input type="file" accept="image/*" style="display: none;">
@@ -12,11 +13,14 @@
                         <img src="/icons/paperclip.svg" alt="">
                     </button>
                 </Card>
+
                 <Card v-if="file" class="no-hover">
                     <img :src="file.preview" alt="Загруженное изображение" style="max-width: 100%; max-height: 200px;">
                     <button class="transparent border" @click="deleteImage">Удалить</button>
                 </Card>
+
                 <p>Название группы<span class="required">*</span></p>
+
                 <input ref="nameInput" type="text" autocomplete="off" placeholder="Введите название" v-model="title">
 
                 <div class="modal-buttons">
@@ -84,7 +88,6 @@ const save = async () => {
 
 const getAvatarUrl = (avatarPath) => {
     if (!avatarPath) return '/avatar.png';
-
     return `https://api-course.hellishworld.ru${avatarPath}`;
 }
 

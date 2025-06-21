@@ -14,6 +14,7 @@
                         stroke="#292929" stroke-linecap="round" />
                 </svg>
             </Card>
+
             <div class="dropdown">
                 <div v-for="member in filteredMembers" :key="member.id" class="item">
                     <input type="checkbox" :checked="isSelected(member)" @click="toggleMember(member)">
@@ -22,6 +23,7 @@
                     <span>{{ member.name }}</span>
                 </div>
             </div>
+
             <div class="selected-members" v-if="selectedMembers.length > 0">
                 <Card class="no-hover" v-for="member in selectedMembers" :key="member.id">
                     <img src="/icons/Avatar.svg" alt="">
@@ -31,6 +33,7 @@
                     </button>
                 </Card>
             </div>
+
             <div class="modal-buttons">
                 <button class="transparent" @click="emit('cancel')">Отмена</button>
                 <button class="blue" @click="add">{{ rightButtonText }}</button>
@@ -61,8 +64,6 @@ const allUsers = ref([])
 
 const nameInput = ref('');
 const selectedMembers = ref([]);
-
-const addMembers = inject('addMembers')
 
 const availableUsers = computed(() => {
     const currentUserId = getUserId();
@@ -112,7 +113,7 @@ const fetchUsers = async () => {
 const add = () => {
     if (selectedMembers.value.length === 0) return;
 
-    emit('add', selectedMembers.value); // Передаем выбранных пользователей
+    emit('add', selectedMembers.value);
     selectedMembers.value = [];
 };
 

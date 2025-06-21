@@ -2,14 +2,18 @@
     <div class="selected-practicant">
         <div class="top">
             <img v-if="practicant.avatar" :src="practicant.avatar" alt="">
+
             <AvatarLetter v-else :name="practicant.name" />
+
             <p>{{ practicant.name }}</p>
+
             <input type="number" min="1" max="10" v-model="localMark" placeholder="Оценка" @input="updateMark">
         </div>
 
         <div class="files" v-if="files.length > 0">
             <Card v-for="file in files" :key="file.id" class="no-hover">
                 <img src="/icons/file.svg" alt="">
+
                 <div class="file__inner">
                     <a :href="file.url">{{ file.name }}</a>
                     <p>{{ format(file.created_at, { date: 'short', time: 'short' }) }} ({{ formatFileSize(file.size) }})
@@ -21,6 +25,7 @@
         <div class="links" v-if="links.length > 0">
             <Card class="no-hover" v-for="link in links" :key="link.id">
                 <img src="/icons/link.svg">
+
                 <div class="link__inner">
                     <a target="_blank" :href="link.url">{{ link.url }}</a>
                     <p>{{ format(link.created_at, { date: 'short', time: 'short' }) }} </p>
@@ -39,7 +44,9 @@
                     <div class="spacer"></div>
                     <Message v-for="message in messages" :key="message.id" :message="message" />
                 </div>
+
                 <Loading v-else-if="isLoading" />
+
                 <div class="no-items" v-else>
                     <p>В чате нет сообщений</p>
                 </div>
@@ -52,11 +59,13 @@
                     <button class="icon" @click="fileUpload">
                         <img class="small" src="/icons/paperclip.svg" alt="">
                     </button>
+
                     <div class="center">
                         <p v-if="limitMessage.length > 0" class="limit-message">{{ limitMessage }}</p>
                         <input autocomplete="off" ref="messageInput" @keypress.enter="sendMessage"
                             placeholder="Добавить комментарий к заданию" type="text" class="inp-field">
                     </div>
+
                     <button class="icon" @click="sendMessage">
                         <img src="/icons/send.svg" alt="">
                     </button>
@@ -111,9 +120,6 @@ const formatFileSize = (sizeInMB) => {
     return `${sizeInMB.toFixed(2)} MB`;
 };
 
-// const deleteFromSelected = () => {
-//     emit('delete', props.practicant)
-// }
 const updateMark = () => {
     emit('update:mark', localMark.value);
 };
@@ -311,13 +317,10 @@ watch(() => props.practicant, async (newPr) => {
         flex-direction: column;
         width: 100%;
         max-height: 400px;
-        /* Максимальная высота всего блока чата */
         min-height: 200px;
-        /* Минимальная высота */
 
         .messages-in-task {
             flex: 1;
-            /* Занимает все доступное пространство */
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -326,7 +329,6 @@ watch(() => props.practicant, async (newPr) => {
 
             .spacer {
                 flex: 1;
-                /* Помогает с прокруткой */
             }
         }
 
@@ -375,14 +377,12 @@ watch(() => props.practicant, async (newPr) => {
             .center {
                 flex: 1;
                 min-width: 0;
-                /* Предотвращает переполнение */
 
                 .limit-message {
                     padding-left: 5px;
                     color: red;
                     font-size: 12px;
                     white-space: normal;
-                    /* Разрешаем перенос текста */
                 }
             }
 
@@ -398,7 +398,6 @@ watch(() => props.practicant, async (newPr) => {
             outline: none;
             width: 100%;
             min-width: 0;
-            /* Предотвращает переполнение */
         }
     }
 }

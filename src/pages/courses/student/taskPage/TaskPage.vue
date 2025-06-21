@@ -1,22 +1,28 @@
-    <template>
-        <Layout>
-            <div class="task" v-if="task">
-                <FullTask />
-                <MyTasks @openLinkModal="openLinkModal" @openFileModal="openFileModal" />
-                <Comment :chat="commentChat" />
-            </div>
-            <Loading v-if="isLoading" />
-            <FileUploadModal v-if="showFileUploadModal" @cancel="closeModal" @add="addUploadedFile" />
-            <EnterLinkModal v-if="showEnterLinkModal" @cancel="closeModal" @add="addLink" />
-        </Layout>
+<template>
+    <Layout>
+        <div class="task" v-if="task">
+            <FullTask />
 
-        <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :isSuccess="isSuccess" />
-    </template>
+            <MyTasks @openLinkModal="openLinkModal" @openFileModal="openFileModal" />
+
+            <Comment :chat="commentChat" />
+        </div>
+
+        <Loading v-if="isLoading" />
+
+        <FileUploadModal v-if="showFileUploadModal" @cancel="closeModal" @add="addUploadedFile" />
+
+        <EnterLinkModal v-if="showEnterLinkModal" @cancel="closeModal" @add="addLink" />
+    </Layout>
+
+    <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :isSuccess="isSuccess" />
+</template>
 
 <script setup>
 import { onMounted, provide, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { getTask, getTaskChat } from '@/api/modules/tasks';
+import { getUserId } from '@/utils/auth';
 
 import Layout from '@/layouts/Layout.vue';
 import Loading from '@/components/Loading.vue';
@@ -26,7 +32,6 @@ import FullTask from './components/FullTask.vue';
 import Comment from './components/Comment.vue';
 import MyTasks from './components/MyTasks.vue';
 import Popup from '@/components/Popup.vue';
-import { getUserId } from '@/utils/auth';
 
 const isLoading = ref(false)
 const course = ref(null)
@@ -151,7 +156,6 @@ provide('fetchTask', fetchTask);
 @media (max-width: 1280px) {
     :deep(.content) {
         margin: 20px !important;
-
 
         .card {
             width: 100% !important;

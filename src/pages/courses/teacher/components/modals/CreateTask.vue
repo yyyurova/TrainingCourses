@@ -27,7 +27,7 @@
                         <div v-for="user in users" :key="user.id" class="item" @click="toggleMember(user)">
                             <input type="checkbox" :checked="isSelected(user)" @click.stop="toggleMember(user)">
                             <img v-if="user.image" :src="user.image" :alt="user.name">
-                            <AvatarLetter v-else :name="user.name"/>
+                            <AvatarLetter v-else :name="user.name" />
                             <span>{{ user.name }}</span>
                         </div>
                     </div>
@@ -76,8 +76,6 @@ const errors = ref({
 })
 
 const validate = () => {
-    let isValid = true;
-
     errors.value = {
         name: taskName.value.value.trim() === '',
         description: description.value.trim() === '',
@@ -105,7 +103,6 @@ const create = () => {
 }
 
 const saveAsDraft = () => {
-    // Для черновика проверка не обязательна
     const assignedTo = selectedUsers.value.map(u => Number(u.id))
 
     const task = {

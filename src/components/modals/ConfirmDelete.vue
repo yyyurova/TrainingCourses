@@ -6,7 +6,9 @@
                     <img src="/icons/attention.svg" alt="">
                     <h2>{{ question }}</h2>
                 </div>
+
                 <p v-if="text">{{ text }}</p>
+
                 <div class="modal-buttons">
                     <button @click="$emit('cancel')" class="transparent">Отмена</button>
                     <button @click="$emit('confirm')" class="delete">{{ rightButtonText }}</button>
@@ -28,7 +30,6 @@ defineEmits(['confirm', 'cancel']);
 
 <style scoped lang="scss">
 .modal {
-
     .top-row {
         padding: 10px;
         width: 100%;

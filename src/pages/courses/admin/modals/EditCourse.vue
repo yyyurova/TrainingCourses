@@ -3,9 +3,11 @@
         <div class="modal-content">
             <div class="modal__inner">
                 <h2>Редактировать курс</h2>
+
                 <div class="form-group">
                     <Card class="no-hover">
                         <img :src="courseImagePreview || '/avatar.png'" alt="Course image">
+
                         <div class="modal-buttons">
                             <button class="transparent" type="button" @click="triggerFileInput">Загрузить</button>
                             <button class="transparent" type="button" @click="removeImage">Удалить</button>
@@ -14,11 +16,13 @@
                         </div>
                     </Card>
                 </div>
+
                 <div class="form-group">
                     <label>Название<span class="required">*</span></label>
                     <input @input="nameError = false" v-model="courseName" type="text" autocomplete="off" required
                         :class="{ 'error': nameError }">
                 </div>
+
                 <div class="modal-buttons">
                     <button class="transparent" @click="cancel">Отмена</button>
                     <button class="blue" @click="save">Сохранить</button>
@@ -42,7 +46,7 @@ const props = defineProps({
 });
 
 const courseName = ref(props.course.title);
-const courseImageFile = ref(null); // Храним File объект
+const courseImageFile = ref(null);
 const courseImagePreview = ref(props.course.photo);
 const fileInput = ref(null);
 const nameError = ref(false);

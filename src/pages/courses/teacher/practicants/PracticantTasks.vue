@@ -24,9 +24,11 @@
         </div>
 
         <Popup v-if="showPopup" :text="popupText" :is-success="isSuccess" @close-popup="closePopup" />
+
         <ConfirmDelete v-if="showDeleteModal" @confirm="deleteTask(taskToDelete.id)" @cancel="closeModal"
             question="Удалить задание?" right-button-text="Удалить"
             text="Оценки, комментарии и информация о задании будут удалены" />
+
         <EditTask v-if="showEditModal" :task="taskToEdit" @cancel="closeModal" @save="editTask" />
     </Layout>
 </template>

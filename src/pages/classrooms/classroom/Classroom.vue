@@ -12,11 +12,15 @@
                     Добавить практикантов
                     <img src="/icons/plus-black.svg" alt="">
                 </button>
+
                 <div class="practicants">
                     <Card v-for="member in classroom.members" :key="member.id">
                         <img v-if="member.avatar" :src="member.avatar" alt="">
+
                         <AvatarLetter v-else :name="member.name" />
+
                         <p> {{ member.name }}</p>
+
                         <button class="icon" @click="openConfirmDeleteMemberModal(member)">
                             <img src="/icons/x.svg" alt="">
                         </button>
@@ -31,6 +35,7 @@
                     <img src="/icons/plus-black.svg" alt="" v-if="!classroom.curator.name">
                     <img src="/icons/plus-gray.svg" alt="" v-else>
                 </button>
+
                 <Card v-if="classroom.curator.name">
                     <img v-if="classroom.curator.avatar" :src="classroom.curator.avatar" alt="">
                     <AvatarLetter v-else :name="classroom.curator.name" />
@@ -41,6 +46,7 @@
                 </Card>
             </div>
         </div>
+
         <Loading v-if="isLoading" />
 
         <AddUsersToClassModal v-if="showAddUsersModal" @cancel="closeModal" @save="addMembers" />
@@ -82,7 +88,6 @@ const route = useRoute()
 const classroom = ref(null)
 const members = ref([])
 const memberToDelete = ref(null)
-// const allUsers = ref([])
 const isLoading = ref(false)
 
 const showAddUsersModal = ref(false)

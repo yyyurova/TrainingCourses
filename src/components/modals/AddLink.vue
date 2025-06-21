@@ -3,12 +3,14 @@
         <div class="modal-content">
             <div class="modal__inner">
                 <h2>Вставить ссылку</h2>
+
                 <div class="form-group">
                     <label>Адрес ссылки</label>
                     <input @keyup.enter="insertLink" v-model="linkUrl" type="url" autocomplete="off" required
                         placeholder="https://example.com">
                     <p class="error" v-if="error">{{ error }}</p>
                 </div>
+
                 <div class="modal-buttons">
                     <button type="button" class="transparent" @click="$emit('cancel')">Отмена</button>
                     <button type="button" class="blue" @click="insertLink" :disabled="!linkUrl">

@@ -8,6 +8,7 @@
                     <img src="/icons/plus.svg" alt="">
                 </button>
             </div>
+
             <div v-if="content.modules.length === 0" class="no-lessons">
                 <h2>В курсе пока нет ни одного модуля.</h2>
                 <h2>Создайте первый модуль, чтобы добавить страницы</h2>
@@ -16,19 +17,23 @@
                     <img src="/icons/plus.svg" alt="">
                 </button>
             </div>
+
             <div v-if="content.modules.length > 0" class="content-of-course">
                 <Module v-for="(chapter, index) in content.modules" :key="index" :num="index + 1" :mod="chapter"
                     :module-index="index" @update:name="updateModuleName(index, $event)"
                     @delete-module="deleteChapter(index)" @add-page="addPage(index)"
                     @update-page-name="updatePageName" />
             </div>
+
             <div v-if="content.modules.length > 0" class="save-block">
                 <button @click="saveCourse" class="blue">Сохранить изменения</button>
             </div>
         </div>
 
         <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :isSuccess="isSuccess" />
+
         <Loading v-if="isLoading" />
+
         <CreateLesson v-if="showCreateLessonModal" @cancel="closeModal" @create="createPageWithType" />
     </FillCourseContentLayout>
 </template>
@@ -150,7 +155,6 @@ const newModule = async () => {
         await fetchCourse();
     } catch (error) {
         showMessage('Ошибка создания модуля', false)
-        // console.error('Ошибка создания модуля:', error);
     }
 };
 
@@ -158,7 +162,6 @@ const updateModuleName = (index, newName) => {
     const module = content.value.modules[index];
     module.name = newName;
 
-    // Добавляем в изменения для сохранения (если еще нет)
     const existingUpdate = changes.modules.updated.find(m => m.id === module.id);
     if (!existingUpdate) {
         changes.modules.updated.push({
@@ -175,7 +178,6 @@ const updatePageName = (chapterIndex, pageIndex, newName) => {
     const module = content.value.modules[chapterIndex];
     page.title = newName;
 
-    // Добавляем в изменения для сохранения
     const existingUpdate = changes.pages.updated.find(p => p.id === page.id);
     if (!existingUpdate) {
         changes.pages.updated.push({
@@ -295,7 +297,6 @@ provide('content', content)
 
 .top {
     display: flex;
-    // gap: 10px;
     justify-content: space-between;
 }
 
@@ -326,7 +327,6 @@ provide('content', content)
             text-align: center;
         }
     }
-
 }
 
 @media (max-width: 960px) {

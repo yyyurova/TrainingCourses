@@ -13,12 +13,15 @@
                     @click="isPagesListOpen = !isPagesListOpen">
                     <img :class="isPagesListOpen ? 'arrow-down' : 'arrow-up'" src="/icons/arrow.svg" alt="">
                 </button>
+              
                 <button class="icon" @click="$emit('delete-module')">
                     <img src="/icons/x.svg" alt="">
                 </button>
             </div>
         </Card>
+       
         <p v-if="mod.noPages" class="no-pages">Добавьте хотя бы одну страницу в модуль</p>
+      
         <Transition>
             <div class="pages" v-if="mod.pages && mod.pages.length && isPagesListOpen">
                 <Page v-for="(page, pageIndex) in mod.pages" :key="pageIndex" :page="page" :module-index="moduleIndex"
@@ -55,7 +58,6 @@ const emit = defineEmits([
 ]);
 
 const addPage = () => {
-    // if (props.mod.pages.length > 0) { isPagesListOpen.value = true }
     emit('add-page', props.mod.id);
     isPagesListOpen.value = true
 };
@@ -97,7 +99,6 @@ const checkEmptyness = (e) => {
             font-size: 14px;
             line-height: 20px;
             letter-spacing: 0px;
-
             border: 1px solid transparent;
             outline: none;
 

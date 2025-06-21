@@ -11,6 +11,7 @@
                 }}</span>
             </h1>
             <h2 v-if="currentPageData" class="pageName">{{ currentPageData.title }}</h2>
+
             <div class="squares-score">
                 <span class="square" :class="page.completed ? 'filled' : ''" v-for="page in currentModule.pages"
                     :key="page.id" @click="goToPage(page.id)">
@@ -29,6 +30,7 @@
                     </div>
 
                 </div>
+
                 <div v-if="currentPageData.questions && currentPageData.questions.length" class="qiuz">
                     <div v-for="(question, qIndex) in currentPageData.questions" :key="qIndex">
                         <div v-if="question.variants && question.variants.length" class="quiz-section">
@@ -129,12 +131,6 @@ const hasQuizzes = computed(() => {
     return currentPageData.value?.questions?.some(q => q.variants?.length > 0);
 });
 
-const allQuizzesPassed = computed(() => {
-    return currentPageData.value?.questions?.every((question, index) => {
-        return !question.variants?.length || quizzesCompleted.value[index] === true;
-    }) ?? true;
-});
-
 const hasSelectedAnswers = computed(() => {
     return Object.values(selectedAnswers).some(answers => {
         return answers && answers.length > 0;
@@ -183,14 +179,13 @@ const loadPageContent = async () => {
 
         if (currentPageData.value?.questions) {
             currentPageData.value.questions.forEach((_, index) => {
-                selectedAnswers[index] = []; // без .value!
+                selectedAnswers[index] = [];
                 quizChecked.value[index] = false;
                 quizPassed.value[index] = false;
             });
         }
     } catch (error) {
         console.error('Ошибка загрузки страницы:', error);
-        // Перенаправляем на первую страницу модуля в случае ошибки
         if (currentModule.value?.pages?.length) {
             const firstPageId = currentModule.value.pages[0].id;
             router.replace({
@@ -225,7 +220,6 @@ const fetchMaterial = async () => {
                 return currentDate > latestDate ? current : latest;
             });
         }
-        // Устанавливаем текущий модуль и страницу
         currentModuleId.value = route.params.moduleId ||
             (latestActivity?.course_module_id || material.value[0].id);
 
@@ -330,7 +324,6 @@ const goToNextModule = async () => {
 
 const handleAnswerChange = (qIndex, variantId, isCheckbox) => {
     if (isCheckbox) {
-        // Для чекбоксов (множественный выбор)
         if (!selectedAnswers[qIndex]) {
             selectedAnswers[qIndex] = [];
         }
@@ -341,7 +334,6 @@ const handleAnswerChange = (qIndex, variantId, isCheckbox) => {
             selectedAnswers[qIndex].splice(index, 1);
         }
     } else {
-        // Для радиокнопок (одиночный выбор)
         selectedAnswers[qIndex] = [variantId];
     }
 };
@@ -378,8 +370,6 @@ const checkQuiz = async () => {
                 .map(v => v.id)
                 .sort();
 
-            // Для вопроса с одним ответом проверяем точное совпадение
-            // Для вопроса с несколькими ответами проверяем, что все выбранные ответы правильные
             const isCorrect = question.is_group
                 ? userAnswers.every(answer => correctAnswers.includes(answer)) &&
                 userAnswers.length === correctAnswers.length
@@ -410,6 +400,7 @@ const checkQuiz = async () => {
         throw error;
     }
 };
+
 watch(() => route.params, async (newParams) => {
     if (newParams.moduleId && Number(newParams.moduleId) !== Number(currentModuleId.value)) {
         currentModuleId.value = Number(newParams.moduleId);
@@ -467,7 +458,6 @@ provide('activity', activity)
     }
 
     .squares-score {
-        // margin: 10px 0;
         display: flex;
 
         .square {

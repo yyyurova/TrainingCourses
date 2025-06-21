@@ -16,6 +16,7 @@ const goToCourses = () => {
     router.push('/courses')
 }
 </script>
+
 <style scoped lang="scss">
 .block {
     display: flex;

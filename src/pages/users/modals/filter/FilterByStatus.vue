@@ -27,7 +27,6 @@ const handleClick = (status) => {
 
     &:hover {
         background-color: #E9F2FF;
-
     }
 
     p {

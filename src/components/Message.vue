@@ -3,6 +3,7 @@
         <div v-if="!message.isMe" class="message-header">
             <span class="username">{{ message.user.name }}</span>
         </div>
+
         <div class="message__inner">
             <div class="message-content">
                 <p v-if="message.message !== 'null'">{{ message.message }}</p>
@@ -11,11 +12,11 @@
                         <button class="icon">
                             <img src="/icons/file.svg" alt="">
                         </button>
-                        <!-- <p>{{ attachment.url }}</p> -->
                         <a :href="attachment.url">{{ attachment.name }}</a>
                     </div>
                 </div>
             </div>
+
             <span class="timestamp">{{ format(message.created_at, { time: 'short' }) }}</span>
         </div>
     </div>
@@ -130,6 +131,5 @@ const props = defineProps({
         font-size: 12px;
         white-space: nowrap;
     }
-
 }
 </style>

@@ -1,12 +1,14 @@
 <template>
-    <!-- <Layout :on-create-task="openCreateTaskModal"> -->
     <Layout>
         <h1>Практиканты</h1>
+
         <Navbar :elements="navbarItems" />
+
         <Card class="search no-hover">
             <img src="/icons/search.svg" alt="">
             <input v-model="nameInput" @input="searchPracticant" type="text" placeholder="Начните вводить имя">
         </Card>
+
         <div v-if="practicants && practicants.length > 0 && !isLoading" class="practicants">
             <Card v-for="practicant in practicants" :key="practicant.id" @click="openTasks(practicant)">
                 <img v-if="practicant.image" :src="practicant.image" alt="">
@@ -14,7 +16,9 @@
                 <p> {{ practicant.name }}</p>
             </Card>
         </div>
+
         <Loading v-if="isLoading" />
+
         <div v-else-if="(!practicants && !isLoading) || (practicants.length === 0 && !isLoading)" class="no-items">
             <h2>В данном курсе нет практикантов.</h2>
         </div>
@@ -22,7 +26,7 @@
 </template>
 
 <script setup>
-import { inject, onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { getPracticants } from '@/api/modules/curarorStudents';
 import { getCourse } from '@/api/modules/courses';

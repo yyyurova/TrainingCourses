@@ -5,7 +5,9 @@
             <span>Создать учебный класс</span>
             <img src="/icons/plus.svg" alt="">
         </button>
+
         <Loading v-if="isLoading" />
+
         <div class="classrooms" v-if="classrooms && !isLoading">
             <Card v-for="classroom in classrooms" :key="classroom.id" @click="goToClassroom(classroom.id)">
                 <div class="left">
@@ -20,6 +22,7 @@
                         {{ classroom.members ? classroom.members.length : 0 }}
                     </p>
                 </div>
+
                 <div class="right">
                     <button class="icon edit" @click.stop="openEeditModal(classroom)">
                         <img src="/icons/pen.svg" alt="">
@@ -47,7 +50,14 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
-import { getClassrooms, deleteClass, createClassroom, addCuratorToClass, addUsersToClass, editClass } from '@/api/modules/classrooms';
+import {
+    getClassrooms,
+    deleteClass,
+    createClassroom,
+    addCuratorToClass,
+    addUsersToClass,
+    editClass
+} from '@/api/modules/classrooms';
 
 import Layout from '@/layouts/Layout.vue';
 import Card from '@/components/Card.vue';
@@ -193,30 +203,6 @@ const fetchClassrooms = async () => {
 };
 
 const createdClassroomId = ref(null);
-
-
-const save = async () => {
-    try {
-        isLoading.value = true;
-
-        // Добавляем куратора (первый выбранный пользователь с ролью куратора)
-        const curator = classroomMembers.value.find(member => member.role === 'curator');
-        if (curator) {
-            await addCuratorToClass(createdClassroomId.value, curator.id);
-        }
-
-        // Добавляем участников
-        await addUsersToClass(createdClassroomId.value, classroomMembers.value);
-
-        showMessage('Класс успешно создан', true)
-
-        await fetchClassrooms();
-    } catch (error) {
-        showMessage('Ошибка при сохранении данных', false)
-    } finally {
-        isLoading.value = false;
-    }
-};
 
 onMounted(async () => {
     await fetchClassrooms()

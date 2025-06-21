@@ -6,7 +6,6 @@
   letter-spacing: 0px;
   color: #292929;
   box-sizing: border-box;
-
   scrollbar-width: thin;
   scrollbar-color: #b8b7b7 #f1f1f1;
 
@@ -115,8 +114,6 @@ html {
 
     &:disabled {
       cursor: not-allowed;
-      // background-color: #ebebeb;
-      // color: #969696;
     }
 
     &.icon {

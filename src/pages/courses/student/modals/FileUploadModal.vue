@@ -13,14 +13,18 @@
                         </g>
                     </svg>
                 </div>
+
                 <div class="text">
                     <span>Нажмите чтобы загрузить файл</span>
                 </div>
+
                 <input type="file" id="file" @change="handleFileUpload">
             </label>
+
             <div v-if="file" class="file-info">
                 <p>{{ file.name }} </p>
             </div>
+
             <div class="modal-buttons">
                 <button class="transparent" @click="cancel">Отмена</button>
                 <button class="blue" :disabled="!file" @click="addFile">Добавить</button>

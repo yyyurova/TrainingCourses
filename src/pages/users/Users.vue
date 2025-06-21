@@ -1,6 +1,7 @@
 <template>
     <Layout>
         <h1>Пользователи</h1>
+
         <button class="blue" @click="openCreateUserModal">
             <span>Создать пользователя</span>
             <img src="/icons/plus.svg" alt="">
@@ -31,9 +32,9 @@
     </Layout>
 </template>
 <script setup>
-import { ref, onMounted, nextTick, watch, provide, onUnmounted } from 'vue'
+import { ref, onMounted, watch, provide } from 'vue'
 
-import { getCurrentUser, getUserRole } from '@/utils/auth'
+import { getUserRole } from '@/utils/auth'
 
 import { getUsers, deleteUser as apiDeleteUser, editUser, createUser } from '@/api/modules/adminUsers'
 
@@ -261,7 +262,6 @@ const handleEditUser = async (user, newUser) => {
     try {
         closeModal()
         await editUser(user.id, newUser)
-        // await axios.patch(`https://c1a9f09250b13f61.mokky.dev/users/${user.id}`, newInfo);
         await fetchUsers();
 
         showMessage('Изменения сохранены', true)
@@ -289,16 +289,6 @@ onMounted(async () => {
         await fetchUsers()
     }, 2000);
 });
-
-const waitForRole = () => {
-    return new Promise(resolve => {
-        const check = () => {
-            if (getUserRole() !== null) resolve();
-            else setTimeout(check, 50);
-        };
-        check();
-    });
-};
 
 provide('filters', filters)
 provide('users', users)

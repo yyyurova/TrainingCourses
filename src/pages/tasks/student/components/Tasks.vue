@@ -7,12 +7,14 @@
                     <p class="name-of-task">
                         {{ task.name }}
                     </p>
+
                     <p class="bottom-row">
                         <span :class="{ 'overdue': checkOverdueDeadline(task.until) && !task.mark }">
                             {{ format(task.until, { date: 'long' }) }}
                         </span>
                         <span v-if="task.mark" class="mark">Оценка: {{ task.mark }}</span>
                     </p>
+
                     <p class="course-name">Курс: {{ task.course.title }}</p>
                 </div>
             </Card>
@@ -66,8 +68,6 @@ const props = defineProps({
                 .course-name {
                     font-size: 14px;
                     color: #969696;
-
-                    // color: ;
                 }
 
                 p span {
@@ -82,7 +82,6 @@ const props = defineProps({
                     font-size: 16px;
                     line-height: 20px;
                     letter-spacing: 0px;
-
                     display: -webkit-box;
                     -webkit-line-clamp: 2;
                     -webkit-box-orient: vertical;

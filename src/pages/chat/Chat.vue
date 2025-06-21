@@ -3,9 +3,12 @@
         <div class="chat-block">
             <AllChats @open-dialog="openDialog"
                 :class="{ 'mobile-hidden': isMobileView && (selectedChat || settingsIsOpen), 'mobile-full': isMobileView && !selectedChat }" />
+
             <OpenEmpty v-if="!selectedChat && !isMobileView" />
+
             <OpenDialog v-if="selectedChat && !settingsIsOpen" @openSettings="openSettings" :isMobile="isMobileView"
                 @backToAllChats="goBackToChats" :class="{ 'mobile-full': isMobileView && selectedChat }" />
+
             <ChatSettings v-if="selectedChat && settingsIsOpen" :class="{ 'mobile-full': isMobileView }" />
         </div>
     </ChatLayout>
@@ -94,7 +97,6 @@ const fetchChats = async () => {
                 }
 
                 const userData = await getUser(chat.user_id);
-
                 const userName = userData?.name || 'Пользователь не найден';
 
                 return {
@@ -106,7 +108,6 @@ const fetchChats = async () => {
 
         chats.value = chatsWithUsers;
         originalChats.value = [...chatsWithUsers];
-        console.log(chats.value)
 
         if (route.params.chatId) {
             const chatToOpen = chatsWithUsers.find(chat => chat.id == route.params.chatId);

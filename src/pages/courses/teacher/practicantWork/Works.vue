@@ -35,6 +35,7 @@
                         v-model:practicant-mark="practicant.mark" />
                 </div>
             </Card>
+
             <Card class="no-hover right">
                 <div class="info">
                     <h2>{{ task.name }}</h2>
@@ -53,6 +54,7 @@
         </div>
 
         <Loading v-else />
+
         <Popup :text="popupText" v-if="showPopup" @closePopup="closePopup" :isSuccess="isSuccess" />
     </Layout>
 </template>
@@ -203,7 +205,6 @@ provide('selectedPracticant', selectedPracticant)
 
         &.left {
             width: calc(40% - 5px);
-
             padding: 20px 0;
 
             h1 {
