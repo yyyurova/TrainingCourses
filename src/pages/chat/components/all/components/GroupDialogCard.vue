@@ -4,7 +4,8 @@
             <div class="header-left-part">
                 <img src="/icons/users.svg" alt="">
 
-                <img v-if="chat.avatar" :src="getAvatarUrl(chat.avatar)" alt="" @error="handleImageError">
+                <img class="avatar" v-if="chat.avatar" :src="getAvatarUrl(chat.avatar)" alt=""
+                    @error="handleImageError">
                 <AvatarLetter v-else :name="chat.title" />
                 <p class="partner-name">{{ chat.title }}</p>
             </div>
@@ -73,11 +74,12 @@ const getAvatarUrl = (avatarPath) => {
                     width: 16px;
                 }
 
-                width: 36px;
-                height: auto;
-                max-height: 45px;
-                border-radius: 4px;
-                object-fit: cover;
+                &.avatar {
+                    width: 35px;
+                    height: 35px;
+                    border-radius: 4px;
+                    object-fit: cover;
+                }
             }
 
             .partner-name {

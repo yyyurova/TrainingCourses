@@ -27,7 +27,7 @@ const emit = defineEmits(['closePopup'])
 .confirmation-popup {
     position: fixed;
     top: 67%;
-    left: 82%;
+    right: -100px;
     transform: translate(-50%, -50%);
     background-color: #FFFFFF;
     color: white;

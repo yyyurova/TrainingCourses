@@ -15,19 +15,29 @@
         </button>
 
         <div class="navigation" v-if="material && activity">
-            <div v-for="module in material" :key="module.id" class="chapter">
-                <div class="chapter-header" @click="toggleChapter(module.id)">
+            <div v-for="(module, index) in material" :key="index" class="chapter">
+                <div class="chapter-header" :class="{ 'locked': isModuleLocked(module) }"
+                    @click="!isModuleLocked(module) && toggleChapter(module.id)">
+
                     <span>{{ getModuleNumber(module) + '. ' + module.title }}</span>
-                    <img src="/icons/arrow.svg" class="arrow-up" :class="{ 'arrow-down': openModules[module.id] }"
-                        alt="">
+
+                    <template v-if="isModuleLocked(module)">
+                        <img src="/icons/lock.svg" alt="locked" class="lock-icon">
+                    </template>
+                    <template v-else>
+                        <img src="/icons/arrow.svg" class="arrow-up" :class="{ 'arrow-down': openModules[module.id] }"
+                            alt="">
+                    </template>
                 </div>
 
-                <div class="steps" v-if="module.pages" v-show="openModules[module.id]">
+                <div class="steps" v-if="module.pages" v-show="openModules[module.id] && !isModuleLocked(module)">
                     <RouterLink v-for="page in module.pages" :key="page.id" class="step-link"
-                        :to="getPageRoute(module.id, page.id)" active-class="active-step">
+                        :to="getPageRoute(module.id, page.id)" active-class="active-step"
+                        :class="{ 'disabled-link': isModuleLocked(module) }">
                         <div class="step-content" :class="{
                             'done': isPageDone(module.id, page.id),
-                            'active': isCurrentPage(module.id, page.id)
+                            'active': isCurrentPage(module.id, page.id),
+                            'locked-step': isModuleLocked(module)
                         }">
                             {{ getModuleNumber(module) + '.' + getPageNumber(module, page) + ' ' + page.title }}
                         </div>
@@ -55,6 +65,7 @@ const router = useRouter()
 const material = inject('material')
 const course = inject('course')
 const activity = inject('activity')
+const isCurrentModuleCompleted = inject('isCurrentModuleCompleted')
 
 const openModules = ref({})
 
@@ -77,6 +88,21 @@ const initOpenModules = () => {
         openModules.value[module.id] = material.value.indexOf(module) === 0
     })
 }
+
+const isModuleCompleted = (module) => {
+    if (!module.pages || !activity.value) return false;
+    const completedPages = new Set(activity.value.map(item => item.course_module_page_id));
+    return module.pages.every(page => completedPages.has(page.id));
+};
+
+const isModuleLocked = (module) => {
+    if (material.value.indexOf(module) === 0) return false;
+
+    const prevModuleIndex = material.value.indexOf(module) - 1;
+    const prevModule = material.value[prevModuleIndex];
+
+    return !isModuleCompleted(prevModule);
+};
 
 const getModuleNumber = (module) => {
     if (!material.value) return 0
@@ -218,12 +244,21 @@ onMounted(initOpenModules)
                 transition: all 0.2s ease;
                 font-weight: 500;
 
+                &:has(.lock-icon) {
+                    cursor: not-allowed;
+                }
+
                 &:hover {
                     background-color: #E9F2FF;
                 }
 
                 .arrow {
                     transition: transform 0.3s ease;
+                }
+
+                .lock-icon {
+                    width: 24px;
+                    height: 24px;
                 }
 
                 span {

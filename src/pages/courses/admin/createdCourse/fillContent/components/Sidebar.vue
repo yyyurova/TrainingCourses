@@ -31,7 +31,7 @@
         </div>
 
         <div class="user" @click="showUserActions = !showUserActions">
-            <img v-if="user.avatar" class="avatar" :src="user.avatar" alt="User-Avatar">
+            <img v-if="user.image" class="avatar" :src="user.image" alt="User-Avatar">
 
             <AvatarLetter v-else :name="user.name" />
 

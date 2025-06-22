@@ -8,12 +8,12 @@
             <h1 class="moduleName">
                 {{ currentModule.title }}
                 <span class="score">{{ completedPages + " из " + currentModule.pages.length + " шагов пройдено"
-                }}</span>
+                    }}</span>
             </h1>
             <h2 v-if="currentPageData" class="pageName">{{ currentPageData.title }}</h2>
 
             <div class="squares-score">
-                <span class="square" :class="page.completed ? 'filled' : ''" v-for="page in currentModule.pages"
+                <span class="square" :class="isPageCompleted(page) ? 'filled' : ''" v-for="page in currentModule.pages"
                     :key="page.id" @click="goToPage(page.id)">
                 </span>
             </div>
@@ -62,7 +62,8 @@
                     Проверить тест
                 </button>
 
-                <button class="blue" @click="nextPage" :disabled="(hasQuizzes && !quizWasChecked) || loading">
+                <button class="blue" @click="nextPage"
+                    :disabled="(hasQuizzes && !quizWasChecked) || loading || (isLastPage && !canCompleteModule)">
                     {{ isLastPage ? 'Завершить модуль' : 'Следующий шаг' }}
                 </button>
             </div>
@@ -72,7 +73,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch, provide, reactive } from 'vue';
+import { computed, onMounted, ref, watch, provide, reactive, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getCourseActivity } from '@/api/modules/activity';
 import { getCourse } from '@/api/modules/courses';
@@ -136,6 +137,33 @@ const hasSelectedAnswers = computed(() => {
         return answers && answers.length > 0;
     });
 });
+
+const isCurrentModuleCompleted = computed(() => {
+    const currentModule = material.value.find(m => m.id == currentModuleId.value)
+    const currentModulePages = currentModule.pages.map(p => p.id)
+    const complPages = new Set(activity.value.map(a => a.course_module_page_id))
+    console.log(currentModulePages, complPages, currentModulePages.every(pageId => complPages.has(pageId)))
+    return currentModulePages.every(pageId => complPages.has(pageId))
+})
+
+const canCompleteModule = computed(() => {
+    if (!isLastPage.value) return false;
+
+    const currentModule = material.value.find(m => m.id == currentModuleId.value);
+    if (!currentModule) return false;
+
+    const otherPagesCompleted = currentModule.pages
+        .filter(page => page.id !== currentPageId.value)
+        .every(page => isPageCompleted(page));
+
+    return otherPagesCompleted;
+});
+
+const isPageCompleted = (page) => {
+    if (!activity.value) return false
+    const complPages = new Set(activity.value.map(a => a.course_module_page_id))
+    return complPages.has(page.id)
+}
 
 const resetQuizState = () => {
     Object.keys(selectedAnswers).forEach(key => delete selectedAnswers[key]);
@@ -279,9 +307,9 @@ const goToPage = (pageId) => {
 
 const nextPage = async () => {
     if (!currentModule.value || currentPageIndex.value === -1) return;
+    await fetctActivity();
 
     currentModule.value.pages[currentPageIndex.value].completed = true;
-
     if (isLastPage.value && isLastModule.value) {
         completeCourse();
         return;
@@ -424,11 +452,14 @@ watch(() => route.params, async (newParams) => {
 
 onMounted(async () => {
     await fetchMaterial()
+
+    console.log(isCurrentModuleCompleted.value)
 });
 
 provide('material', material);
 provide('course', course);
 provide('activity', activity)
+provide('isCurrentModuleCompleted', isCurrentModuleCompleted)
 </script>
 
 <style scoped lang="scss">
