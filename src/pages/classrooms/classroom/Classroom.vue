@@ -10,7 +10,7 @@
                 <h2>Практиканты</h2>
                 <button class="transparent border" @click="openAddUserModal">
                     Добавить практикантов
-                    <img src="/icons/plus-black.svg" alt="">
+                    <img src="/icons/actions/plus-black.svg" alt="">
                 </button>
 
                 <div class="practicants">
@@ -22,7 +22,7 @@
                         <p> {{ member.name }}</p>
 
                         <button class="icon" @click="openConfirmDeleteMemberModal(member)">
-                            <img src="/icons/x.svg" alt="">
+                            <img src="/icons/actions/x.svg" alt="">
                         </button>
                     </Card>
                 </div>
@@ -32,8 +32,8 @@
                 <h2>Куратор</h2>
                 <button class="transparent border" :disabled="classroom.curator.name" @click="openAddCuratorModal">
                     Добавить куратора
-                    <img src="/icons/plus-black.svg" alt="" v-if="!classroom.curator.name">
-                    <img src="/icons/plus-gray.svg" alt="" v-else>
+                    <img src="/icons/actions/plus-black.svg" alt="" v-if="!classroom.curator.name">
+                    <img src="/icons/actions/plus-gray.svg" alt="" v-else>
                 </button>
 
                 <Card v-if="classroom.curator.name">
@@ -41,7 +41,7 @@
                     <AvatarLetter v-else :name="classroom.curator.name" />
                     <p>{{ classroom.curator.name }}</p>
                     <button class="icon" @click="openConfirmDeleteCuratorModal">
-                        <img src="/icons/x.svg" alt="">
+                        <img src="/icons/actions/x.svg" alt="">
                     </button>
                 </Card>
             </div>

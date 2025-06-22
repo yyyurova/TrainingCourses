@@ -2,7 +2,7 @@
     <div class="tasks">
         <RouterLink class="link" v-for="task in tasks" :key="task.id" :to="`/tasks/${task.id}`">
             <Card>
-                <img src="/icons/task.svg" alt="">
+                <img src="/icons/sidebar/task.svg" alt="">
                 <div class="text">
                     <p class="name-of-task">
                         {{ task.name }}

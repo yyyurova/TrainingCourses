@@ -13,15 +13,15 @@
                     @click="isPagesListOpen = !isPagesListOpen">
                     <img :class="isPagesListOpen ? 'arrow-down' : 'arrow-up'" src="/icons/arrow.svg" alt="">
                 </button>
-              
+
                 <button class="icon" @click="$emit('delete-module')">
-                    <img src="/icons/x.svg" alt="">
+                    <img src="/icons/actions/x.svg" alt="">
                 </button>
             </div>
         </Card>
-       
+
         <p v-if="mod.noPages" class="no-pages">Добавьте хотя бы одну страницу в модуль</p>
-      
+
         <Transition>
             <div class="pages" v-if="mod.pages && mod.pages.length && isPagesListOpen">
                 <Page v-for="(page, pageIndex) in mod.pages" :key="pageIndex" :page="page" :module-index="moduleIndex"
@@ -31,7 +31,7 @@
 
         <button class="blue new-page" @click="addPage">
             Новая страница
-            <img src="/icons/plus.svg" alt="">
+            <img src="/icons/actions/plus.svg" alt="">
         </button>
     </div>
 </template>

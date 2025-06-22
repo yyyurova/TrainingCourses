@@ -20,7 +20,7 @@
                 </button>
 
                 <button v-else class="icon big" @click="openConfirmDeleteModal">
-                    <img src="/icons/delete.svg" alt="">
+                    <img src="/icons/actions/delete.svg" alt="">
                 </button>
             </div>
         </div>

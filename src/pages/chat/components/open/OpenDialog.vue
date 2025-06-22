@@ -17,10 +17,10 @@
 
                 <div v-if="selectedChat.is_group === 1" class="right-part">
                     <button class="icon" @click.stop="openAddModal">
-                        <img src="/icons/add.svg" alt="">
+                        <img src="/icons/actions/add.svg" alt="">
                     </button>
                     <button class="icon" @click.stop="openConfirmDeleteModal">
-                        <img src="/icons/delete.svg" alt="">
+                        <img src="/icons/actions/delete.svg" alt="">
                     </button>
                 </div>
             </div>
@@ -41,7 +41,7 @@
 
         <div class="input-field">
             <button class="icon" @click="fileUpload">
-                <img src="/icons/paperclip.svg" alt="">
+                <img src="/icons/actions/paperclip.svg" alt="">
             </button>
 
             <div class="center">
@@ -51,7 +51,7 @@
             </div>
 
             <button class="icon bigger" @click="sendMessage">
-                <img src="/icons/send.svg" alt="">
+                <img src="/icons/actions/send.svg" alt="">
             </button>
         </div>
     </div>

@@ -3,7 +3,7 @@
         <h1>Учебные классы</h1>
         <button class="blue" @click="openCreateModal">
             <span>Создать учебный класс</span>
-            <img src="/icons/plus.svg" alt="">
+            <img src="/icons/actions/plus.svg" alt="">
         </button>
 
         <Loading v-if="isLoading" />
@@ -25,10 +25,10 @@
 
                 <div class="right">
                     <button class="icon edit" @click.stop="openEeditModal(classroom)">
-                        <img src="/icons/pen.svg" alt="">
+                        <img src="/icons/actions/pen.svg" alt="">
                     </button>
                     <button class="icon delete" @click.stop="openDeleteModal(classroom)">
-                        <img src="/icons/delete.svg" alt="">
+                        <img src="/icons/actions/delete.svg" alt="">
                     </button>
                 </div>
             </Card>

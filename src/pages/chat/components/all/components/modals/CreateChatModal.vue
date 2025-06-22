@@ -10,7 +10,7 @@
                     <input type="file" accept="image/*" style="display: none;">
                     <button class="transparent border" @click="fileUpload">
                         <span>Загрузить</span>
-                        <img src="/icons/paperclip.svg" alt="">
+                        <img src="/icons/actions/paperclip.svg" alt="">
                     </button>
                 </Card>
 

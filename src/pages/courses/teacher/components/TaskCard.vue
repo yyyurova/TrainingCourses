@@ -10,11 +10,11 @@
 
         <div class="action-buttons">
             <button class="icon" @click.stop="editTask">
-                <img src="/icons/pen.svg" alt="">
+                <img src="/icons/actions/pen.svg" alt="">
             </button>
 
             <button class="icon" @click.stop="deleteTask">
-                <img src="/icons/delete.svg" alt="">
+                <img src="/icons/actions/delete.svg" alt="">
             </button>
         </div>
     </Card>

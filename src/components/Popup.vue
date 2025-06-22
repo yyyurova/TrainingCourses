@@ -5,7 +5,7 @@
         <p>{{ text }}</p>
 
         <button class="icon" @click="emit('closePopup')">
-            <img src="/icons/x.svg" alt="">
+            <img src="/icons/actions/x.svg" alt="">
         </button>
     </div>
 </template>

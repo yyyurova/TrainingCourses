@@ -8,7 +8,7 @@
         </div>
 
         <button class="icon" @click="handleDelete">
-            <img src="/icons/x.svg" alt="">
+            <img src="/icons/actions/x.svg" alt="">
         </button>
     </Card>
 </template>

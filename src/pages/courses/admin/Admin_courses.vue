@@ -4,7 +4,7 @@
 
         <button class="blue" @click="openCreateCourseModal">
             <span>Новый курс</span>
-            <img src="/icons/plus.svg" alt="">
+            <img src="/icons/actions/plus.svg" alt="">
         </button>
 
         <div class="courses">
@@ -16,10 +16,10 @@
 
                     <div class="action-buttons">
                         <button class="icon edit" @click.stop="openEditCourseModal(course)">
-                            <img src="/icons/pen.svg" alt="">
+                            <img src="/icons/actions/pen.svg" alt="">
                         </button>
                         <button class="icon delete" @click.stop="openDeleteModal(course)">
-                            <img src="/icons/delete.svg" alt="">
+                            <img src="/icons/actions/delete.svg" alt="">
                         </button>
                     </div>
                 </div>

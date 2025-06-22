@@ -7,7 +7,7 @@
         <p>{{ member.name }}</p>
 
         <button class="icon" @click="$emit('delete', member)">
-            <img src="/icons/delete.svg" alt="">
+            <img src="/icons/actions/delete.svg" alt="">
         </button>
     </div>
 </template>

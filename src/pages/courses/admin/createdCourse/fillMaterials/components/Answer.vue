@@ -8,7 +8,7 @@
 
         <div class="action-buttons" @click="$emit('remove', index)">
             <button class="icon">
-                <img src="/icons/x.svg" alt="">
+                <img src="/icons/actions/x.svg" alt="">
             </button>
         </div>
     </Card>

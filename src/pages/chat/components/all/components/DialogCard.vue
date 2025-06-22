@@ -8,7 +8,7 @@
             </div>
 
             <button class="icon" @click.stop="$emit('delete', chat.id)">
-                <img src="/icons/delete.svg" alt="">
+                <img src="/icons/actions/delete.svg" alt="">
             </button>
         </div>
 

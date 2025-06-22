@@ -6,7 +6,7 @@
 
         <div class="tasks" v-if="tasks && !isLoading && tasks.length > 0">
             <Card v-for="task in tasks" :key="task.id" @click="goToTask(task.id)">
-                <img src="/icons/task.svg" alt="">
+                <img src="/icons/sidebar/task.svg" alt="">
 
                 <div class="text">
                     <p class="name-of-task">

@@ -57,7 +57,7 @@
                     <td>{{ user.email }}</td>
                     <td>
                         <p :style="{ backgroundColor: statusBackgrounds[user.status] }">{{ translateStatus(user.status)
-                            }}</p>
+                        }}</p>
                     </td>
                     <td>
                         {{ translateStatus(user.status) === 'Доступ не одобрен' || translateStatus(user.status) ===
@@ -139,26 +139,26 @@ const statusBackgrounds = {
 const actionButtons = {
     'approved': [
         {
-            src: '/icons/pen.svg', class: 'edit'
+            src: '/icons/actions/pen.svg', class: 'edit'
         },
         {
-            src: '/icons/delete.svg', class: 'delete'
+            src: '/icons/actions/delete.svg', class: 'delete'
         }
     ],
     'pending': [
         {
-            src: '/icons/tick.svg', class: 'approve'
+            src: '/icons/actions/tick.svg', class: 'approve'
         },
         {
-            src: '/icons/cross.svg', class: 'disapprove'
+            src: '/icons/actions/cross.svg', class: 'disapprove'
         }
     ],
     'rejected': [
         {
-            src: '/icons/tick.svg', class: 'approve'
+            src: '/icons/actions/tick.svg', class: 'approve'
         },
         {
-            src: '/icons/delete.svg', class: 'delete'
+            src: '/icons/actions/delete.svg', class: 'delete'
         }
     ],
 }

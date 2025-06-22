@@ -8,7 +8,7 @@
                     <input type="radio" name="radio" v-model="selectedType" value="text">
                     <span class="name">
                         Текст
-                        <img src="/icons/type-text.svg" alt="">
+                        <img src="/icons/page-types/type-text.svg" alt="">
                     </span>
                 </label>
 
@@ -16,7 +16,7 @@
                     <input type="radio" name="radio" v-model="selectedType" value="video">
                     <span class="name">
                         Видео
-                        <img src="/icons/type-video.svg" alt="">
+                        <img src="/icons/page-types/type-video.svg" alt="">
                     </span>
                 </label>
 
@@ -24,7 +24,7 @@
                     <input type="radio" name="radio" v-model="selectedType" value="quiz">
                     <span class="name">
                         Тест
-                        <img src="/icons/type-quiz.svg" alt="">
+                        <img src="/icons/page-types/type-quiz.svg" alt="">
                     </span>
                 </label>
             </div>

@@ -9,7 +9,7 @@
 
         <div class="action-buttons">
             <button class="icon" @click="deletePage(moduleIndex, pageIndex)">
-                <img src="/icons/x.svg" alt="">
+                <img src="/icons/actions/x.svg" alt="">
             </button>
         </div>
     </Card>

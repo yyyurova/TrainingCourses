@@ -11,7 +11,7 @@
 
                 <h4>
                     Шаг {{ currentPageIndex + 1 }} : {{ translateType(currentPage?.type) }}
-                    <button class="icon"><img src="/icons/x.svg" alt=""></button>
+                    <button class="icon"><img src="/icons/actions/x.svg" alt=""></button>
                 </h4>
 
                 <div class="squares-score">
@@ -53,7 +53,8 @@
                                 <p> {{ file.name }}</p>
                                 <p> {{ formatFileSize(file.size) }}</p>
                             </div>
-                            <button class="icon" @click="removeFile(index)"><img src="/icons/x.svg" alt=""></button>
+                            <button class="icon" @click="removeFile(index)"><img src="/icons/actions/x.svg"
+                                    alt=""></button>
                         </Card>
                     </div>
 
@@ -68,7 +69,7 @@
                             <div class="question-header">
                                 <h4>Вопрос {{ qIndex + 1 }}</h4>
                                 <button class="icon" @click="removeQuestion(qIndex)">
-                                    <img src="/icons/x.svg" alt="">
+                                    <img src="/icons/actions/x.svg" alt="">
                                 </button>
                             </div>
 
@@ -110,7 +111,7 @@
 
                                 <button class="transparent border" @click="() => addAnswer(qIndex)">
                                     Добавить вариант ответа
-                                    <img src="/icons/plus-black.svg" alt="">
+                                    <img src="/icons/actions/plus-black.svg" alt="">
                                 </button>
                             </div>
                         </div>
@@ -118,7 +119,7 @@
 
                     <button class="blue" @click="addNewQuestion">
                         Добавить вопрос
-                        <img src="/icons/plus.svg" alt="">
+                        <img src="/icons/actions/plus.svg" alt="">
                     </button>
                 </div>
             </Card>

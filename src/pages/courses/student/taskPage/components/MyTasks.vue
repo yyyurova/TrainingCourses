@@ -14,7 +14,7 @@
                 </div>
 
                 <button v-if="isEditing" class="icon" @click="deleteAttachment(attachment.id)">
-                    <img src="/icons/x.svg">
+                    <img src="/icons/actions/x.svg">
                 </button>
             </Card>
         </div>
@@ -29,7 +29,7 @@
                 </div>
 
                 <button class="icon" @click="removeFile(index)">
-                    <img src="/icons/x.svg">
+                    <img src="/icons/actions/x.svg">
                 </button>
             </Card>
         </div>
@@ -43,7 +43,7 @@
                 </div>
 
                 <button @click="removeLink(index)" class="icon">
-                    <img src="/icons/x.svg">
+                    <img src="/icons/actions/x.svg">
                 </button>
             </Card>
         </div>

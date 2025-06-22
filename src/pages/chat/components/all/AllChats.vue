@@ -9,7 +9,7 @@
             </button>
 
             <Card class="no-hover">
-                <img src="/icons/search.svg" alt="">
+                <img src="/icons/actions/search.svg" alt="">
                 <input v-model="nameInput" @input="searchChat" autocomplete="off" type="text"
                     placeholder="Поиск участников">
             </Card>

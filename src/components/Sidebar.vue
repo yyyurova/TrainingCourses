@@ -10,7 +10,7 @@
         <div class="navigation">
             <template v-for="(section, sectionIndex) in sidebarContent[user.role]" :key="sectionIndex">
                 <h1 v-if="section.header">{{ section.header }}</h1>
-                
+
                 <template v-for="(item, itemIndex) in section.items || [section]" :key="itemIndex">
                     <RouterLink v-if="item.linkTo" :to="item.linkTo" class="link" @click="handleCourseClick(item)"
                         :class="{ 'router-link-active': isLinkActive(item) }">
@@ -50,9 +50,9 @@
         </div>
         <div class="user" @click="showUserActions = !showUserActions">
             <img v-if="user.image" class="avatar" :src="user.image" alt="User-Avatar">
-           
+
             <AvatarLetter v-else :name="user.name" />
-           
+
             <span>{{ user.name }}</span>
 
             <button class="icon">
@@ -132,19 +132,19 @@ const sidebarContent = {
             title: 'Курсы',
             name: 'courses',
             list: true,
-            imageUrl: '/icons/graduation.svg',
+            imageUrl: '/icons/sidebar/graduation.svg',
             linkTo: '/courses'
         },
         {
             title: 'Пользователи',
             name: 'users',
-            imageUrl: '/icons/users.svg',
+            imageUrl: '/icons/sidebar/users.svg',
             linkTo: '/users'
         },
         {
             title: 'Учебные классы',
             name: 'classrooms',
-            imageUrl: '/icons/book.svg',
+            imageUrl: '/icons/sidebar/book.svg',
             linkTo: '/classrooms',
             activeRoutes: [
                 'Classroom',
@@ -160,7 +160,7 @@ const sidebarContent = {
                     linkTo: '/courses',
                     name: 'courses',
                     list: true,
-                    imageUrl: '/icons/graduation.svg',
+                    imageUrl: '/icons/sidebar/graduation.svg',
                 },
             ]
         },
@@ -170,7 +170,7 @@ const sidebarContent = {
                 {
                     title: 'Чат',
                     name: 'chat',
-                    imageUrl: '/icons/chat.svg',
+                    imageUrl: '/icons/sidebar/chat.svg',
                     linkTo: '/chat',
                     counter: true,
                 }
@@ -184,14 +184,14 @@ const sidebarContent = {
                 {
                     title: 'Курсы',
                     name: 'courses',
-                    imageUrl: '/icons/graduation.svg',
+                    imageUrl: '/icons/sidebar/graduation.svg',
                     linkTo: '/courses',
                     list: true
                 },
                 {
                     title: 'Задания',
                     name: 'tasks',
-                    imageUrl: '/icons/task.svg',
+                    imageUrl: '/icons/sidebar/task.svg',
                     linkTo: '/tasks/current',
                     counter: true,
                     activeRoutes: [
@@ -209,7 +209,7 @@ const sidebarContent = {
                 {
                     title: 'Чат',
                     name: 'chat',
-                    imageUrl: '/icons/chat.svg',
+                    imageUrl: '/icons/sidebar/chat.svg',
                     linkTo: '/chat',
                     counter: true,
                 }

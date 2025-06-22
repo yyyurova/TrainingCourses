@@ -2,7 +2,7 @@
     <div class="dialog">
         <div class="dialog-card-header">
             <div class="header-left-part">
-                <img src="/icons/users.svg" alt="">
+                <img src="/icons/sidebar/users.svg" alt="">
 
                 <img class="avatar" v-if="chat.avatar" :src="getAvatarUrl(chat.avatar)" alt=""
                     @error="handleImageError">
@@ -10,7 +10,7 @@
                 <p class="partner-name">{{ chat.title }}</p>
             </div>
             <button class="icon" @click.stop="$emit('delete', chat.id)">
-                <img src="/icons/delete.svg" alt="">
+                <img src="/icons/actions/delete.svg" alt="">
             </button>
         </div>
 

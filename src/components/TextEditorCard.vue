@@ -4,7 +4,7 @@
 
         <div v-if="editor" class="toolbar">
             <button @click="addImage" title="Вставить изображение">
-                <img src="/icons/paperclip.svg" alt="Вставить изображение" class="icon">
+                <img src="/icons/actions/paperclip.svg" alt="Вставить изображение" class="icon">
             </button>
 
             <button @click="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }"

@@ -4,7 +4,7 @@
 
         <button class="blue" @click="openCreateUserModal">
             <span>Создать пользователя</span>
-            <img src="/icons/plus.svg" alt="">
+            <img src="/icons/actions/plus.svg" alt="">
         </button>
 
         <UsersTable :users="users" :isLoading="isLoading" @delete-user="openDeleteModal" @edit-user="openEditModal"

@@ -57,7 +57,7 @@
 
                 <div class="input-field">
                     <button class="icon" @click="fileUpload">
-                        <img class="small" src="/icons/paperclip.svg" alt="">
+                        <img class="small" src="/icons/actions/paperclip.svg" alt="">
                     </button>
 
                     <div class="center">
@@ -67,7 +67,7 @@
                     </div>
 
                     <button class="icon" @click="sendMessage">
-                        <img src="/icons/send.svg" alt="">
+                        <img src="/icons/actions/send.svg" alt="">
                     </button>
                 </div>
             </div>

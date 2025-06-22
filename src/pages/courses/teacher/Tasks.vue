@@ -8,7 +8,7 @@
             <button class="blue" @click="openCreateTaskModal" :disabled="!practicants || practicants.length === 0"
                 :title="!practicants || practicants.length === 0 ? 'В курсе нет практикантов' : ''">
                 Создать задание
-                <img src="/icons/plus.svg" alt="">
+                <img src="/icons/actions/plus.svg" alt="">
             </button>
 
             <div class="tasks" v-if="!isLoading && tasks">

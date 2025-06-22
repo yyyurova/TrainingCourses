@@ -5,7 +5,7 @@
                 <h1>Содержание курса</h1>
                 <button class="blue new-page" @click="newModule" v-if="content.modules.length > 0">
                     Новый модуль
-                    <img src="/icons/plus.svg" alt="">
+                    <img src="/icons/actions/plus.svg" alt="">
                 </button>
             </div>
 
@@ -14,7 +14,7 @@
                 <h2>Создайте первый модуль, чтобы добавить страницы</h2>
                 <button class="blue" @click="newModule">
                     Создать модуль
-                    <img src="/icons/plus.svg" alt="">
+                    <img src="/icons/actions/plus.svg" alt="">
                 </button>
             </div>
 

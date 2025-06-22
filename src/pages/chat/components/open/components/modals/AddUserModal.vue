@@ -6,7 +6,7 @@
                 <input v-model="nameInput" @input="handleInput" type="text" autocomplete="off"
                     placeholder="Начните вводить имя">
                 <button v-if="nameInput" class="icon" @click="clearSearch">
-                    <img src="/icons/x.svg" alt="Очистить поиск">
+                    <img src="/icons/actions/x.svg" alt="Очистить поиск">
                 </button>
                 <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -29,7 +29,7 @@
                     <img src="/icons/Avatar.svg" alt="">
                     <span>{{ member.name }}</span>
                     <button class="icon" @click="removeMember(member)">
-                        <img src="/icons/x.svg" alt="Удалить">
+                        <img src="/icons/actions/x.svg" alt="Удалить">
                     </button>
                 </Card>
             </div>

@@ -5,7 +5,7 @@
         <Navbar :elements="navbarItems" />
 
         <Card class="search no-hover">
-            <img src="/icons/search.svg" alt="">
+            <img src="/icons/actions/search.svg" alt="">
             <input v-model="nameInput" @input="searchPracticant" type="text" placeholder="Начните вводить имя">
         </Card>
 
