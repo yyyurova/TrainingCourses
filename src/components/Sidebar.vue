@@ -48,14 +48,14 @@
                 </template>
             </template>
         </div>
-        <div class="user" @click="showUserActions = !showUserActions">
+        <div class="user">
             <img v-if="user.image" class="avatar" :src="user.image" alt="User-Avatar">
 
             <AvatarLetter v-else :name="user.name" />
 
             <span>{{ user.name }}</span>
 
-            <button class="icon">
+            <button class="icon" @click="showUserActions = !showUserActions">
                 <img src="/icons/menu-vertical.svg" alt="">
             </button>
 

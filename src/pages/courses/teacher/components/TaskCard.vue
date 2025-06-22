@@ -1,6 +1,6 @@
 <template>
     <Card class="task">
-        <img src="/icons/list-right.svg" alt="">
+        <img src="/icons/textEditor/list-right.svg" alt="">
 
         <div class="text">
             <p class="name">{{ task.name }}</p>
