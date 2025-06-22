@@ -30,7 +30,10 @@ const fetchCurrentTasks = async () => {
     try {
         isLoading.value = true
         tasks.value = await getTasks()
-        tasks.value = tasks.value.filter(task => !checkOverdueDeadline(task.until))
+        tasks.value = tasks.value.filter(task => {
+            const studentTask = task.students.find(s => s.id === getUserId());
+            return studentTask && studentTask.done === 0 && !checkOverdueDeadline(task.until);
+        })
         tasks.value = tasks.value.map(task => {
             const studentTask = task.students.find(s => s.id === getUserId());
             return {

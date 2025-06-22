@@ -9,22 +9,22 @@
 
             <button @click="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }"
                 title="Жирный">
-                <img src="/icons/bold.svg" alt="Ж" class="icon">
+                <img src="/icons/textEditor/bold.svg" alt="Ж" class="icon">
             </button>
 
             <button @click="editor.chain().focus().toggleItalic().run()"
                 :class="{ 'is-active': editor.isActive('italic') }" title="Курсив">
-                <img src="/icons/italics.svg" alt="К" class="icon">
+                <img src="/icons/textEditor/italics.svg" alt="К" class="icon">
             </button>
 
             <button @click="editor.chain().focus().toggleUnderline().run()"
                 :class="{ 'is-active': editor.isActive('underline') }" title="Подчеркивание">
-                <img src="/icons/underline.svg" alt="Ч" class="icon">
+                <img src="/icons/textEditor/underline.svg" alt="Ч" class="icon">
             </button>
 
             <button @click="editor.chain().focus().toggleCode().run()" :class="{ 'is-active': editor.isActive('code') }"
                 title="Код">
-                <img src="/icons/code.svg" alt="Код" class="icon">
+                <img src="/icons/textEditor/code.svg" alt="Код" class="icon">
             </button>
 
             <button @click="toggleLink" :class="{ 'is-active': editor.isActive('link') }" title="Добавить ссылку">
@@ -33,27 +33,27 @@
 
             <button @click="editor.chain().focus().toggleBulletList().run()"
                 :class="{ 'is-active': editor.isActive('bulletList') }" title="Маркированный список">
-                <img src="/icons/ulist.svg" alt="Марк.список" class="icon">
+                <img src="/icons/textEditor/ulist.svg" alt="Марк.список" class="icon">
             </button>
 
             <button @click="editor.chain().focus().toggleOrderedList().run()"
                 :class="{ 'is-active': editor.isActive('orderedList') }" title="Нумерованный список">
-                <img src="/icons/olist.svg" alt="Нум.список" class="icon">
+                <img src="/icons/textEditor/olist.svg" alt="Нум.список" class="icon">
             </button>
 
             <button @click="editor.chain().focus().setTextAlign('left').run()"
                 :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }" title="По левому краю">
-                <img src="/icons/align-left.svg" alt="По левому краю" class="icon">
+                <img src="/icons/textEditor/align-left.svg" alt="По левому краю" class="icon">
             </button>
 
             <button @click="editor.chain().focus().setTextAlign('center').run()"
                 :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }" title="По центру">
-                <img src="/icons/align-center.svg" alt="По центру" class="icon">
+                <img src="/icons/textEditor/align-center.svg" alt="По центру" class="icon">
             </button>
 
             <button @click="editor.chain().focus().setTextAlign('right').run()"
                 :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }" title="По правому краю">
-                <img src="/icons/align-right.svg" alt="По правому краю" class="icon">
+                <img src="/icons/textEditor/align-right.svg" alt="По правому краю" class="icon">
             </button>
         </div>
     </Card>

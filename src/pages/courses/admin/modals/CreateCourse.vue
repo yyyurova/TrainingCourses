@@ -39,7 +39,7 @@ const emit = defineEmits(['cancel', 'create']);
 
 const courseName = ref('');
 const courseImageFile = ref(null);
-const courseImagePreview = ref('/avatar.png');
+const courseImagePreview = ref('/icons/avatar.png');
 const fileInput = ref(null);
 const nameError = ref(false);
 
@@ -62,7 +62,7 @@ const handleFileUpload = (event) => {
 
 const removeImage = () => {
     courseImageFile.value = null;
-    courseImagePreview.value = '/avatar.png';
+    courseImagePreview.value = '/icons/avatar.png';
     if (fileInput.value) fileInput.value.value = '';
 };
 

@@ -43,7 +43,7 @@ const props = defineProps({
 const emit = defineEmits(['delete'])
 
 const getAvatarUrl = (avatarPath) => {
-    if (!avatarPath) return '/avatar.png';
+    if (!avatarPath) return '/icons/avatar.png';
     return `https://api-course.hellishworld.ru${avatarPath}`;
 }
 </script>

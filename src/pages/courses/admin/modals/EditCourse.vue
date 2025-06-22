@@ -6,7 +6,7 @@
 
                 <div class="form-group">
                     <Card class="no-hover">
-                        <img :src="courseImagePreview || '/avatar.png'" alt="Course image">
+                        <img :src="courseImagePreview || '/icons/avatar.png'" alt="Course image">
 
                         <div class="modal-buttons">
                             <button class="transparent" type="button" @click="triggerFileInput">Загрузить</button>
@@ -77,7 +77,7 @@ const handleFileUpload = (event) => {
 
 const removeImage = () => {
     courseImageFile.value = null;
-    courseImagePreview.value = '/avatar.png';
+    courseImagePreview.value = '/icons/avatar.png';
     if (fileInput.value) fileInput.value.value = '';
 };
 

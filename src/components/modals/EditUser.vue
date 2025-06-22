@@ -39,7 +39,7 @@ const emit = defineEmits(['cancel', 'save'])
 const user = inject('user')
 const userName = ref(user.value.name);
 const avatarBase64 = ref(null);
-const avatarPreview = ref(user.value.image || '/avatar.png');
+const avatarPreview = ref(user.value.image || '/icons/avatar.png');
 const fileInput = ref(null);
 const nameError = ref(false);
 
@@ -70,7 +70,7 @@ const handleFileUpload = (event) => {
 
 const removeImage = () => {
     avatarBase64.value = null;
-    avatarPreview.value = '/avatar.png';
+    avatarPreview.value = '/icons/avatar.png';
     if (fileInput.value) fileInput.value.value = '';
 };
 

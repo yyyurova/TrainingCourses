@@ -119,7 +119,7 @@ const fetchMessages = async () => {
 }
 
 const getAvatarUrl = (avatarPath) => {
-    if (!avatarPath) return '/avatar.png';
+    if (!avatarPath) return '/icons/avatar.png';
     return `https://api-course.hellishworld.ru${avatarPath}`;
 }
 
