@@ -66,7 +66,7 @@
 
 <script setup>
 import pluralize from 'pluralize-ru';
-import { inject, watch, ref, computed, onMounted, nextTick } from 'vue';
+import { inject, watch, ref, computed, onMounted, nextTick, onUnmounted } from 'vue';
 import { getChatMessages, getChat, getChatMembers, createMessage } from '@/api/modules/chat';
 
 import NoMessages from './components/NoMessages.vue';
@@ -86,6 +86,8 @@ defineProps({ isMobile: Boolean })
 defineOptions({
     inheritAttrs: false
 })
+
+const fetchInterval = ref(null);
 
 const selectedChat = inject('selectedChat')
 const input = ref(null)
@@ -107,6 +109,8 @@ const scrollToBottom = () => {
 
 const fetchMessages = async () => {
     try {
+        if (!selectedChat.value?.id) return
+
         isLoading.value = true
         messages.value = await getChatMessages(selectedChat.value.id)
         messages.value.sort((a, b) =>
@@ -187,6 +191,10 @@ const formatFileSize = (bytes) => {
 };
 
 const sendMessage = async () => {
+    if (fetchInterval.value) {
+        clearInterval(fetchInterval.value);
+    }
+
     const text = input.value.value.trim();
 
     if (!text && attachedFiles.value.length === 0) return;
@@ -218,6 +226,7 @@ const sendMessage = async () => {
     }
     finally {
         limitMessage.value = ''
+        fetchInterval.value = setInterval(fetchMessages, 5000);
     }
 };
 
@@ -253,7 +262,15 @@ watch(selectedChat, async (newChat) => {
 onMounted(async () => {
     await fetchMembers()
     await fetchMessages()
+
+    fetchInterval.value = setInterval(fetchMessages, 5000);
 })
+
+onUnmounted(() => {
+    if (fetchInterval.value) {
+        clearInterval(fetchInterval.value);
+    }
+});
 </script>
 
 <style scoped lang="scss">
@@ -405,7 +422,8 @@ onMounted(async () => {
         }
 
         .messages-in-chat {
-            padding: 15px;   }
+            padding: 15px;
+        }
     }
 }
 </style>

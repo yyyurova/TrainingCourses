@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, computed } from 'vue';
+import { ref, watch, nextTick, computed, onMounted, onUnmounted } from 'vue';
 import { getChatMessages, createMessage } from '@/api/modules/chat';
 
 import Card from '@/components/Card.vue';
@@ -54,6 +54,9 @@ const messageInput = ref(null);
 const limitMessage = ref('');
 const attachedFiles = ref([]);
 const isLoading = ref(false);
+
+const fetchInterval = ref(null);
+const updateInterval = 5000;
 
 const scrollToBottom = () => {
     const messagesContainer = document.getElementById('messages');
@@ -114,6 +117,9 @@ const formatFileSize = (bytes) => {
 };
 
 const sendMessage = async () => {
+    if (fetchInterval.value) {
+        clearInterval(fetchInterval.value);
+    }
     const text = messageInput.value.value.trim();
 
     if (!text && attachedFiles.value.length === 0) return;
@@ -142,6 +148,7 @@ const sendMessage = async () => {
         console.error('Ошибка отправки комментария', error);
     } finally {
         limitMessage.value = '';
+        fetchInterval.value = setInterval(fetchMessages, updateInterval);
     }
 };
 
@@ -162,6 +169,15 @@ watch(
     { immediate: true }
 );
 
+onMounted(() => {
+    fetchInterval.value = setInterval(fetchMessages, updateInterval);
+})
+
+onUnmounted(() => {
+    if (fetchInterval.value) {
+        clearInterval(fetchInterval.value);
+    }
+});
 </script>
 
 <style scoped lang="scss">
