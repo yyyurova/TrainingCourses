@@ -21,7 +21,7 @@
                         chat.latest_message.message }} </p>
                 <p v-else-if="chat.latest_message.attachments.length > 0" class="attachment-preview">
                     <img src="/icons/file.svg" alt="">
-                    {{ chat.latest_message.attachments[0].url }}
+                    {{ chat.latest_message.attachments[0].name }}
                 </p>
                 <p class="date">{{ format(chat.latest_message.created_at, 'short') }}</p>
             </div>
@@ -39,7 +39,7 @@ import AvatarLetter from '@/components/AvatarLetter.vue';
 const props = defineProps({
     chat: Object,
 })
-
+console.log(props.chat)
 const emit = defineEmits(['delete'])
 
 const getAvatarUrl = (avatarPath) => {

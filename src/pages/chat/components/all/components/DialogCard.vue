@@ -14,9 +14,11 @@
 
         <div class="dialog-content" v-if="chat.latest_message">
             <div class="text">
-                <p class="message-preview">
-                    <img v-if="chat.latest_message.attachments.length > 0" src="/icons/file.svg" alt="">
-                    {{ chat.latest_message.message !== 'null' ? chat.latest_message.message : '' }}
+                <p v-if="chat.latest_message.message && chat.latest_message.message !== 'null'" class="message-preview">
+                    {{ chat.latest_message.message }} </p>
+                <p v-else-if="chat.latest_message.attachments.length > 0" class="attachment-preview">
+                    <img src="/icons/file.svg" alt="">
+                    {{ chat.latest_message.attachments[0].name }}
                 </p>
                 <p class="date">{{ format(chat.latest_message.created_at, 'short') }}</p>
             </div>

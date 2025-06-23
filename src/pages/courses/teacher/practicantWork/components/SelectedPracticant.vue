@@ -77,7 +77,7 @@
 
 <script setup>
 import { format } from '@formkit/tempo';
-import { computed, watch, ref, onMounted, nextTick } from 'vue';
+import { computed, watch, ref, onMounted, nextTick, onUnmounted } from 'vue';
 import { createMessage, getChatMessages } from '@/api/modules/chat';
 import { getTaskChat } from '@/api/modules/tasks';
 
@@ -97,6 +97,9 @@ const emit = defineEmits(['update:mark']);
 
 const chat = ref(null)
 const messages = ref([]);
+
+const fetchInterval = ref(null);
+const updateInterval = 5000;
 
 const messageInput = ref(null);
 const limitMessage = ref('');
@@ -180,6 +183,11 @@ const fileUpload = () => {
 
 const sendMessage = async () => {
     isLoading.value = true
+
+    if (fetchInterval.value) {
+        clearInterval(fetchInterval.value);
+    }
+
     const text = messageInput.value.value.trim();
 
     if (!text && attachedFiles.value.length === 0) return;
@@ -209,6 +217,7 @@ const sendMessage = async () => {
     } finally {
         isLoading.value = false
         limitMessage.value = '';
+        fetchInterval.value = setInterval(fetchMessages, updateInterval);
     }
 };
 
@@ -222,6 +231,14 @@ const deleteFile = (file) => {
 onMounted(async () => {
     await fetchChat()
     await fetchMessages();
+
+    fetchInterval.value = setInterval(fetchMessages, updateInterval);
+});
+
+onUnmounted(() => {
+    if (fetchInterval.value) {
+        clearInterval(fetchInterval.value);
+    }
 });
 
 watch(() => props.mark, (newVal) => {
@@ -229,8 +246,14 @@ watch(() => props.mark, (newVal) => {
 });
 
 watch(() => props.practicant, async (newPr) => {
+    if (fetchInterval.value) {
+        clearInterval(fetchInterval.value);
+    }
+
     await fetchChat()
     await fetchMessages()
+
+    fetchInterval.value = setInterval(fetchMessages, updateInterval);
 })
 </script>
 
