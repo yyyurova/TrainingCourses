@@ -99,7 +99,7 @@ const chat = ref(null)
 const messages = ref([]);
 
 const fetchInterval = ref(null);
-const updateInterval = 5000;
+const updateInterval = 500;
 
 const messageInput = ref(null);
 const limitMessage = ref('');

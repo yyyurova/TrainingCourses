@@ -56,7 +56,7 @@ const attachedFiles = ref([]);
 const isLoading = ref(false);
 
 const fetchInterval = ref(null);
-const updateInterval = 5000;
+const updateInterval = 500;
 
 const scrollToBottom = () => {
     const messagesContainer = document.getElementById('messages');

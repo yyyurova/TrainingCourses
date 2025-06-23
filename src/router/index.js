@@ -12,7 +12,7 @@ import AccessRejected from "@/pages/auth/AccessRejected.vue";
 
 const baseRoutes = [
     {
-        path: import.meta.env.VITE_BASE_URL,
+        path: import.meta.env.VITE_BASE_URL || '/',
         name: 'Authorization',
         component: Login,
         meta: {

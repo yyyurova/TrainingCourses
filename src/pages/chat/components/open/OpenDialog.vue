@@ -226,7 +226,7 @@ const sendMessage = async () => {
     }
     finally {
         limitMessage.value = ''
-        fetchInterval.value = setInterval(fetchMessages, 5000);
+        fetchInterval.value = setInterval(fetchMessages, 500);
     }
 };
 
@@ -263,7 +263,7 @@ onMounted(async () => {
     await fetchMembers()
     await fetchMessages()
 
-    fetchInterval.value = setInterval(fetchMessages, 5000);
+    fetchInterval.value = setInterval(fetchMessages, 500);
 })
 
 onUnmounted(() => {
