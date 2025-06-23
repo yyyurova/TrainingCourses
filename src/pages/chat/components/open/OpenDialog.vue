@@ -263,6 +263,10 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
 
+    &:has(.mobile-header) {
+        height: calc(100vh - 89px);
+    }
+
     .dialog-header {
         width: 100%;
         border-bottom: 1px solid #D9D9D9;
@@ -388,23 +392,20 @@ onMounted(async () => {
     .open {
 
         .dialog-header__inner {
-            margin: 15px 10px 10px 20px !important;
 
             &.mobile-header {
-                margin: 40px 10px 20px 20px !important;
+                margin: 20px 10px 15px 10px !important;
                 justify-content: center;
+                flex-direction: column;
 
-                .right-part {
-                    position: absolute;
-                    top: 0;
-                    right: 10px;
+                .am-members {
+                    text-align: center;
                 }
             }
         }
 
         .messages-in-chat {
-            padding: 15px;
-        }
+            padding: 15px;   }
     }
 }
 </style>

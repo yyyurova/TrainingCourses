@@ -204,6 +204,7 @@ onMounted(async () => {
         .mobile-full {
             max-width: 100% !important;
             width: 100% !important;
+            height: unset;
 
             :deep(.dialogs) {
                 padding: 0;

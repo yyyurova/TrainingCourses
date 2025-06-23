@@ -469,7 +469,6 @@ provide('user', user)
         gap: 9px;
         margin-left: 20px;
         margin-top: 20px;
-        cursor: pointer;
 
         span {
             word-break: break-all;

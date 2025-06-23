@@ -65,9 +65,10 @@ onBeforeUnmount(() => {
 
     &:has(.mobile-header) {
         flex-direction: column;
+        height: 100vh;
 
         .content {
-            margin: 10px 0 0 0 !important;
+            margin: 2px 0 0 0 !important;
         }
 
         :deep(.top) {
