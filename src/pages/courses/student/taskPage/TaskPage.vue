@@ -59,7 +59,6 @@ const fetchTask = async (id) => {
 
         try {
             commentChat.value = await getTaskChat(task.value.id, getUserId())
-            console.log(commentChat.value)
         } catch { commentChat.value = null }
     } finally {
         isLoading.value = false;

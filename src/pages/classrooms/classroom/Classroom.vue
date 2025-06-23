@@ -50,7 +50,8 @@
         <Loading v-if="isLoading" />
 
         <AddUsersToClassModal v-if="showAddUsersModal" @cancel="closeModal" @save="addMembers" />
-        <AddCuratorToClassModal v-if="showAddCuratorModal" @cancel="closeModal" @save="addCurator" />
+        <AddCuratorToClassModal v-if="showAddCuratorModal" @cancel="closeModal" @save="addCurator"
+            :course_id="classroom.course.id" />
 
         <ConfirmDelete v-if="showConfirmDeleteCuratorModal" :question="`Удалить куратора из класса ${classroom.title}?`"
             right-button-text="Удалить" @confirm="deleteCurator" @cancel="closeModal" />
@@ -176,6 +177,7 @@ const addMembers = async (members) => {
 
 const addCurator = async (curatorId) => {
     try {
+        if (!classroom.value.course.id) { return }
         isLoading.value = true
         closeModal()
 

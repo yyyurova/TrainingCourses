@@ -72,7 +72,6 @@ const fetchMessages = async () => {
         isLoading.value = true;
         messages.value = await getChatMessages(chatId.value);
         messages.value.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-        console.log(messages.value)
     } catch (error) {
         console.error('Ошибка загрузки сообщений:', error);
     } finally {

@@ -142,7 +142,6 @@ const isCurrentModuleCompleted = computed(() => {
     const currentModule = material.value.find(m => m.id == currentModuleId.value)
     const currentModulePages = currentModule.pages.map(p => p.id)
     const complPages = new Set(activity.value.map(a => a.course_module_page_id))
-    console.log(currentModulePages, complPages, currentModulePages.every(pageId => complPages.has(pageId)))
     return currentModulePages.every(pageId => complPages.has(pageId))
 })
 
@@ -452,8 +451,6 @@ watch(() => route.params, async (newParams) => {
 
 onMounted(async () => {
     await fetchMaterial()
-
-    console.log(isCurrentModuleCompleted.value)
 });
 
 provide('material', material);

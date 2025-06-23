@@ -34,6 +34,8 @@ import Loading from '@/components/Loading.vue';
 
 const emit = defineEmits(['cancel', 'save']);
 
+const props = defineProps({ course_id: Number })
+
 const availableCurators = ref([])
 const selectedCurator = ref(null)
 
@@ -42,7 +44,7 @@ const isLoading = ref(false)
 const fetchUsers = async () => {
     try {
         isLoading.value = true
-        const data = await getUsers({ role: 'curator', status: 'approved' })
+        const data = await getUsers({ role: 'curator', status: 'approved', course_id: props.course_id })
         availableCurators.value = data.data
     } finally {
         isLoading.value = false

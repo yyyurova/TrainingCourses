@@ -41,6 +41,10 @@ import { getUsers } from '@/api/modules/adminUsers';
 
 const emit = defineEmits(['cancel', 'save']);
 
+const props = defineProps({
+    course_id: Number
+})
+
 const students = ref([])
 const curators = ref([])
 
@@ -50,7 +54,7 @@ const selectedCurator = ref(null);
 const fetchUsers = async () => {
     try {
         students.value = (await getUsers({ role: 'user', status: 'approved' })).data
-        curators.value = (await getUsers({ role: 'curator', status: 'approved' })).data
+        curators.value = (await getUsers({ role: 'curator', status: 'approved', course_id: props.course_id })).data
     } catch (error) {
         console.error('Ошибка загрузки пользователей:', error);
     }

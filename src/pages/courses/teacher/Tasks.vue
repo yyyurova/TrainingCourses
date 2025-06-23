@@ -168,7 +168,6 @@ const createTask = async (task) => {
 
         await Promise.all(resp.students.map(async (s) => {
             const response = await createChatForTask(`Задание "${resp.name}"`, s.id, resp.id);
-            console.log(response)
         }));
 
         showMessage('Задание успешно создано', true)
@@ -184,7 +183,6 @@ const editTask = async (updatedTask) => {
     try {
         isLoading.value = true;
         closeModal();
-        console.log(updatedTask.id, updatedTask, course.value.id)
 
         try {
             await updateTask(updatedTask.id, updatedTask, course.value.id)

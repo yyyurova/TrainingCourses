@@ -12,13 +12,13 @@
                     </div>
                     <button class="blue" @click="continueStudy(course.id)">Продолжить обучение</button>
                 </Card>
-               
+
                 <Card class="teacher" v-if="teacherName">
                     <div class="top">
                         <p>Куратор</p>
                         <span class="teacher-name">{{ teacherName }}</span>
                     </div>
-                  
+
                     <button class="transparent border">Написать сообщение</button>
                 </Card>
             </div>
@@ -39,7 +39,7 @@
         </div>
 
         <Loading v-if="isLoading" />
-        
+
         <div v-if="!course && !isLoading">
             <p>Курс не найден</p>
         </div>
@@ -96,7 +96,6 @@ const fetchCourse = async (id) => {
 const fetchCourseActivity = async () => {
     try {
         activity.value = await getActiveDays(course.value.id)
-        console.log(activity.value)
     } finally {
         isLoading.value = false
     }

@@ -39,7 +39,7 @@ import AvatarLetter from '@/components/AvatarLetter.vue';
 const props = defineProps({
     chat: Object,
 })
-console.log(props.chat)
+
 const emit = defineEmits(['delete'])
 
 const getAvatarUrl = (avatarPath) => {

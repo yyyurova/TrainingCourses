@@ -69,12 +69,6 @@ export const deleteTask = async (taskId) => {
 
 export const updateTask = async (taskId, newTask, courseId) => {
     try {
-        console.log({
-            name: newTask.name,
-            text: newTask.text,
-            until: newTask.until,
-            course_id: courseId
-        })
         const response = await client.post(`${ENDPOINTS.TASK}/${taskId}`, {
             name: newTask.name,
             text: newTask.text,

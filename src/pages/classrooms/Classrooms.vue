@@ -43,7 +43,8 @@
 
         <CreateClassroom v-if="showCreateModal" @cancel="closeModal" @next="openAddModal" />
 
-        <AddCuratorAndMEmbers v-if="showAddCuratorAndMembersModal" @cancel="closeModal" @save="handleSave" />
+        <AddCuratorAndMEmbers v-if="showAddCuratorAndMembersModal" @cancel="closeModal" @save="handleSave"
+            :course_id="createdClassroomCourseId" />
     </Layout>
 </template>
 
@@ -76,6 +77,9 @@ const showConfirmDeleteModal = ref(false)
 const showEditModal = ref(false)
 const showCreateModal = ref(false)
 const showAddCuratorAndMembersModal = ref(false)
+
+const createdClassroomId = ref(null);
+const createdClassroomCourseId = ref(null)
 
 const selectedClassroom = ref(null)
 
@@ -130,6 +134,7 @@ const openAddModal = async (classroomData) => {
             course_id: classroomData.course_id
         });
         createdClassroomId.value = response.id;
+        createdClassroomCourseId.value = response.course.id
         closeModal();
         showAddCuratorAndMembersModal.value = true;
     } catch (error) {
@@ -201,8 +206,6 @@ const fetchClassrooms = async () => {
         isLoading.value = false;
     }
 };
-
-const createdClassroomId = ref(null);
 
 onMounted(async () => {
     await fetchClassrooms()
