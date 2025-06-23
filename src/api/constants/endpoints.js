@@ -1,26 +1,28 @@
 export const ENDPOINTS = {
-    LOGIN: import.meta.env.VITE_ENDPOINT_LOGIN,
-    REGISTER: import.meta.env.VITE_ENDPOINT_REGISTER,
-    GOOGLE_CALLBACK: import.meta.env.VITE_ENDPOINT_GOOGLE_CALLBACK,
+    LOGIN: '/login',
+    REGISTER: '/register',
 
-    ADMIN_COURSE: import.meta.env.VITE_ENDPOINT_ADMIN_COURSE,
-    ADMIN_USERS: import.meta.env.VITE_ENDPOINT_ADMIN_USERS,
-    ADMIN_CLASS: import.meta.env.VITE_ENDPOINT_ADMIN_CLASS,
-    ADMIN_MODULE: import.meta.env.VITE_ENDPOINT_ADMIN_MODULE,
+    ADMIN_COURSE: '/admin/course',
+    ADMIN_USERS: '/admin/users',
+    ADMIN_CLASS: '/admin/class',
+    ADMIN_MODULE: '/admin/course/module',
 
-    CHAT: import.meta.env.VITE_ENDPOINT_CHAT,
+    CHAT: '/chat',
+    COURSES: '/courses',
 
-    COURSES: import.meta.env.VITE_ENDPOINT_COURSES,
-    MODULES: import.meta.env.VITE_ENDPOINT_MODULES,
+    MODULES: '/modules',
 
-    USERS: import.meta.env.VITE_ENDPOINT_USERS,
-    PROFILE: import.meta.env.VITE_ENDPOINT_PROFILE,
+    USERS: '/users',
 
-    CURATOR_STUDENTS: import.meta.env.VITE_ENDPOINT_CURATOR_STUDENTS,
-    CURATOR_COURSES: import.meta.env.VITE_ENDPOINT_CURATOR_COURSES,
+    PROFILE: '/user',
 
-    TASK: import.meta.env.VITE_ENDPOINT_TASK,
-    ATTACHMENTS: import.meta.env.VITE_ENDPOINT_ATTACHMENTS,
+    CURATOR_STUDENTS: '/curator/students',
+    CURATOR_COURSES: '/curator/courses',
 
-    ANSWERS: import.meta.env.VITE_ENDPOINT_ANSWERS
-};
+    TASK: '/task',
+    ATTACHMENTS: '/attachments',
+
+    ANSWERS: '/question-answers',
+
+    GOOGLE_CALLBACK: '/google/callback'
+}
