@@ -45,8 +45,6 @@
                     <Message v-for="message in messages" :key="message.id" :message="message" />
                 </div>
 
-                <Loading v-else-if="isLoading" />
-
                 <div class="no-items" v-else>
                     <p>В чате нет сообщений</p>
                 </div>
@@ -85,7 +83,6 @@ import Card from '@/components/Card.vue';
 import AvatarLetter from '@/components/AvatarLetter.vue';
 import Message from '@/components/Message.vue';
 import FileCard from '@/pages/chat/components/open/components/FileCard.vue';
-import Loading from '@/components/Loading.vue';
 
 const props = defineProps({
     practicant: Object,
@@ -104,7 +101,6 @@ const updateInterval = 500;
 const messageInput = ref(null);
 const limitMessage = ref('');
 const attachedFiles = ref([]);
-const isLoading = ref(false);
 
 const localMark = ref(props.mark || '');
 
@@ -136,22 +132,21 @@ const scrollToBottom = () => {
 
 const fetchMessages = async () => {
     try {
-        isLoading.value = true;
         messages.value = await getChatMessages(chat.value.id);
         messages.value.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     } catch (error) {
         console.error('Ошибка загрузки сообщений:', error);
     } finally {
-        isLoading.value = false;
         nextTick(() => { scrollToBottom() });
     }
 };
 
 const fetchChat = async () => {
     try {
-        isLoading.value = true
         chat.value = await getTaskChat(props.taskId, props.practicant.id)
-    } finally { isLoading.value = false }
+    } catch (err) {
+        console.log(err)
+    }
 }
 
 const fileUpload = () => {
@@ -182,8 +177,6 @@ const fileUpload = () => {
 };
 
 const sendMessage = async () => {
-    isLoading.value = true
-
     if (fetchInterval.value) {
         clearInterval(fetchInterval.value);
     }
@@ -215,7 +208,6 @@ const sendMessage = async () => {
     } catch (error) {
         console.error('Ошибка отправки комментария', error);
     } finally {
-        isLoading.value = false
         limitMessage.value = '';
         fetchInterval.value = setInterval(fetchMessages, updateInterval);
     }

@@ -7,8 +7,6 @@
                 <Message v-for="message in messages" :key="message.id" :message="message" />
             </div>
 
-            <Loading v-else-if="isLoading" />
-
             <div class="no-items" v-else>
                 <p>В чате нет сообщений</p>
             </div>
@@ -43,7 +41,6 @@ import { getChatMessages, createMessage } from '@/api/modules/chat';
 import Card from '@/components/Card.vue';
 import FileCard from '@/pages/chat/components/open/components/FileCard.vue';
 import Message from '@/components/Message.vue';
-import Loading from '@/components/Loading.vue';
 
 const props = defineProps({ chat: Object })
 
@@ -53,7 +50,6 @@ const messages = ref([]);
 const messageInput = ref(null);
 const limitMessage = ref('');
 const attachedFiles = ref([]);
-const isLoading = ref(false);
 
 const fetchInterval = ref(null);
 const updateInterval = 500;
@@ -69,13 +65,11 @@ const fetchMessages = async () => {
     if (!chatId.value) return;
 
     try {
-        isLoading.value = true;
         messages.value = await getChatMessages(chatId.value);
         messages.value.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     } catch (error) {
         console.error('Ошибка загрузки сообщений:', error);
     } finally {
-        isLoading.value = false;
         nextTick(() => { scrollToBottom() });
     }
 };
