@@ -63,7 +63,7 @@ const editTask = () => {
     }
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1480px) {
     .card.task {
         width: calc(50% - 5px) !important;
     }
